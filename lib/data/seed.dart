@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import '../models/models.dart';
 
 /// Foto di esempio (Unsplash). La larghezza viene adattata allo schermo.
@@ -661,4 +663,124 @@ class Seed {
           'meritavano. Il risultato è andato oltre ogni aspettativa.',
     ),
   ];
+
+  // ------------------------------------------------------------ area clienti
+
+  /// Credenziali del cliente di prova (solo per vedere l'area clienti: si
+  /// elimina dal gestionale).
+  static const demoEmail = 'demo@mirocostruzioni.it';
+  static const demoPassword = 'cantiere2026';
+
+  static ClientAccount demoClient() => ClientAccount(
+    id: 'c-demo',
+    name: 'Famiglia Lorusso',
+    email: demoEmail,
+    phone: '+39 333 765 4321',
+    notes: 'Cliente di prova: si può eliminare.',
+  );
+
+  static String _textFile(String text) =>
+      'data:text/plain;base64,${base64Encode(utf8.encode(text))}';
+
+  static List<Worksite> demoWorksites(String clientId) {
+    final now = DateTime.now();
+    final crono = _textFile(
+      'Casa Lorusso - cronoprogramma\n\n'
+      'Demolizioni: completate\n'
+      'Impianti: in corso, fine prevista tra due settimane\n'
+      'Massetti e pavimenti: a seguire\n'
+      'Finiture e pulizia: ultime due settimane\n',
+    );
+    final capitolato = _textFile(
+      'Capitolato lavori - Casa Lorusso\n\n'
+      'Pavimenti: gres effetto legno 20x120\n'
+      'Bagni: sanitari sospesi, doccia a filo pavimento\n'
+      'Serramenti: PVC bianco con vetrocamera\n',
+    );
+    return [
+      Worksite(
+        id: 'w-demo',
+        clientId: clientId,
+        title: 'Casa Lorusso, ristrutturazione',
+        address: 'Via Sparano 41, Bari',
+        start: '12 gennaio 2026',
+        end: 'Giugno 2026',
+        status: WorksiteStatus.inCorso,
+        progress: 62,
+        phase: 'Impianti',
+        description:
+            'Ristrutturazione completa dell\'appartamento al terzo piano: nuova '
+            'distribuzione degli spazi, impianti rifatti, due bagni e cucina aperta '
+            'sul soggiorno.',
+        cover: _u('1600607687939-ce8a6c25118c'),
+        steps: [
+          WorksiteStep(
+            title: 'Sopralluogo e progetto',
+            date: 'Dicembre 2025',
+            done: true,
+          ),
+          WorksiteStep(
+            title: 'Pratiche e permessi',
+            date: 'Gennaio 2026',
+            done: true,
+          ),
+          WorksiteStep(title: 'Demolizioni', date: 'Febbraio 2026', done: true),
+          WorksiteStep(title: 'Impianti', date: 'Marzo 2026'),
+          WorksiteStep(title: 'Massetti e pavimenti', date: 'Aprile 2026'),
+          WorksiteStep(title: 'Finiture e consegna', date: 'Giugno 2026'),
+        ],
+        updates: [
+          WorksiteUpdate(
+            date: now.subtract(const Duration(days: 2)),
+            title: 'Impianto elettrico quasi finito',
+            text:
+                'Abbiamo completato le tracce e passato i cavi in tutte le stanze. '
+                'Settimana prossima arriva l\'idraulico per i bagni.',
+            photos: [_u('1621905251189-08b45d6a269e')],
+          ),
+          WorksiteUpdate(
+            date: now.subtract(const Duration(days: 16)),
+            title: 'Demolizioni finite',
+            text:
+                'Pareti tolte come da progetto e macerie già portate via. Ora la '
+                'casa è un unico ambiente: venite a vederla quando volete.',
+            photos: [_u('1517581177682-a085bb7ffb15')],
+          ),
+        ],
+        files: [
+          WorksiteFile(
+            name: 'Cronoprogramma.txt',
+            mime: 'text/plain',
+            size: 210,
+            data: crono,
+            note: 'Aggiornato a questa settimana.',
+            uploadedAt: now.subtract(const Duration(days: 2)),
+          ),
+          WorksiteFile(
+            name: 'Capitolato.txt',
+            mime: 'text/plain',
+            size: 160,
+            data: capitolato,
+            note: 'Materiali e finiture scelti insieme.',
+            uploadedAt: now.subtract(const Duration(days: 30)),
+          ),
+        ],
+        messages: [
+          WorksiteMessage(
+            fromClient: false,
+            text:
+                'Buongiorno! Da qui potete seguire il cantiere e scaricare i '
+                'documenti. Per qualsiasi domanda scriveteci pure.',
+            date: now.subtract(const Duration(days: 20)),
+            read: true,
+          ),
+          WorksiteMessage(
+            fromClient: true,
+            text: 'Grazie! Possiamo passare sabato mattina a vedere i lavori?',
+            date: now.subtract(const Duration(days: 1)),
+          ),
+        ],
+      ),
+    ];
+  }
 }

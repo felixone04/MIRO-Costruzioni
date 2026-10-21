@@ -13,6 +13,7 @@ import 'common.dart';
 import 'theme_switcher.dart';
 
 const navItems = <(String, String)>[
+  ('Home', '/'),
   ('Progetti', '/progetti'),
   ('Servizi', '/servizi'),
   ('Azienda', '/azienda'),
@@ -201,7 +202,7 @@ class _Header extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final wide = context.w >= 900;
+    final wide = context.w >= 1080;
     final fg = transparent ? Colors.white : Site.ink;
     return AnimatedContainer(
       duration: const Duration(milliseconds: 350),
@@ -243,14 +244,91 @@ class _Header extends StatelessWidget {
                 padding: const EdgeInsets.only(left: 34),
                 child: HoverLink(
                   label,
-                  active: current.startsWith(path),
+                  active: path == '/'
+                      ? current == '/'
+                      : current.startsWith(path),
                   onTap: () => onGo(path),
                   style: siteLabel(15, color: fg, weight: FontWeight.w500),
                 ),
-              )
-          else
+              ),
+          if (wide) ...[
+            const SizedBox(width: 30),
+            _ClientButton(
+              color: fg,
+              active: current.startsWith('/area-clienti'),
+              onTap: () => onGo('/area-clienti'),
+            ),
+          ] else
             _MenuButton(open: menuOpen, color: fg, onTap: onMenu),
         ],
+      ),
+    );
+  }
+}
+
+/// Pillola "Area clienti" in fondo alla barra.
+class _ClientButton extends StatefulWidget {
+  const _ClientButton({
+    required this.color,
+    required this.active,
+    required this.onTap,
+  });
+  final Color color;
+  final bool active;
+  final VoidCallback onTap;
+
+  @override
+  State<_ClientButton> createState() => _ClientButtonState();
+}
+
+class _ClientButtonState extends State<_ClientButton> {
+  bool _hover = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final on = _hover || widget.active;
+    final logged = context.watch<AppState>().currentClient != null;
+    return Semantics(
+      button: true,
+      label: 'Area clienti',
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        onEnter: (_) => setState(() => _hover = true),
+        onExit: (_) => setState(() => _hover = false),
+        child: GestureDetector(
+          onTap: widget.onTap,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 250),
+            height: 40,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            decoration: BoxDecoration(
+              color: on ? Site.accent : Colors.transparent,
+              borderRadius: BorderRadius.circular(40),
+              border: Border.all(
+                color: on ? Site.accent : widget.color.withValues(alpha: 0.4),
+              ),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  logged ? Icons.person_rounded : Icons.person_outline_rounded,
+                  size: 18,
+                  color: on ? Site.onAccent : widget.color,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  'Area clienti',
+                  style: siteLabel(
+                    14,
+                    color: on ? Site.onAccent : widget.color,
+                    weight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -312,7 +390,7 @@ class _MobileMenu extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.watch<AppState>().content.contacts;
-    final items = [('Home', '/'), ...navItems];
+    const items = [...navItems, ('Area clienti', '/area-clienti')];
     return Material(
       color: Site.paper,
       child: SafeArea(
@@ -453,7 +531,10 @@ class _Footer extends StatelessWidget {
     );
 
     final nav = col('Pagine', [
-      for (final (label, path) in [('Home', '/'), ...navItems])
+      for (final (label, path) in [
+        ...navItems,
+        ('Area clienti', '/area-clienti'),
+      ])
         HoverLink(label, onTap: () => onGo(path), style: linkStyle),
     ]);
 

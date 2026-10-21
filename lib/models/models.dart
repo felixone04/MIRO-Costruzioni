@@ -724,3 +724,274 @@ class AdminSettings {
     'sessionUntil': sessionUntil?.toIso8601String(),
   };
 }
+
+// ============================================================ AREA CLIENTI
+
+/// Account di un cliente (privato o azienda). Lo crea solo il titolare dal
+/// gestionale: dal sito non ci si può registrare.
+class ClientAccount {
+  String id;
+  String name; // persona o ragione sociale
+  String email; // usata per entrare
+  String phone;
+  String notes; // appunti interni
+  String passwordHash;
+  String passwordSalt;
+  bool active;
+  DateTime createdAt;
+  DateTime? lastLogin;
+
+  ClientAccount({
+    String? id,
+    required this.name,
+    required this.email,
+    this.phone = '',
+    this.notes = '',
+    this.passwordHash = '',
+    this.passwordSalt = '',
+    this.active = true,
+    DateTime? createdAt,
+    this.lastLogin,
+  }) : id = id ?? newId(),
+       createdAt = createdAt ?? DateTime.now();
+
+  factory ClientAccount.fromJson(Map<String, dynamic> j) => ClientAccount(
+    id: j['id'],
+    name: j['name'] ?? '',
+    email: j['email'] ?? '',
+    phone: j['phone'] ?? '',
+    notes: j['notes'] ?? '',
+    passwordHash: j['passwordHash'] ?? '',
+    passwordSalt: j['passwordSalt'] ?? '',
+    active: j['active'] ?? true,
+    createdAt: DateTime.tryParse(j['createdAt'] ?? ''),
+    lastLogin: DateTime.tryParse(j['lastLogin'] ?? ''),
+  );
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'name': name,
+    'email': email,
+    'phone': phone,
+    'notes': notes,
+    'passwordHash': passwordHash,
+    'passwordSalt': passwordSalt,
+    'active': active,
+    'createdAt': createdAt.toIso8601String(),
+    'lastLogin': lastLogin?.toIso8601String(),
+  };
+}
+
+enum WorksiteStatus { preparazione, inCorso, sospeso, completato }
+
+extension WorksiteStatusLabel on WorksiteStatus {
+  String get label => switch (this) {
+    WorksiteStatus.preparazione => 'In preparazione',
+    WorksiteStatus.inCorso => 'Lavori in corso',
+    WorksiteStatus.sospeso => 'Sospeso',
+    WorksiteStatus.completato => 'Completato',
+  };
+}
+
+/// Una fase del cantiere (es. "Demolizioni"), spuntata quando è finita.
+class WorksiteStep {
+  String title;
+  String date; // testo libero, es. "Marzo 2026"
+  bool done;
+  WorksiteStep({required this.title, this.date = '', this.done = false});
+
+  factory WorksiteStep.fromJson(Map<String, dynamic> j) => WorksiteStep(
+    title: j['title'] ?? '',
+    date: j['date'] ?? '',
+    done: j['done'] ?? false,
+  );
+  Map<String, dynamic> toJson() => {'title': title, 'date': date, 'done': done};
+}
+
+/// Un aggiornamento pubblicato per il cliente: testo e foto.
+class WorksiteUpdate {
+  String id;
+  DateTime date;
+  String title;
+  String text;
+  List<String> photos;
+  WorksiteUpdate({
+    String? id,
+    DateTime? date,
+    required this.title,
+    this.text = '',
+    List<String>? photos,
+  }) : id = id ?? newId(),
+       date = date ?? DateTime.now(),
+       photos = photos ?? [];
+
+  factory WorksiteUpdate.fromJson(Map<String, dynamic> j) => WorksiteUpdate(
+    id: j['id'],
+    date: DateTime.tryParse(j['date'] ?? ''),
+    title: j['title'] ?? '',
+    text: j['text'] ?? '',
+    photos: _strings(j['photos']),
+  );
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'date': date.toIso8601String(),
+    'title': title,
+    'text': text,
+    'photos': photos,
+  };
+}
+
+/// Un documento da scaricare (preventivo, contratto, planimetria…).
+class WorksiteFile {
+  String id;
+  String name;
+  String mime;
+  int size; // byte
+  String data; // data URL (oggi) o indirizzo web (con un archivio online)
+  String note;
+  DateTime uploadedAt;
+  WorksiteFile({
+    String? id,
+    required this.name,
+    this.mime = '',
+    this.size = 0,
+    required this.data,
+    this.note = '',
+    DateTime? uploadedAt,
+  }) : id = id ?? newId(),
+       uploadedAt = uploadedAt ?? DateTime.now();
+
+  factory WorksiteFile.fromJson(Map<String, dynamic> j) => WorksiteFile(
+    id: j['id'],
+    name: j['name'] ?? 'documento',
+    mime: j['mime'] ?? '',
+    size: j['size'] ?? 0,
+    data: j['data'] ?? '',
+    note: j['note'] ?? '',
+    uploadedAt: DateTime.tryParse(j['uploadedAt'] ?? ''),
+  );
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'name': name,
+    'mime': mime,
+    'size': size,
+    'data': data,
+    'note': note,
+    'uploadedAt': uploadedAt.toIso8601String(),
+  };
+}
+
+/// Un messaggio del canale tra impresa e cliente.
+class WorksiteMessage {
+  String id;
+  bool fromClient;
+  String text;
+  DateTime date;
+  bool read; // letto da chi lo riceve
+  WorksiteMessage({
+    String? id,
+    required this.fromClient,
+    required this.text,
+    DateTime? date,
+    this.read = false,
+  }) : id = id ?? newId(),
+       date = date ?? DateTime.now();
+
+  factory WorksiteMessage.fromJson(Map<String, dynamic> j) => WorksiteMessage(
+    id: j['id'],
+    fromClient: j['fromClient'] ?? false,
+    text: j['text'] ?? '',
+    date: DateTime.tryParse(j['date'] ?? ''),
+    read: j['read'] ?? false,
+  );
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'fromClient': fromClient,
+    'text': text,
+    'date': date.toIso8601String(),
+    'read': read,
+  };
+}
+
+/// Il cantiere di un cliente, come lo vede nella sua area personale.
+class Worksite {
+  String id;
+  String clientId;
+  String title;
+  String address;
+  String start; // testo libero, es. "12 gennaio 2026"
+  String end; // fine prevista
+  WorksiteStatus status;
+  int progress; // 0–100
+  String phase; // fase attuale in due parole
+  String description;
+  String cover;
+  List<WorksiteStep> steps;
+  List<WorksiteUpdate> updates;
+  List<WorksiteFile> files;
+  List<WorksiteMessage> messages;
+
+  Worksite({
+    String? id,
+    required this.clientId,
+    required this.title,
+    this.address = '',
+    this.start = '',
+    this.end = '',
+    this.status = WorksiteStatus.inCorso,
+    this.progress = 0,
+    this.phase = '',
+    this.description = '',
+    this.cover = '',
+    List<WorksiteStep>? steps,
+    List<WorksiteUpdate>? updates,
+    List<WorksiteFile>? files,
+    List<WorksiteMessage>? messages,
+  }) : id = id ?? newId(),
+       steps = steps ?? [],
+       updates = updates ?? [],
+       files = files ?? [],
+       messages = messages ?? [];
+
+  int get unreadForAdmin =>
+      messages.where((m) => m.fromClient && !m.read).length;
+  int get unreadForClient =>
+      messages.where((m) => !m.fromClient && !m.read).length;
+
+  factory Worksite.fromJson(Map<String, dynamic> j) => Worksite(
+    id: j['id'],
+    clientId: j['clientId'] ?? '',
+    title: j['title'] ?? '',
+    address: j['address'] ?? '',
+    start: j['start'] ?? '',
+    end: j['end'] ?? '',
+    status: WorksiteStatus.values.firstWhere(
+      (e) => e.name == j['status'],
+      orElse: () => WorksiteStatus.inCorso,
+    ),
+    progress: ((j['progress'] ?? 0) as num).round().clamp(0, 100),
+    phase: j['phase'] ?? '',
+    description: j['description'] ?? '',
+    cover: j['cover'] ?? '',
+    steps: _list(j['steps'], WorksiteStep.fromJson),
+    updates: _list(j['updates'], WorksiteUpdate.fromJson),
+    files: _list(j['files'], WorksiteFile.fromJson),
+    messages: _list(j['messages'], WorksiteMessage.fromJson),
+  );
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'clientId': clientId,
+    'title': title,
+    'address': address,
+    'start': start,
+    'end': end,
+    'status': status.name,
+    'progress': progress,
+    'phase': phase,
+    'description': description,
+    'cover': cover,
+    'steps': steps.map((e) => e.toJson()).toList(),
+    'updates': updates.map((e) => e.toJson()).toList(),
+    'files': files.map((e) => e.toJson()).toList(),
+    'messages': messages.map((e) => e.toJson()).toList(),
+  };
+}

@@ -26,6 +26,11 @@ class AppState extends ChangeNotifier {
   List<ContactRequest> requests = [];
   List<Appointment> appointments = [];
   LookSettings look = LookSettings();
+  List<ClientAccount> clients = [];
+  List<Worksite> worksites = [];
+
+  /// Cliente entrato nella sua area personale (null = nessuno).
+  String? clientId;
   AdminSettings settings = AdminSettings();
 
   final GoogleCalendarService calendar = GoogleCalendarService();
@@ -46,6 +51,29 @@ class AppState extends ChangeNotifier {
         Seed.testimonials();
     requests = await _list('requests', ContactRequest.fromJson) ?? [];
     appointments = await _list('appointments', Appointment.fromJson) ?? [];
+
+    final storedClients = await _list('clients', ClientAccount.fromJson);
+    if (storedClients == null) {
+      // Primo avvio: un cliente di prova per vedere com'è l'area clienti.
+      final demo = Seed.demoClient();
+      _setPassword(demo, Seed.demoPassword);
+      clients = [demo];
+      worksites = Seed.demoWorksites(demo.id);
+    } else {
+      clients = storedClients;
+      worksites = await _list('worksites', Worksite.fromJson) ?? [];
+    }
+    final cs = await repo.read('clientSession');
+    if (cs is Map) {
+      final until = DateTime.tryParse('${cs['until']}');
+      final c = clientById(cs['id'] as String?);
+      if (c != null &&
+          c.active &&
+          until != null &&
+          DateTime.now().isBefore(until)) {
+        clientId = c.id;
+      }
+    }
 
     final l = await repo.read('look');
     look = l is Map
@@ -329,6 +357,173 @@ class AppState extends ChangeNotifier {
     return _persist('settings', settings.toJson());
   }
 
+  // ---------------------------------------------------------- area clienti
+
+  ClientAccount? clientById(String? id) {
+    for (final c in clients) {
+      if (c.id == id) return c;
+    }
+    return null;
+  }
+
+  Worksite? worksiteById(String? id) {
+    for (final w in worksites) {
+      if (w.id == id) return w;
+    }
+    return null;
+  }
+
+  /// Il cliente entrato nell'area personale.
+  ClientAccount? get currentClient {
+    final c = clientById(clientId);
+    return c != null && c.active ? c : null;
+  }
+
+  List<Worksite> worksitesOf(String? id) =>
+      worksites.where((w) => w.clientId == id).toList();
+
+  /// Messaggi dei clienti non ancora letti in gestionale.
+  int get unreadClientMessages =>
+      worksites.fold(0, (n, w) => n + w.unreadForAdmin);
+
+  static String normalizeEmail(String e) => e.trim().toLowerCase();
+
+  bool emailTaken(String email, {String? exceptId}) =>
+      clients.any((c) => c.id != exceptId && c.email == normalizeEmail(email));
+
+  void _setPassword(ClientAccount c, String pw) {
+    final r = Random.secure();
+    c.passwordSalt = base64Url.encode(
+      List<int>.generate(16, (_) => r.nextInt(256)),
+    );
+    c.passwordHash = _hash(c.passwordSalt, pw);
+  }
+
+  Future<void> _persistClients() =>
+      _persist('clients', clients.map((e) => e.toJson()).toList());
+
+  Future<void> _persistWorksites() =>
+      _persist('worksites', worksites.map((e) => e.toJson()).toList());
+
+  /// Crea l'account di un cliente con la password scelta dal titolare.
+  Future<ClientAccount> createClient({
+    required String name,
+    required String email,
+    required String password,
+    String phone = '',
+    String notes = '',
+  }) async {
+    final c = ClientAccount(
+      name: name.trim(),
+      email: normalizeEmail(email),
+      phone: phone.trim(),
+      notes: notes.trim(),
+    );
+    _setPassword(c, password);
+    clients = [...clients, c];
+    await _persistClients();
+    return c;
+  }
+
+  Future<void> updateClient(ClientAccount c) {
+    c.email = normalizeEmail(c.email);
+    clients = [for (final e in clients) e.id == c.id ? c : e];
+    if (!c.active && clientId == c.id) clientId = null;
+    return _persistClients();
+  }
+
+  Future<void> resetClientPassword(ClientAccount c, String password) {
+    _setPassword(c, password);
+    return _persistClients();
+  }
+
+  /// Elimina il cliente e i suoi cantieri.
+  Future<void> deleteClient(String id) async {
+    clients = clients.where((c) => c.id != id).toList();
+    worksites = worksites.where((w) => w.clientId != id).toList();
+    if (clientId == id) clientId = null;
+    await _persistWorksites();
+    await _persistClients();
+  }
+
+  /// Accesso del cliente. Restituisce un messaggio d'errore o null.
+  Future<String?> clientLogin(
+    String email,
+    String password, {
+    bool remember = true,
+  }) async {
+    final e = normalizeEmail(email);
+    final c = clients.where((c) => c.email == e).firstOrNull;
+    if (c == null || _hash(c.passwordSalt, password) != c.passwordHash) {
+      return 'Email o password non corrette.';
+    }
+    if (!c.active) {
+      return 'Questo accesso è stato sospeso: contatta l\'impresa.';
+    }
+    clientId = c.id;
+    c.lastLogin = DateTime.now();
+    await repo.write('clientSession', {
+      'id': c.id,
+      'until': remember
+          ? DateTime.now().add(const Duration(days: 30)).toIso8601String()
+          : DateTime.now().add(const Duration(hours: 8)).toIso8601String(),
+    });
+    await _persistClients();
+    return null;
+  }
+
+  Future<void> clientLogout() async {
+    clientId = null;
+    await repo.write('clientSession', <String, Object>{});
+    notifyListeners();
+  }
+
+  /// Il cliente cambia la propria password.
+  Future<bool> changeOwnPassword(String oldPw, String newPw) async {
+    final c = currentClient;
+    if (c == null || _hash(c.passwordSalt, oldPw) != c.passwordHash) {
+      return false;
+    }
+    _setPassword(c, newPw);
+    await _persistClients();
+    return true;
+  }
+
+  Future<void> saveWorksite(Worksite w) {
+    final i = worksites.indexWhere((e) => e.id == w.id);
+    worksites = i >= 0
+        ? [for (final e in worksites) e.id == w.id ? w : e]
+        : [w, ...worksites];
+    return _persistWorksites();
+  }
+
+  Future<void> deleteWorksite(String id) {
+    worksites = worksites.where((w) => w.id != id).toList();
+    return _persistWorksites();
+  }
+
+  /// Nuovo messaggio nel canale del cantiere.
+  Future<void> sendMessage(
+    Worksite w,
+    String text, {
+    required bool fromClient,
+  }) {
+    w.messages.add(WorksiteMessage(fromClient: fromClient, text: text.trim()));
+    return saveWorksite(w);
+  }
+
+  /// Segna come letti i messaggi ricevuti da chi sta guardando.
+  Future<void> markRead(Worksite w, {required bool byClient}) async {
+    var changed = false;
+    for (final m in w.messages) {
+      if (m.fromClient != byClient && !m.read) {
+        m.read = true;
+        changed = true;
+      }
+    }
+    if (changed) await saveWorksite(w);
+  }
+
   // ------------------------------------------------------------ admin auth
 
   bool get hasAdminPassword => settings.passwordHash.isNotEmpty;
@@ -396,6 +591,15 @@ class AppState extends ChangeNotifier {
     for (final t in content.team) {
       add(t.photo);
     }
+    for (final w in worksites) {
+      add(w.cover);
+      for (final u in w.updates) {
+        u.photos.forEach(add);
+      }
+      for (final f in w.files) {
+        add(f.data);
+      }
+    }
     for (final u in [
       content.logo,
       content.aboutImage,
@@ -415,6 +619,8 @@ class AppState extends ChangeNotifier {
     'requests',
     'appointments',
     'look',
+    'clients',
+    'worksites',
   ];
 
   /// Copia di sicurezza di tutti i dati in un'unica stringa JSON.
@@ -427,6 +633,8 @@ class AppState extends ChangeNotifier {
     'requests': requests.map((e) => e.toJson()).toList(),
     'appointments': appointments.map((e) => e.toJson()).toList(),
     'look': look.toJson(),
+    'clients': clients.map((e) => e.toJson()).toList(),
+    'worksites': worksites.map((e) => e.toJson()).toList(),
   });
 
   Future<void> importBackup(String raw) async {
@@ -449,6 +657,8 @@ class AppState extends ChangeNotifier {
       'testimonials': Testimonial.fromJson,
       'requests': ContactRequest.fromJson,
       'appointments': Appointment.fromJson,
+      'clients': ClientAccount.fromJson,
+      'worksites': Worksite.fromJson,
     };
     try {
       SiteContent.fromJson(

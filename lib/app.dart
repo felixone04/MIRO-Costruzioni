@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import 'pages/about_page.dart';
+import 'pages/client_area_page.dart';
 import 'pages/admin/admin_page.dart';
 import 'pages/contact_page.dart';
 import 'pages/home_page.dart';
@@ -91,6 +92,22 @@ GoRouter buildRouter(AppState state) => GoRouter(
       pageBuilder: (c, s) => _fade(s, const ContactPage()),
     ),
     GoRoute(
+      path: '/area-clienti',
+      pageBuilder: (c, s) => _fade(s, const ClientAreaPage()),
+      routes: [
+        GoRoute(
+          path: ':id',
+          pageBuilder: (c, s) => _fade(
+            s,
+            ClientAreaPage(
+              key: ValueKey(s.pathParameters['id']),
+              worksiteId: s.pathParameters['id'],
+            ),
+          ),
+        ),
+      ],
+    ),
+    GoRoute(
       path: '/admin',
       pageBuilder: (c, s) => NoTransitionPage(
         key: s.pageKey,
@@ -101,7 +118,10 @@ GoRouter buildRouter(AppState state) => GoRouter(
           path: ':section',
           pageBuilder: (c, s) => NoTransitionPage(
             key: s.pageKey,
-            child: AdminPage(section: s.pathParameters['section']),
+            child: AdminPage(
+              section: s.pathParameters['section'],
+              itemId: s.uri.queryParameters['id'],
+            ),
           ),
         ),
       ],

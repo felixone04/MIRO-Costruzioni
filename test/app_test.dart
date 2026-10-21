@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:miro_costruzioni/data/seed.dart';
 import 'package:miro_costruzioni/models/models.dart';
+import 'package:miro_costruzioni/state/app_state.dart';
 import 'package:miro_costruzioni/theme/site_theme.dart';
 import 'package:miro_costruzioni/widgets/theme_switcher.dart';
 
@@ -19,6 +21,7 @@ void main() {
       '/azienda',
       '/contatti',
       '/servizi?s=s-restauro',
+      '/area-clienti',
       '/admin',
     ];
     for (final size in screenSizes) {
@@ -50,6 +53,9 @@ void main() {
       'azienda',
       'contatti',
       'impostazioni',
+      'clienti',
+      'cantieri',
+      'cantieri?id=w-demo',
     ];
     for (final size in [screenSizes[0], screenSizes[2], screenSizes[4]]) {
       testWidgets('tutte le sezioni a ${sizeName(size)}', (t) async {
@@ -167,6 +173,109 @@ void main() {
       final ids = s.offeredThemes.map((e) => e.id);
       expect(ids, contains('bordeaux'));
       expect(ids, isNot(contains('salvia')));
+    });
+  });
+
+  group('Area clienti', () {
+    for (final size in [screenSizes[0], screenSizes[2], screenSizes[4]]) {
+      testWidgets(
+        'il cliente entra e vede il suo cantiere a ${sizeName(size)}',
+        (t) async {
+          final s = await loadState();
+          await pumpApp(t, s, location: '/area-clienti', size: size);
+          final fields = find.byType(TextField);
+          await t.enterText(fields.at(0), Seed.demoEmail);
+          await t.enterText(fields.at(1), Seed.demoPassword);
+          await bringIntoView(t, find.text('Entra'));
+          await t.tap(find.text('Entra'));
+          await settle(t, 1200);
+          expect(s.currentClient?.email, Seed.demoEmail);
+          expect(find.text('Casa Lorusso, ristrutturazione'), findsOneWidget);
+
+          await goTo(t, '/area-clienti/w-demo');
+          await scrollThrough(t);
+          expect(t.takeException(), isNull);
+          expect(find.text('Documenti'), findsOneWidget);
+          // Aprendo il cantiere i messaggi dell'impresa risultano letti.
+          expect(s.worksiteById('w-demo')!.unreadForClient, 0);
+
+          await t.enterText(find.byType(TextField).last, 'Ci vediamo sabato.');
+          await bringIntoView(t, find.bySemanticsLabel('Invia messaggio'));
+          await t.tap(find.bySemanticsLabel('Invia messaggio'));
+          await settle(t, 600);
+          expect(
+            s.worksiteById('w-demo')!.messages.last.text,
+            'Ci vediamo sabato.',
+          );
+          expect(s.worksiteById('w-demo')!.messages.last.fromClient, isTrue);
+          await disposeApp(t);
+        },
+      );
+    }
+
+    test('password sbagliata, account sospeso e clienti separati', () async {
+      final s = await loadState();
+      expect(await s.clientLogin(Seed.demoEmail, 'sbagliata'), isNotNull);
+      expect(s.currentClient, isNull);
+
+      final other = await s.createClient(
+        name: 'Rossi Srl',
+        email: ' Info@Rossi.IT ',
+        password: 'password-rossi',
+      );
+      expect(other.email, 'info@rossi.it');
+      expect(s.emailTaken('INFO@rossi.it'), isTrue);
+      expect(await s.clientLogin('info@rossi.it', 'password-rossi'), isNull);
+      // Rossi non ha cantieri: quello di prova è di un altro cliente.
+      expect(s.worksitesOf(s.currentClient!.id), isEmpty);
+
+      other.active = false;
+      await s.updateClient(other);
+      expect(s.currentClient, isNull);
+      expect(
+        await s.clientLogin('info@rossi.it', 'password-rossi'),
+        contains('sospeso'),
+      );
+
+      await s.resetClientPassword(other, 'nuova-password');
+      other.active = true;
+      await s.updateClient(other);
+      expect(await s.clientLogin('info@rossi.it', 'password-rossi'), isNotNull);
+      expect(await s.clientLogin('info@rossi.it', 'nuova-password'), isNull);
+    });
+
+    test('la sessione del cliente resta dopo il riavvio', () async {
+      final repo = MemoryRepository();
+      final a = AppState(repo);
+      await a.load();
+      await a.clientLogin(Seed.demoEmail, Seed.demoPassword);
+      final b = AppState(repo);
+      await b.load();
+      expect(b.currentClient?.email, Seed.demoEmail);
+      await b.clientLogout();
+      final c = AppState(repo);
+      await c.load();
+      expect(c.currentClient, isNull);
+    });
+
+    test('il cliente cambia la propria password', () async {
+      final s = await loadState();
+      await s.clientLogin(Seed.demoEmail, Seed.demoPassword);
+      expect(await s.changeOwnPassword('sbagliata', 'nuova-password'), isFalse);
+      expect(
+        await s.changeOwnPassword(Seed.demoPassword, 'nuova-password'),
+        isTrue,
+      );
+      await s.clientLogout();
+      expect(await s.clientLogin(Seed.demoEmail, 'nuova-password'), isNull);
+    });
+
+    test('eliminare un cliente toglie anche i suoi cantieri', () async {
+      final s = await loadState();
+      expect(s.worksitesOf('c-demo'), isNotEmpty);
+      await s.deleteClient('c-demo');
+      expect(s.worksites, isEmpty);
+      expect(s.clients, isEmpty);
     });
   });
 

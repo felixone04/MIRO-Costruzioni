@@ -9,6 +9,7 @@ import '../../widgets/brand_logo.dart';
 import '../../widgets/common.dart';
 import 'admin_calendar.dart';
 import 'admin_catalog.dart';
+import 'admin_clients.dart';
 import 'admin_content.dart';
 import 'admin_dashboard.dart';
 import 'admin_look.dart';
@@ -35,6 +36,13 @@ const _groups = <(String, List<_Section>)>[
     ],
   ),
   (
+    'Area clienti',
+    [
+      _Section('clienti', 'Clienti', Icons.people_outline_rounded),
+      _Section('cantieri', 'Cantieri', Icons.foundation_outlined),
+    ],
+  ),
+  (
     'Portfolio',
     [
       _Section('progetti', 'Progetti', Icons.apartment_outlined),
@@ -57,15 +65,20 @@ const _groups = <(String, List<_Section>)>[
 final _sections = [for (final g in _groups) ...g.$2];
 
 class AdminPage extends StatelessWidget {
-  const AdminPage({super.key, required this.section});
+  const AdminPage({super.key, required this.section, this.itemId});
   final String? section;
+
+  /// Elemento da aprire nella sezione (es. un cantiere).
+  final String? itemId;
 
   @override
   Widget build(BuildContext context) {
     final s = context.watch<AppState>();
     return Theme(
       data: AppTheme.admin(),
-      child: s.adminAuthenticated ? _Shell(section: section) : const _Login(),
+      child: s.adminAuthenticated
+          ? _Shell(section: section, itemId: itemId)
+          : const _Login(),
     );
   }
 }
@@ -292,8 +305,9 @@ class _LoginState extends State<_Login> {
 // ======================================================================== SHELL
 
 class _Shell extends StatefulWidget {
-  const _Shell({required this.section});
+  const _Shell({required this.section, this.itemId});
   final String? section;
+  final String? itemId;
 
   @override
   State<_Shell> createState() => _ShellState();
@@ -310,6 +324,13 @@ class _ShellState extends State<_Shell> {
     final page = switch (_current) {
       'richieste' => const AdminPageScroll(child: AdminRequests()),
       'calendario' => const AdminPageScroll(child: AdminCalendar()),
+      'clienti' => const AdminPageScroll(child: AdminClients()),
+      'cantieri' => switch (context.read<AppState>().worksiteById(
+        widget.itemId,
+      )) {
+        final w? => AdminWorksiteEditor(key: ValueKey(w.id), worksite: w),
+        null => const AdminPageScroll(child: AdminWorksites()),
+      },
       'progetti' => const AdminPageScroll(child: AdminProjects()),
       'servizi' => const AdminPageScroll(child: AdminServices()),
       'testimonianze' => const AdminPageScroll(child: AdminTestimonials()),
@@ -320,7 +341,10 @@ class _ShellState extends State<_Shell> {
       'impostazioni' => const AdminPageScroll(child: AdminSettingsPage()),
       _ => const AdminPageScroll(child: AdminDashboard()),
     };
-    return KeyedSubtree(key: ValueKey(_current), child: page);
+    return KeyedSubtree(
+      key: ValueKey('$_current/${widget.itemId}'),
+      child: page,
+    );
   }
 
   void _select(String id) {
@@ -411,9 +435,12 @@ class _NavPanel extends StatelessWidget {
                       _NavItem(
                         section: sec,
                         selected: sec.id == current,
-                        badge: sec.id == 'richieste' && s.newRequests > 0
-                            ? s.newRequests
-                            : null,
+                        badge: switch (sec.id) {
+                          'richieste' when s.newRequests > 0 => s.newRequests,
+                          'cantieri' when s.unreadClientMessages > 0 =>
+                            s.unreadClientMessages,
+                          _ => null,
+                        },
                         onTap: () => onSelect(sec.id),
                       ),
                   ],
