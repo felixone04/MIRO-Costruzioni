@@ -85,7 +85,7 @@ class _LightboxState extends State<_Lightbox> {
                   children: [
                     Text(
                       '${(_i + 1).toString().padLeft(2, '0')} / ${widget.photos.length.toString().padLeft(2, '0')}',
-                      style: siteMono(13, color: Colors.white),
+                      style: siteLabel(13, color: Colors.white),
                     ),
                     const Spacer(),
                     IconButton(

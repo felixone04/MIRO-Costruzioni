@@ -398,8 +398,6 @@ class AppState extends ChangeNotifier {
     }
     for (final u in [
       content.logo,
-      content.quoteImage,
-      content.ctaImage,
       content.aboutImage,
       content.aboutImage2,
       content.contactImage,

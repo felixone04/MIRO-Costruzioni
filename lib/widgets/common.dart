@@ -18,6 +18,9 @@ Future<void> openUrl(String url) async {
 /// Solo cifre e "+", per i link tel: e WhatsApp.
 String phoneDigits(String phone) => phone.replaceAll(RegExp(r'[^0-9+]'), '');
 
+String mapsUrl(String address) =>
+    'https://www.google.com/maps/search/?api=1&query=${Uri.encodeComponent(address)}';
+
 // ------------------------------------------------------------------ immagini
 
 final _dataCache = <String, Uint8List>{};
@@ -55,16 +58,16 @@ class PhotoImage extends StatelessWidget {
   final BoxFit fit;
   final Alignment alignment;
 
-  /// Fondo scuro durante il caricamento (foto su sezioni scure).
+  /// Fondo scuro durante il caricamento (foto su parti scure).
   final bool dark;
 
-  Color get _bg => dark ? Site.steel : Palette.linen;
+  Color get _bg => dark ? Site.night : Site.concrete;
 
   Widget _placeholder() => ColoredBox(
     color: _bg,
     child: Center(
       child: Icon(
-        Icons.apartment_rounded,
+        Icons.home_work_outlined,
         color: dark ? Site.mutedDark : Palette.ash,
         size: 28,
       ),
@@ -124,8 +127,19 @@ class PhotoImage extends StatelessWidget {
   }
 }
 
+/// Angoli arrotondati.
+class Rounded extends StatelessWidget {
+  const Rounded({super.key, required this.child, this.radius = Radii.photo});
+  final Widget child;
+  final double radius;
+
+  @override
+  Widget build(BuildContext context) =>
+      ClipRRect(borderRadius: BorderRadius.circular(radius), child: child);
+}
+
 /// Foto che scorre più lentamente della pagina (effetto profondità).
-class ParallaxImage extends StatefulWidget {
+class ParallaxImage extends StatelessWidget {
   const ParallaxImage(
     this.url, {
     super.key,
@@ -139,20 +153,15 @@ class ParallaxImage extends StatefulWidget {
   final bool dark;
 
   @override
-  State<ParallaxImage> createState() => _ParallaxImageState();
-}
-
-class _ParallaxImageState extends State<ParallaxImage> {
-  @override
   Widget build(BuildContext context) {
     final scrollable = Scrollable.maybeOf(context);
-    final image = PhotoImage(widget.url, dark: widget.dark);
+    final image = PhotoImage(url, dark: dark);
     if (scrollable == null) return image;
     return Flow(
       delegate: _ParallaxDelegate(
         scrollable: scrollable,
         itemContext: context,
-        extent: widget.extent,
+        extent: extent,
       ),
       children: [image],
     );
@@ -238,13 +247,11 @@ class Reveal extends StatefulWidget {
     super.key,
     required this.child,
     this.delay = Duration.zero,
-    this.offset = 40,
-    this.horizontal = false,
+    this.offset = 36,
   });
   final Widget child;
   final Duration delay;
   final double offset;
-  final bool horizontal;
 
   @override
   State<Reveal> createState() => _RevealState();
@@ -254,8 +261,7 @@ class _RevealState extends State<Reveal> {
   bool _shown = false;
 
   void _show() {
-    final wait = widget.delay + untilSplashEnds;
-    Future.delayed(wait, () {
+    Future.delayed(widget.delay + untilSplashEnds, () {
       if (mounted) setState(() => _shown = true);
     });
   }
@@ -271,9 +277,7 @@ class _RevealState extends State<Reveal> {
         builder: (context, t, child) => Opacity(
           opacity: t,
           child: Transform.translate(
-            offset: widget.horizontal
-                ? Offset((1 - t) * widget.offset, 0)
-                : Offset(0, (1 - t) * widget.offset),
+            offset: Offset(0, (1 - t) * widget.offset),
             child: child,
           ),
         ),
@@ -283,7 +287,8 @@ class _RevealState extends State<Reveal> {
   }
 }
 
-/// Titolo che sale riga per riga da dietro una "maschera".
+/// Titolo che sale riga per riga da dietro una "maschera". L'ultima riga può
+/// essere in corsivo e nel colore d'accento.
 class RevealTitle extends StatefulWidget {
   const RevealTitle(
     this.text, {
@@ -291,15 +296,15 @@ class RevealTitle extends StatefulWidget {
     required this.style,
     this.delay = Duration.zero,
     this.textAlign = TextAlign.start,
-    this.accentLast = false,
+    this.accentLast = true,
+    this.accentColor,
   });
   final String text;
   final TextStyle style;
   final Duration delay;
   final TextAlign textAlign;
-
-  /// L'ultima riga in ocra.
   final bool accentLast;
+  final Color? accentColor;
 
   @override
   State<RevealTitle> createState() => _RevealTitleState();
@@ -316,7 +321,7 @@ class _RevealTitleState extends State<RevealTitle> {
 
   @override
   Widget build(BuildContext context) {
-    final lines = widget.text.toUpperCase().split('\n');
+    final lines = widget.text.split('\n');
     final align = switch (widget.textAlign) {
       TextAlign.center => CrossAxisAlignment.center,
       TextAlign.end || TextAlign.right => CrossAxisAlignment.end,
@@ -343,18 +348,25 @@ class _RevealTitleState extends State<RevealTitle> {
                       curve: Curves.easeOutQuart,
                     ),
                     builder: (context, t, child) => FractionalTranslation(
-                      translation: Offset(0, 1.05 * (1 - t)),
+                      translation: Offset(0, 1.1 * (1 - t)),
                       child: child,
                     ),
-                    child: Text(
-                      lines[i],
-                      textAlign: widget.textAlign,
-                      style:
-                          widget.accentLast &&
-                              i == lines.length - 1 &&
-                              lines.length > 1
-                          ? widget.style.copyWith(color: Site.accent)
-                          : widget.style,
+                    child: Padding(
+                      // Spazio per le discendenti del corsivo.
+                      padding: const EdgeInsets.only(bottom: 4),
+                      child: Text(
+                        lines[i],
+                        textAlign: widget.textAlign,
+                        style:
+                            widget.accentLast &&
+                                i == lines.length - 1 &&
+                                lines.length > 1
+                            ? widget.style.copyWith(
+                                color: widget.accentColor ?? Site.accent,
+                                fontStyle: FontStyle.italic,
+                              )
+                            : widget.style,
+                      ),
                     ),
                   ),
                 ),
@@ -429,7 +441,7 @@ class Section extends StatelessWidget {
     this.color,
     this.top,
     this.bottom,
-    this.maxWidth = 1440,
+    this.maxWidth = 1360,
   });
   final Widget child;
   final Color? color;
@@ -439,7 +451,7 @@ class Section extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final v = context.fluid(72, 140);
+    final v = context.fluid(64, 120);
     return Container(
       color: color,
       width: double.infinity,
@@ -459,30 +471,29 @@ class Section extends StatelessWidget {
   }
 }
 
-/// Etichetta tecnica: "[02] —— PROGETTI".
-class Tag extends StatelessWidget {
-  const Tag(this.text, {super.key, this.number, this.dark = false});
+/// Piccola etichetta sopra i titoli: un trattino arrotondato e una parola.
+class Kicker extends StatelessWidget {
+  const Kicker(this.text, {super.key, this.dark = false});
   final String text;
-  final String? number;
   final bool dark;
 
   @override
   Widget build(BuildContext context) {
-    final c = dark ? Colors.white : Site.ink;
+    final c = dark ? Colors.white : Site.accentDeep;
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        if (number != null) ...[
-          Text(
-            '[$number]',
-            style: siteMono(12, color: dark ? Site.accent : Site.accentDeep),
+        Container(
+          width: 22,
+          height: 3,
+          decoration: BoxDecoration(
+            color: dark ? Site.accent : Site.accentDeep,
+            borderRadius: BorderRadius.circular(2),
           ),
-          const SizedBox(width: 12),
-        ],
-        Container(width: 32, height: 1, color: c.withValues(alpha: 0.45)),
-        const SizedBox(width: 12),
+        ),
+        const SizedBox(width: 10),
         Flexible(
-          child: Text(text.toUpperCase(), style: siteMono(12, color: c)),
+          child: Text(text, style: siteLabel(14, color: c)),
         ),
       ],
     );
@@ -496,14 +507,12 @@ class SectionHeading extends StatelessWidget {
     super.key,
     required this.kicker,
     required this.title,
-    this.number,
     this.text = '',
     this.dark = false,
     this.trailing,
   });
   final String kicker;
   final String title;
-  final String? number;
   final String text;
   final bool dark;
   final Widget? trailing;
@@ -514,17 +523,16 @@ class SectionHeading extends StatelessWidget {
     final head = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Reveal(
-          child: Tag(kicker, number: number, dark: dark),
-        ),
-        SizedBox(height: context.fluid(18, 28)),
+        if (kicker.isNotEmpty) ...[
+          Reveal(child: Kicker(kicker, dark: dark)),
+          SizedBox(height: context.fluid(14, 22)),
+        ],
         RevealTitle(
           title,
           style: siteHead(
-            context.fluid(44, 92),
+            context.fluid(38, 72),
             color: dark ? Colors.white : Site.ink,
           ),
-          accentLast: true,
         ),
       ],
     );
@@ -543,7 +551,7 @@ class SectionHeading extends StatelessWidget {
             ),
           ),
         if (trailing != null) ...[
-          if (text.isNotEmpty) const SizedBox(height: 26),
+          if (text.isNotEmpty) const SizedBox(height: 22),
           Reveal(delay: const Duration(milliseconds: 300), child: trailing!),
         ],
       ],
@@ -554,7 +562,7 @@ class SectionHeading extends StatelessWidget {
         children: [
           head,
           if (text.isNotEmpty || trailing != null) ...[
-            const SizedBox(height: 22),
+            const SizedBox(height: 20),
             side,
           ],
         ],
@@ -573,10 +581,10 @@ class SectionHeading extends StatelessWidget {
 
 // ----------------------------------------------------------------- bottoni
 
-enum ButtonKind { accent, dark, light }
+enum ButtonKind { accent, outline, light }
 
-/// Bottone squadrato del sito: al passaggio del mouse il colore "riempie"
-/// il bottone da sinistra e la freccia avanza.
+/// Bottone a pillola: al passaggio del mouse il colore "riempie" il bottone
+/// da sinistra e la freccia avanza.
 class SiteButton extends StatefulWidget {
   const SiteButton(
     this.text, {
@@ -608,27 +616,27 @@ class _SiteButtonState extends State<SiteButton> {
         Site.accent,
         Site.onAccent,
         Site.ink,
-        Colors.white,
+        Site.paper,
         Site.accent,
       ),
-      ButtonKind.dark => (
+      ButtonKind.outline => (
         Colors.transparent,
         Site.ink,
         Site.ink,
-        Colors.white,
-        Site.ink,
+        Site.paper,
+        Site.ink.withValues(alpha: 0.35),
       ),
       ButtonKind.light => (
         Colors.transparent,
         Colors.white,
         Colors.white,
-        Site.ink,
-        Colors.white,
+        const Color(0xFF1C1C1C),
+        Colors.white60,
       ),
     };
     final enabled = widget.onTap != null && !widget.loading;
     final color = _hover ? fillFg : fg;
-    final h = widget.big ? 62.0 : 54.0;
+    final h = widget.big ? 58.0 : 50.0;
     return Semantics(
       button: true,
       label: widget.text,
@@ -651,13 +659,14 @@ class _SiteButtonState extends State<SiteButton> {
                     colors: [fill, fill, bg, bg],
                     stops: [0, t, t, 1],
                   ),
-                  border: Border.all(color: border, width: 1.4),
+                  border: Border.all(color: _hover ? fill : border, width: 1.3),
+                  borderRadius: BorderRadius.circular(h),
                 ),
                 child: child,
               ),
             ),
             child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: h * 0.45),
+              padding: EdgeInsets.only(left: h * 0.48, right: h * 0.38),
               child: Align(
                 widthFactor: 1,
                 child: Row(
@@ -666,19 +675,15 @@ class _SiteButtonState extends State<SiteButton> {
                     Flexible(
                       child: AnimatedDefaultTextStyle(
                         duration: const Duration(milliseconds: 250),
-                        style: siteMono(
-                          widget.big ? 13.5 : 12.5,
-                          color: color,
-                          weight: FontWeight.w600,
-                        ),
+                        style: siteLabel(widget.big ? 16 : 15, color: color),
                         child: Text(
-                          widget.text.toUpperCase(),
+                          widget.text,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
                     ),
-                    const SizedBox(width: 14),
+                    const SizedBox(width: 12),
                     if (widget.loading)
                       SizedBox(
                         width: 16,
@@ -690,7 +695,7 @@ class _SiteButtonState extends State<SiteButton> {
                       )
                     else
                       AnimatedSlide(
-                        offset: Offset(_hover ? 0.35 : 0, 0),
+                        offset: Offset(_hover ? 0.3 : 0, 0),
                         duration: const Duration(milliseconds: 300),
                         curve: Curves.easeOut,
                         child: Icon(widget.icon, size: 18, color: color),
@@ -771,9 +776,12 @@ class _HoverLinkState extends State<HoverLink> {
                 AnimatedContainer(
                   duration: const Duration(milliseconds: 280),
                   curve: Curves.easeOut,
-                  height: 1.5,
-                  width: on ? 26 : 0,
-                  color: widget.lineColor ?? Site.accent,
+                  height: 2,
+                  width: on ? 22 : 0,
+                  decoration: BoxDecoration(
+                    color: widget.lineColor ?? Site.accent,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
                 ),
               ],
             ),

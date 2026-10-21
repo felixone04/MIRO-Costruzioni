@@ -9,38 +9,39 @@ class Seed {
   static SiteContent content() => SiteContent(
     companyName: 'M.I.R.O. Costruzioni',
     shortName: 'M.I.R.O.',
-    tagline: 'Costruzioni · Ristrutturazioni · Restauri',
+    tagline: 'Costruzioni, ristrutturazioni e restauri a Bari',
     footerText:
-        'Impresa edile dal 1987. Costruiamo, ristrutturiamo e restauriamo '
-        'con un\'unica regola: il cantiere finisce quando il cliente è soddisfatto.',
-    heroKicker: 'Impresa edile dal 1987',
-    heroTitle: 'Costruiamo\nciò che resta.',
+        'Impresa edile a Bari dal 1987. Costruiamo case, uffici e capannoni, '
+        'ristrutturiamo e restauriamo con le nostre squadre.',
+    heroKicker: 'Impresa edile a Bari dal 1987',
+    heroTitle: 'Case fatte bene,\nda chi le costruisce.',
     heroSubtitle:
-        'Case, edifici e spazi di lavoro progettati e realizzati con cura '
-        'artigiana e metodo industriale. Dalla prima pietra alla consegna delle chiavi.',
+        'Costruiamo, ristrutturiamo e restauriamo in Puglia da tre '
+        'generazioni, con le nostre squadre e un solo referente dall\'inizio '
+        'alla fine.',
     introKicker: 'Chi siamo',
-    introTitle: 'Trentotto anni di cantieri,\nnessuna scorciatoia.',
+    introTitle: 'Un\'impresa di famiglia,\ncresciuta in cantiere.',
     introText:
-        'M.I.R.O. Costruzioni nasce come piccola impresa di famiglia e oggi '
-        'segue cantieri residenziali, commerciali e industriali in tutta la regione. '
-        'Un solo referente, tempi scritti nel contratto, materiali certificati e '
-        'squadre interne: così ogni progetto arriva in fondo come è stato promesso.',
+        'Siamo partiti con tre operai e una betoniera presa in prestito. Oggi '
+        'seguiamo case, condomini, uffici e capannoni, ma lavoriamo ancora come '
+        'allora: tempi scritti nel contratto, prezzi chiari e la stessa squadra '
+        'dal primo giorno alla consegna delle chiavi.',
     stats: [
-      Highlight(title: '38', text: 'anni di attività'),
-      Highlight(title: '420+', text: 'progetti consegnati'),
-      Highlight(title: '180k', text: 'm² costruiti'),
-      Highlight(title: '65', text: 'professionisti in squadra'),
+      Highlight(title: '38', text: 'anni di lavoro'),
+      Highlight(title: '420+', text: 'cantieri chiusi'),
+      Highlight(title: '180k', text: 'metri quadri costruiti'),
+      Highlight(title: '65', text: 'persone in squadra'),
     ],
     projectsKicker: 'Progetti',
-    projectsTitle: 'Lavori che parlano\nper noi.',
+    projectsTitle: 'Gli ultimi\ncantieri.',
     projectsText:
-        'Una selezione dei cantieri più recenti: ville, residenze, uffici, '
-        'poli produttivi e recuperi di edifici storici.',
+        'Ville, condomini, uffici e qualche recupero di cui andiamo '
+        'particolarmente fieri.',
     servicesKicker: 'Servizi',
-    servicesTitle: 'Un\'unica impresa,\ntutto il cantiere.',
+    servicesTitle: 'Cosa\nfacciamo.',
     servicesText:
-        'Dalla progettazione alla consegna gestiamo ogni fase internamente, '
-        'con squadre specializzate e un unico interlocutore.',
+        'Scegli un tipo di lavoro per vedere come lo affrontiamo e alcuni '
+        'cantieri che abbiamo seguito.',
     ticker: [
       'Nuove costruzioni',
       'Ristrutturazioni',
@@ -49,60 +50,18 @@ class Seed {
       'Riqualificazione energetica',
       'Direzione lavori',
     ],
-    processKicker: 'Metodo',
-    processTitle: 'Quattro fasi,\nun solo referente.',
-    process: [
-      Milestone(
-        year: '01',
-        title: 'Sopralluogo',
-        text:
-            'Visitiamo il luogo, ascoltiamo le esigenze e verifichiamo vincoli, '
-            'accessi e stato dell\'esistente.',
-      ),
-      Milestone(
-        year: '02',
-        title: 'Progetto e preventivo',
-        text:
-            'Computo metrico dettagliato, cronoprogramma e prezzo bloccato: '
-            'sai da subito cosa, quando e quanto.',
-      ),
-      Milestone(
-        year: '03',
-        title: 'Cantiere',
-        text:
-            'Squadre interne, sicurezza certificata e un report fotografico '
-            'settimanale per seguire i lavori anche da lontano.',
-      ),
-      Milestone(
-        year: '04',
-        title: 'Consegna',
-        text:
-            'Collaudo, pratiche e documentazione completa. Poi restiamo: '
-            'assistenza post-vendita per dieci anni.',
-      ),
-    ],
-    quoteText:
-        'Un edificio ben costruito non si nota: si vive. Il nostro lavoro è '
-        'farlo durare più a lungo di chi lo ha immaginato.',
-    quoteAuthor: 'Michele Romano, fondatore',
-    quoteImage: _u('1429497419816-9ca5cfb4571a'),
-    ctaTitle: 'Hai un progetto\nin mente?',
-    ctaText:
-        'Raccontacelo: il primo sopralluogo e il preventivo sono gratuiti '
-        'e senza impegno.',
-    ctaImage: _u('1541888946425-d81bb19240f5'),
-    aboutKicker: 'L\'azienda',
-    aboutTitle: 'Una famiglia\ndi costruttori.',
+    aboutKicker: 'Azienda',
+    aboutTitle: 'La nostra\nstoria.',
     aboutIntro:
-        'Dal 1987 costruiamo con le stesse mani con cui progettiamo: '
-        'ingegneri, geometri e maestranze lavorano nella stessa squadra.',
+        'Dal 1987 progettiamo e costruiamo con la stessa squadra: ingegneri, '
+        'geometri e muratori che si conoscono da anni.',
     aboutText:
         'Tutto è iniziato con Michele Romano, muratore e poi capocantiere, e una '
-        'betoniera presa in prestito. Oggi M.I.R.O. Costruzioni conta oltre 60 '
-        'professionisti, un parco mezzi di proprietà e un ufficio tecnico interno.\n\n'
-        'Il nome raccoglie le iniziali dei valori su cui è nata l\'impresa: '
-        'Metodo, Integrità, Responsabilità, Opera. Sono ancora gli stessi '
-        'con cui apriamo ogni nuovo cantiere.',
+        'betoniera presa in prestito. Oggi siamo più di sessanta, abbiamo i nostri '
+        'mezzi e un ufficio tecnico interno, ma le decisioni importanti si prendono '
+        'ancora in cantiere.\n\n'
+        'Il nome raccoglie le iniziali di quattro parole a cui teniamo: '
+        'Metodo, Integrità, Responsabilità, Opera.',
     aboutImage: _u('1626885930974-4b69aa21bbf9'),
     aboutImage2: _u('1504307651254-35680f356dfd'),
     values: [
@@ -206,10 +165,10 @@ class Seed {
       'Entro un anno',
       'Sto solo valutando',
     ],
-    contactTitle: 'Parliamo del\ntuo progetto.',
+    contactTitle: 'Scrivici\ndue righe.',
     contactText:
-        'Compila il modulo: ti richiamiamo entro due giorni lavorativi per '
-        'fissare un sopralluogo gratuito.',
+        'Raccontaci cosa hai in mente: ti richiamiamo entro due giorni '
+        'lavorativi.',
     contactImage: _u('1503387762-592deb58ef4e'),
     categories: [
       'Residenziale',
@@ -603,71 +562,79 @@ class Seed {
       id: 's-nuove',
       title: 'Nuove costruzioni',
       text:
-          'Ville, residenze ed edifici plurifamiliari realizzati chiavi in mano, '
-          'dalle fondazioni alle finiture.',
+          'Ville, palazzine e piccoli quartieri, dallo scavo alla consegna delle '
+          'chiavi. Seguiamo noi strutture, impianti e finiture, così chi compra '
+          'casa ha un solo numero da chiamare.',
       image: _u('1429497419816-9ca5cfb4571a'),
       points: [
         'Strutture antisismiche',
         'Classe energetica A',
         'Chiavi in mano',
       ],
+      categories: ['Residenziale'],
     ),
     ServiceItem(
       id: 's-ristrutturazioni',
       title: 'Ristrutturazioni',
       text:
-          'Ristrutturazioni integrali di case e appartamenti con un unico '
-          'referente, tempi certi e prezzo bloccato.',
+          'Appartamenti e case da rifare in tutto o in parte. Prima di iniziare '
+          'mettiamo per iscritto lavori, tempi e prezzo; durante il cantiere '
+          'ricevi ogni settimana le foto dei progressi.',
       image: _u('1600607687939-ce8a6c25118c'),
-      points: ['Demolizioni e ricostruzioni', 'Impianti', 'Bonus edilizi'],
+      points: [
+        'Demolizioni e ricostruzioni',
+        'Impianti nuovi',
+        'Bonus edilizi',
+      ],
+      categories: ['Ristrutturazione'],
     ),
     ServiceItem(
       id: 's-restauro',
-      title: 'Restauro e recupero',
+      title: 'Restauro',
       text:
-          'Interventi su edifici storici e vincolati con tecniche tradizionali '
-          'e materiali compatibili.',
+          'Masserie, palazzi e case nei centri storici. Usiamo calce, pietra e '
+          'legno come si faceva una volta e ci occupiamo noi delle pratiche con '
+          'la Soprintendenza.',
       image: _u('1590725140246-20acdee442be'),
-      points: [
-        'Consolidamenti',
-        'Volte e murature',
-        'Pratiche con la Soprintendenza',
-      ],
+      points: ['Consolidamenti', 'Volte e murature', 'Beni vincolati'],
+      categories: ['Restauro'],
     ),
     ServiceItem(
       id: 's-industriale',
-      title: 'Edilizia commerciale e industriale',
+      title: 'Commerciale e industriale',
       text:
-          'Capannoni, uffici, negozi e poli logistici progettati per durare '
-          'e per non fermare la tua attività.',
+          'Capannoni, uffici e negozi pensati per durare. Organizziamo il '
+          'cantiere in modo che la tua attività possa andare avanti mentre '
+          'lavoriamo.',
       image: _u('1590069261209-f8e9b8642343'),
       points: [
         'Carpenteria metallica',
         'Prefabbricati',
-        'Pavimentazioni industriali',
+        'Pavimenti industriali',
       ],
+      categories: ['Commerciale', 'Industriale'],
     ),
     ServiceItem(
       id: 's-energia',
-      title: 'Riqualificazione energetica',
+      title: 'Efficienza energetica',
       text:
-          'Cappotti termici, serramenti, fotovoltaico e pompe di calore per '
-          'ridurre i consumi e aumentare il valore dell\'immobile.',
+          'Cappotto, serramenti, fotovoltaico e pompe di calore. Partiamo da una '
+          'diagnosi della casa e ti diciamo con onestà quali interventi conviene '
+          'fare e quali no.',
       image: _u('1479839672679-a46483c0e7c8'),
       points: ['Cappotto termico', 'Fotovoltaico', 'Diagnosi energetica'],
+      categories: ['Residenziale', 'Ristrutturazione'],
     ),
     ServiceItem(
       id: 's-progettazione',
-      title: 'Progettazione e direzione lavori',
+      title: 'Progettazione',
       text:
-          'Il nostro ufficio tecnico segue progetto, permessi, sicurezza e '
-          'direzione lavori fino al collaudo.',
+          'Il nostro ufficio tecnico disegna il progetto, segue i permessi e la '
+          'sicurezza e dirige i lavori fino al collaudo, parlando con te e con '
+          'chi è in cantiere.',
       image: _u('1503387762-592deb58ef4e'),
-      points: [
-        'Pratiche edilizie',
-        'Computi metrici',
-        'Coordinamento sicurezza',
-      ],
+      points: ['Pratiche edilizie', 'Computi metrici', 'Direzione lavori'],
+      categories: ['Commerciale'],
     ),
   ];
 

@@ -17,7 +17,8 @@ void main() {
       '/progetti/inesistente',
       '/servizi',
       '/azienda',
-      '/contatti?tipo=Ristrutturazioni&progetto=Villa%20Le%20Querce',
+      '/contatti',
+      '/servizi?s=s-restauro',
       '/admin',
     ];
     for (final size in screenSizes) {
@@ -88,13 +89,13 @@ void main() {
     await bringIntoView(t, find.byType(CheckboxListTile));
     await t.tap(find.byType(CheckboxListTile));
     await t.pump();
-    await bringIntoView(t, find.text('INVIA RICHIESTA'));
-    await t.tap(find.text('INVIA RICHIESTA'));
+    await bringIntoView(t, find.text('Invia'));
+    await t.tap(find.text('Invia'));
     await settle(t, 1600);
     expect(s.requests, hasLength(1));
     expect(s.requests.first.name, 'Giulia Bianchi');
     expect(s.requests.first.type, 'Ristrutturazione');
-    expect(find.text('RICHIESTA INVIATA.'), findsOneWidget);
+    expect(find.text('Richiesta inviata'), findsOneWidget);
     await disposeApp(t);
   });
 
@@ -105,12 +106,12 @@ void main() {
     await t.enterText(fields.at(0), 'Luca');
     await t.enterText(fields.at(1), '3331234567');
     await t.enterText(fields.at(2), 'luca@example.com');
-    await bringIntoView(t, find.text('INVIA RICHIESTA'));
-    await t.tap(find.text('INVIA RICHIESTA'));
+    await bringIntoView(t, find.text('Invia'));
+    await t.tap(find.text('Invia'));
     await settle(t, 800);
     expect(s.requests, isEmpty);
     expect(
-      find.text('Serve il consenso per inviare la richiesta.'),
+      find.text('Serve il consenso per inviare il messaggio.'),
       findsOneWidget,
     );
     await disposeApp(t);
@@ -123,14 +124,14 @@ void main() {
       final s = await loadState();
       await pumpApp(t, s);
       expect(find.byType(ThemeSwitcher), findsOneWidget);
-      expect(Site.current.id, 'cantiere');
+      expect(Site.current.id, 'sabbia');
 
-      await t.tap(find.text('COLORI'));
+      await t.tap(find.text('Colori'));
       await settle(t, 600);
-      await t.tap(find.text('BLU PROGETTO'));
+      await t.tap(find.text('Bordeaux'));
       await settle(t, 1200);
-      expect(s.currentTheme.id, 'progetto');
-      expect(Site.accent, builtInThemes[2].accent);
+      expect(s.currentTheme.id, 'bordeaux');
+      expect(Site.accent, builtInThemes[3].accent);
       expect(t.takeException(), isNull);
       await disposeApp(t);
     });
@@ -150,22 +151,22 @@ void main() {
 
     test('il link ?tema= apre il sito con quella tavolozza', () async {
       final s = await loadState();
-      s.applyLinkParams({'tema': 'oro'});
-      expect(s.currentTheme.id, 'oro');
+      s.applyLinkParams({'tema': 'terra'});
+      expect(s.currentTheme.id, 'terra');
       s.applyLinkParams({'tema': 'inesistente'});
-      expect(s.currentTheme.id, 'oro');
+      expect(s.currentTheme.id, 'terra');
     });
 
     test('predefinita e tavolozze nascoste', () async {
       final s = await loadState();
       await s.setLook(
-        LookSettings(defaultTheme: 'mattone', hidden: ['mattone', 'oliva']),
+        LookSettings(defaultTheme: 'bordeaux', hidden: ['bordeaux', 'salvia']),
       );
-      expect(s.currentTheme.id, 'mattone');
+      expect(s.currentTheme.id, 'bordeaux');
       // La predefinita resta proposta anche se segnata come nascosta.
       final ids = s.offeredThemes.map((e) => e.id);
-      expect(ids, contains('mattone'));
-      expect(ids, isNot(contains('oliva')));
+      expect(ids, contains('bordeaux'));
+      expect(ids, isNot(contains('salvia')));
     });
   });
 

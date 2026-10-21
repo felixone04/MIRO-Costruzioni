@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
+import '../theme/app_theme.dart';
 import '../theme/site_theme.dart';
 import 'common.dart';
 
@@ -70,62 +71,66 @@ class _CompareSliderState extends State<CompareSlider>
               child: GestureDetector(
                 onHorizontalDragUpdate: (d) => _set(d.localPosition.dx, w),
                 onTapDown: (d) => _set(d.localPosition.dx, w),
-                child: Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    PhotoImage(widget.after),
-                    ClipRect(
-                      clipper: _LeftClip(_t),
-                      child: PhotoImage(widget.before),
-                    ),
-                    Positioned(
-                      left: 16,
-                      top: 16,
-                      child: _Label('Prima', visible: _t > 0.12),
-                    ),
-                    Positioned(
-                      right: 16,
-                      top: 16,
-                      child: _Label('Dopo', visible: _t < 0.88),
-                    ),
-                    Positioned(
-                      left: w * _t - 1,
-                      top: 0,
-                      bottom: 0,
-                      width: 2,
-                      child: const ColoredBox(color: Colors.white),
-                    ),
-                    Positioned(
-                      left: w * _t - 26,
-                      top: box.maxHeight / 2 - 26,
-                      child: Container(
-                        width: 52,
-                        height: 52,
-                        decoration: BoxDecoration(
-                          color: Site.accent,
-                          border: Border.all(color: Colors.white, width: 2),
-                          boxShadow: const [
-                            BoxShadow(color: Colors.black38, blurRadius: 18),
-                          ],
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.chevron_left_rounded,
-                              color: Site.onAccent,
-                              size: 22,
-                            ),
-                            Icon(
-                              Icons.chevron_right_rounded,
-                              color: Site.onAccent,
-                              size: 22,
-                            ),
-                          ],
+                child: Rounded(
+                  radius: context.isPhone ? 20 : 28,
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      PhotoImage(widget.after),
+                      ClipRect(
+                        clipper: _LeftClip(_t),
+                        child: PhotoImage(widget.before),
+                      ),
+                      Positioned(
+                        left: 16,
+                        top: 16,
+                        child: _Label('Prima', visible: _t > 0.12),
+                      ),
+                      Positioned(
+                        right: 16,
+                        top: 16,
+                        child: _Label('Dopo', visible: _t < 0.88),
+                      ),
+                      Positioned(
+                        left: w * _t - 1,
+                        top: 0,
+                        bottom: 0,
+                        width: 2,
+                        child: const ColoredBox(color: Colors.white),
+                      ),
+                      Positioned(
+                        left: w * _t - 26,
+                        top: box.maxHeight / 2 - 26,
+                        child: Container(
+                          width: 52,
+                          height: 52,
+                          decoration: BoxDecoration(
+                            color: Site.accent,
+                            shape: BoxShape.circle,
+                            border: Border.all(color: Colors.white, width: 2),
+                            boxShadow: const [
+                              BoxShadow(color: Colors.black38, blurRadius: 18),
+                            ],
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.chevron_left_rounded,
+                                color: Site.onAccent,
+                                size: 22,
+                              ),
+                              Icon(
+                                Icons.chevron_right_rounded,
+                                color: Site.onAccent,
+                                size: 22,
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             );
@@ -155,12 +160,12 @@ class _Label extends StatelessWidget {
     opacity: visible ? 1 : 0,
     duration: const Duration(milliseconds: 200),
     child: Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
-      color: Site.night.withValues(alpha: 0.8),
-      child: Text(
-        text.toUpperCase(),
-        style: siteMono(11.5, color: Colors.white, weight: FontWeight.w600),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+      decoration: BoxDecoration(
+        color: Colors.black.withValues(alpha: 0.55),
+        borderRadius: BorderRadius.circular(30),
       ),
+      child: Text(text, style: siteLabel(13, color: Colors.white)),
     ),
   );
 }

@@ -10,16 +10,13 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return const SiteScaffold(
       current: '/',
+      overHero: true,
       children: [
         HomeHero(),
         IntroSection(),
         Ticker(),
-        FeaturedProjects(),
-        ServicesSection(),
-        ProcessSection(),
-        QuoteBand(),
-        TestimonialsSection(),
-        CtaSection(),
+        RecentProjects(),
+        ContactStrip(),
       ],
     );
   }

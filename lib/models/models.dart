@@ -146,15 +146,6 @@ class SiteContent {
   String servicesTitle;
   String servicesText;
   List<String> ticker;
-  String processKicker;
-  String processTitle;
-  List<Milestone> process;
-  String quoteText;
-  String quoteAuthor;
-  String quoteImage;
-  String ctaTitle;
-  String ctaText;
-  String ctaImage;
 
   // Azienda
   String aboutKicker;
@@ -199,15 +190,6 @@ class SiteContent {
     this.servicesTitle = '',
     this.servicesText = '',
     List<String>? ticker,
-    this.processKicker = '',
-    this.processTitle = '',
-    List<Milestone>? process,
-    this.quoteText = '',
-    this.quoteAuthor = '',
-    this.quoteImage = '',
-    this.ctaTitle = '',
-    this.ctaText = '',
-    this.ctaImage = '',
     this.aboutKicker = '',
     this.aboutTitle = '',
     this.aboutIntro = '',
@@ -227,7 +209,6 @@ class SiteContent {
     List<String>? categories,
   }) : stats = stats ?? [],
        ticker = ticker ?? [],
-       process = process ?? [],
        values = values ?? [],
        timeline = timeline ?? [],
        team = team ?? [],
@@ -265,17 +246,6 @@ class SiteContent {
       servicesTitle: s('servicesTitle', d.servicesTitle),
       servicesText: s('servicesText', d.servicesText),
       ticker: l('ticker', d.ticker),
-      processKicker: s('processKicker', d.processKicker),
-      processTitle: s('processTitle', d.processTitle),
-      process: j['process'] is List
-          ? _list(j['process'], Milestone.fromJson)
-          : d.process,
-      quoteText: s('quoteText', d.quoteText),
-      quoteAuthor: s('quoteAuthor', d.quoteAuthor),
-      quoteImage: s('quoteImage', d.quoteImage),
-      ctaTitle: s('ctaTitle', d.ctaTitle),
-      ctaText: s('ctaText', d.ctaText),
-      ctaImage: s('ctaImage', d.ctaImage),
       aboutKicker: s('aboutKicker', d.aboutKicker),
       aboutTitle: s('aboutTitle', d.aboutTitle),
       aboutIntro: s('aboutIntro', d.aboutIntro),
@@ -322,15 +292,6 @@ class SiteContent {
     'servicesTitle': servicesTitle,
     'servicesText': servicesText,
     'ticker': ticker,
-    'processKicker': processKicker,
-    'processTitle': processTitle,
-    'process': process.map((e) => e.toJson()).toList(),
-    'quoteText': quoteText,
-    'quoteAuthor': quoteAuthor,
-    'quoteImage': quoteImage,
-    'ctaTitle': ctaTitle,
-    'ctaText': ctaText,
-    'ctaImage': ctaImage,
     'aboutKicker': aboutKicker,
     'aboutTitle': aboutTitle,
     'aboutIntro': aboutIntro,
@@ -478,6 +439,10 @@ class ServiceItem {
   String text;
   String image;
   List<String> points;
+
+  /// Categorie di progetto collegate: i loro lavori compaiono nella pagina
+  /// del servizio.
+  List<String> categories;
   bool active;
   ServiceItem({
     String? id,
@@ -485,9 +450,11 @@ class ServiceItem {
     this.text = '',
     this.image = '',
     List<String>? points,
+    List<String>? categories,
     this.active = true,
   }) : id = id ?? newId(),
-       points = points ?? [];
+       points = points ?? [],
+       categories = categories ?? [];
 
   factory ServiceItem.fromJson(Map<String, dynamic> j) => ServiceItem(
     id: j['id'],
@@ -495,6 +462,7 @@ class ServiceItem {
     text: j['text'] ?? '',
     image: j['image'] ?? '',
     points: _strings(j['points']),
+    categories: _strings(j['categories']),
     active: j['active'] ?? true,
   );
   Map<String, dynamic> toJson() => {
@@ -503,6 +471,7 @@ class ServiceItem {
     'text': text,
     'image': image,
     'points': points,
+    'categories': categories,
     'active': active,
   };
 }
@@ -703,13 +672,13 @@ class LookSettings {
   List<String> hidden; // tavolozze da non proporre
   SwitcherMode switcher;
   LookSettings({
-    this.defaultTheme = 'cantiere',
+    this.defaultTheme = 'sabbia',
     List<String>? hidden,
     this.switcher = SwitcherMode.tutti,
   }) : hidden = hidden ?? [];
 
   factory LookSettings.fromJson(Map<String, dynamic> j) => LookSettings(
-    defaultTheme: j['defaultTheme'] ?? 'cantiere',
+    defaultTheme: j['defaultTheme'] ?? 'sabbia',
     hidden: _strings(j['hidden']),
     switcher: SwitcherMode.values.firstWhere(
       (e) => e.name == j['switcher'],

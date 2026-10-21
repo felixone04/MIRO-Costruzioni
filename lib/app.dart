@@ -74,7 +74,13 @@ GoRouter buildRouter(AppState state) => GoRouter(
     ),
     GoRoute(
       path: '/servizi',
-      pageBuilder: (c, s) => _fade(s, const ServicesPage()),
+      pageBuilder: (c, s) => _fade(
+        s,
+        ServicesPage(
+          key: ValueKey(s.uri.toString()),
+          initial: s.uri.queryParameters['s'],
+        ),
+      ),
     ),
     GoRoute(
       path: '/azienda',
@@ -82,15 +88,7 @@ GoRouter buildRouter(AppState state) => GoRouter(
     ),
     GoRoute(
       path: '/contatti',
-      pageBuilder: (c, s) => _fade(
-        s,
-        ContactPage(
-          key: ValueKey(s.uri.toString()),
-          type: s.uri.queryParameters['tipo'],
-          project: s.uri.queryParameters['progetto'],
-          category: s.uri.queryParameters['categoria'],
-        ),
-      ),
+      pageBuilder: (c, s) => _fade(s, const ContactPage()),
     ),
     GoRoute(
       path: '/admin',

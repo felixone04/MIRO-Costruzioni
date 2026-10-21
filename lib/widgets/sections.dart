@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -31,6 +30,11 @@ class _HomeHeroState extends State<HomeHero> {
   @override
   void initState() {
     super.initState();
+    _start();
+  }
+
+  void _start() {
+    _timer?.cancel();
     _timer = Timer.periodic(_slide, (_) {
       if (mounted) setState(() => _i++);
     });
@@ -42,14 +46,6 @@ class _HomeHeroState extends State<HomeHero> {
     super.dispose();
   }
 
-  void _jump(int i) {
-    _timer?.cancel();
-    setState(() => _i = i);
-    _timer = Timer.periodic(_slide, (_) {
-      if (mounted) setState(() => _i++);
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     final s = context.watch<AppState>();
@@ -58,12 +54,9 @@ class _HomeHeroState extends State<HomeHero> {
     final h = context.screenH;
     final scroll = SiteScroll.of(context);
     final current = slides.isEmpty ? null : slides[_i % slides.length];
-    final wide = context.w >= 900;
 
     final image = AnimatedSwitcher(
       duration: const Duration(milliseconds: 1400),
-      switchInCurve: Curves.easeOut,
-      switchOutCurve: Curves.easeIn,
       layoutBuilder: (cur, prev) =>
           Stack(fit: StackFit.expand, children: [...prev, ?cur]),
       child: current == null
@@ -78,53 +71,40 @@ class _HomeHeroState extends State<HomeHero> {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Reveal(child: Tag(c.heroKicker, number: '01', dark: true)),
-        SizedBox(height: context.fluid(20, 30)),
+        Reveal(child: Kicker(c.heroKicker, dark: true)),
+        SizedBox(height: context.fluid(18, 26)),
         RevealTitle(
           c.heroTitle,
           delay: const Duration(milliseconds: 100),
           style: siteHead(
-            context.fluid(68, 178),
+            context.fluid(54, 132),
             color: Colors.white,
-            weight: FontWeight.w700,
-            height: 0.88,
-            spacing: -1,
+            height: 0.98,
           ),
-          accentLast: true,
+          // Sulla foto scura l'accento va schiarito per restare leggibile.
+          accentColor: Color.lerp(Site.accent, Colors.white, 0.35),
         ),
-        SizedBox(height: context.fluid(20, 30)),
+        SizedBox(height: context.fluid(18, 26)),
         Reveal(
           delay: const Duration(milliseconds: 450),
           child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 560),
+            constraints: const BoxConstraints(maxWidth: 520),
             child: Text(
               c.heroSubtitle,
               style: siteBody(
-                context.fluid(15.5, 18.5),
-                color: Colors.white.withValues(alpha: 0.82),
+                context.fluid(16, 18.5),
+                color: Colors.white.withValues(alpha: 0.85),
               ),
             ),
           ),
         ),
-        SizedBox(height: context.fluid(26, 40)),
+        SizedBox(height: context.fluid(26, 36)),
         Reveal(
           delay: const Duration(milliseconds: 600),
-          child: Wrap(
-            spacing: 14,
-            runSpacing: 14,
-            children: [
-              SiteButton(
-                'Scopri i progetti',
-                big: true,
-                onTap: () => context.go('/progetti'),
-              ),
-              SiteButton(
-                'Contattaci',
-                big: true,
-                kind: ButtonKind.light,
-                onTap: () => context.go('/contatti'),
-              ),
-            ],
+          child: SiteButton(
+            'Guarda i progetti',
+            big: true,
+            onTap: () => context.go('/progetti'),
           ),
         ),
       ],
@@ -137,7 +117,10 @@ class _HomeHeroState extends State<HomeHero> {
             index: _i % slides.length,
             count: slides.length,
             duration: _slide,
-            onJump: _jump,
+            onJump: (i) {
+              setState(() => _i = i);
+              _start();
+            },
           );
 
     final content = Column(
@@ -145,18 +128,20 @@ class _HomeHeroState extends State<HomeHero> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         text,
-        SizedBox(height: context.fluid(24, 40)),
+        SizedBox(height: context.fluid(30, 48)),
         info,
       ],
     );
 
     // Alta quanto lo schermo; se il testo non ci sta (telefoni piccoli) la
-    // sezione si allunga invece di tagliarlo.
-    return ClipRect(
+    // sezione si allunga invece di tagliarlo. Gli angoli in basso sono
+    // arrotondati, come una grande fotografia appoggiata sulla pagina.
+    final radius = context.isPhone ? 22.0 : 34.0;
+    return ClipRRect(
+      borderRadius: BorderRadius.vertical(bottom: Radius.circular(radius)),
       child: Stack(
         children: [
           Positioned.fill(child: ColoredBox(color: Site.night)),
-          // La foto scorre più lentamente della pagina.
           Positioned.fill(
             child: scroll == null
                 ? image
@@ -180,43 +165,14 @@ class _HomeHeroState extends State<HomeHero> {
                   end: Alignment.bottomCenter,
                   stops: const [0, 0.45, 1],
                   colors: [
-                    Site.night.withValues(alpha: 0.30),
-                    Site.night.withValues(alpha: 0.20),
-                    Site.night.withValues(alpha: 0.92),
+                    Colors.black.withValues(alpha: 0.25),
+                    Colors.black.withValues(alpha: 0.15),
+                    Colors.black.withValues(alpha: 0.7),
                   ],
                 ),
               ),
             ),
           ),
-          Positioned.fill(
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.centerLeft,
-                  end: Alignment.centerRight,
-                  colors: [
-                    Site.night.withValues(alpha: 0.55),
-                    Site.night.withValues(alpha: 0),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          const Positioned.fill(child: BlueprintGrid()),
-          // Riferimenti "da tavola" nell'angolo.
-          if (wide)
-            Positioned(
-              right: context.gutter,
-              top: context.navH + 26,
-              child: Reveal(
-                delay: const Duration(milliseconds: 800),
-                child: Text(
-                  '41.1171° N\n16.8719° E',
-                  textAlign: TextAlign.right,
-                  style: siteMono(11, color: Colors.white54),
-                ),
-              ),
-            ),
           ConstrainedBox(
             constraints: BoxConstraints(minHeight: h, minWidth: context.w),
             child: Padding(
@@ -225,12 +181,12 @@ class _HomeHeroState extends State<HomeHero> {
                 context.navH + 20,
                 context.gutter,
                 // Spazio per il pulsante "Colori" in basso a sinistra.
-                context.fluid(28, 48) + (s.switcherVisible ? 64 : 0),
+                context.fluid(28, 44) + (s.switcherVisible ? 64 : 0),
               ),
               child: Align(
                 alignment: Alignment.bottomCenter,
                 child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 1440),
+                  constraints: const BoxConstraints(maxWidth: 1360),
                   child: scroll == null
                       ? content
                       : AnimatedBuilder(
@@ -289,48 +245,47 @@ class _HeroInfo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final wide = context.w >= 760;
-    final label = Reveal(
-      delay: const Duration(milliseconds: 700),
-      child: MouseRegion(
-        cursor: SystemMouseCursors.click,
-        child: GestureDetector(
-          onTap: () => context.go('/progetti/${project.id}'),
-          child: AnimatedSwitcher(
-            duration: const Duration(milliseconds: 600),
-            layoutBuilder: (cur, prev) => Stack(
-              alignment: Alignment.centerLeft,
-              children: [...prev, ?cur],
-            ),
-            child: Row(
-              key: ValueKey(project.id),
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  '${(index + 1).toString().padLeft(2, '0')}/${count.toString().padLeft(2, '0')}',
-                  style: siteMono(12, color: Site.accent),
+    final label = MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        onTap: () => context.go('/progetti/${project.id}'),
+        child: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 600),
+          layoutBuilder: (cur, prev) =>
+              Stack(alignment: Alignment.centerLeft, children: [...prev, ?cur]),
+          child: Row(
+            key: ValueKey(project.id),
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Flexible(
+                child: Text(
+                  project.title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: siteHead(18, color: Colors.white, italic: true),
                 ),
-                const SizedBox(width: 14),
-                Flexible(
-                  child: Text(
-                    '${project.title.toUpperCase()}  ·  ${project.location}',
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: siteMono(12, color: Colors.white),
-                  ),
+              ),
+              const SizedBox(width: 10),
+              Flexible(
+                child: Text(
+                  project.location,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: siteBody(14, color: Colors.white70),
                 ),
-                const SizedBox(width: 10),
-                const Icon(
-                  Icons.arrow_outward_rounded,
-                  size: 16,
-                  color: Colors.white,
-                ),
-              ],
-            ),
+              ),
+              const SizedBox(width: 8),
+              const Icon(
+                Icons.arrow_outward_rounded,
+                size: 16,
+                color: Colors.white70,
+              ),
+            ],
           ),
         ),
       ),
     );
-    final bars = Row(
+    final dots = Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         for (var i = 0; i < count; i++)
@@ -344,103 +299,56 @@ class _HeroInfo extends StatelessWidget {
                   vertical: 10,
                   horizontal: 3,
                 ),
-                child: SizedBox(
-                  width: wide ? 54 : 34,
-                  height: 2,
-                  child: Stack(
-                    children: [
-                      Container(color: Colors.white24),
-                      if (i < index) Container(color: Colors.white),
-                      if (i == index)
-                        TweenAnimationBuilder<double>(
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 400),
+                  width: i == index ? (wide ? 46 : 32) : 8,
+                  height: 8,
+                  decoration: BoxDecoration(
+                    color: Colors.white24,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  clipBehavior: Clip.antiAlias,
+                  alignment: Alignment.centerLeft,
+                  child: i == index
+                      ? TweenAnimationBuilder<double>(
                           key: ValueKey('bar-$index'),
                           tween: Tween(begin: 0, end: 1),
                           duration: duration,
                           builder: (context, t, _) => FractionallySizedBox(
                             widthFactor: t,
-                            child: Container(color: Site.accent),
+                            heightFactor: 1,
+                            child: ColoredBox(color: Site.accent),
                           ),
-                        ),
-                    ],
-                  ),
+                        )
+                      : null,
                 ),
               ),
             ),
           ),
       ],
     );
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Container(height: 1, color: Colors.white24),
-        const SizedBox(height: 14),
-        if (wide)
-          Row(
-            children: [
-              const _ScrollCue(),
-              const SizedBox(width: 30),
-              Expanded(
-                child: Align(alignment: Alignment.centerLeft, child: label),
-              ),
-              bars,
-            ],
-          )
-        else
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [label, const SizedBox(height: 4), bars],
-          ),
-      ],
+    return Reveal(
+      delay: const Duration(milliseconds: 700),
+      child: wide
+          ? Row(
+              children: [
+                Expanded(
+                  child: Align(alignment: Alignment.centerLeft, child: label),
+                ),
+                dots,
+              ],
+            )
+          : Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [label, const SizedBox(height: 6), dots],
+            ),
     );
   }
 }
 
-/// "Scorri" con una lineetta che scende all'infinito.
-class _ScrollCue extends StatefulWidget {
-  const _ScrollCue();
-
-  @override
-  State<_ScrollCue> createState() => _ScrollCueState();
-}
-
-class _ScrollCueState extends State<_ScrollCue>
-    with SingleTickerProviderStateMixin {
-  late final _c = AnimationController(
-    vsync: this,
-    duration: const Duration(milliseconds: 1800),
-  )..repeat();
-
-  @override
-  void dispose() {
-    _c.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) => Row(
-    mainAxisSize: MainAxisSize.min,
-    children: [
-      SizedBox(
-        width: 1.5,
-        height: 26,
-        child: ClipRect(
-          child: AnimatedBuilder(
-            animation: _c,
-            builder: (context, _) => Align(
-              alignment: Alignment(0, -1.6 + _c.value * 3.2),
-              child: Container(width: 1.5, height: 12, color: Site.accent),
-            ),
-          ),
-        ),
-      ),
-      const SizedBox(width: 12),
-      Text('SCORRI', style: siteMono(11.5, color: Colors.white70)),
-    ],
-  );
-}
-
 // ===================================================================== INTRO
 
+/// Chi siamo in poche righe e i numeri dell'impresa.
 class IntroSection extends StatelessWidget {
   const IntroSection({super.key});
 
@@ -448,142 +356,95 @@ class IntroSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.watch<AppState>().content;
     final wide = context.w >= 980;
-    final stats = LayoutBuilder(
-      builder: (context, box) {
-        final cols = box.maxWidth >= 860 ? 4 : 2;
-        final w = box.maxWidth / cols;
-        return Wrap(
-          children: [
-            for (var i = 0; i < c.stats.length; i++)
-              SizedBox(
-                width: w,
-                child: Reveal(
-                  delay: Duration(milliseconds: 120 * i),
-                  child: Container(
-                    padding: EdgeInsets.fromLTRB(
-                      i % cols == 0 ? 0 : 20,
-                      26,
-                      16,
-                      26,
-                    ),
-                    decoration: BoxDecoration(
-                      border: Border(
-                        top: BorderSide(color: Site.line),
-                        left: i % cols == 0
-                            ? BorderSide.none
-                            : BorderSide(color: Site.line),
-                      ),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        CountUp(
-                          c.stats[i].title,
-                          style: siteHead(
-                            context.fluid(56, 104),
-                            weight: FontWeight.w700,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          c.stats[i].text.toUpperCase(),
-                          style: siteMono(11.5, color: Site.muted),
-                        ),
-                      ],
+    final text = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Reveal(child: Kicker(c.introKicker)),
+        SizedBox(height: context.fluid(14, 22)),
+        RevealTitle(c.introTitle, style: siteHead(context.fluid(36, 64))),
+        const SizedBox(height: 22),
+        Reveal(
+          delay: const Duration(milliseconds: 200),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 640),
+            child: Text(
+              c.introText,
+              style: siteBody(context.fluid(16, 17.5), color: Site.muted),
+            ),
+          ),
+        ),
+        const SizedBox(height: 22),
+        Reveal(
+          delay: const Duration(milliseconds: 300),
+          child: HoverLink(
+            'La nostra storia',
+            arrow: true,
+            onTap: () => context.go('/azienda'),
+            style: siteLabel(15, color: Site.accentDeep),
+          ),
+        ),
+      ],
+    );
+    final stats = Wrap(
+      spacing: 14,
+      runSpacing: 14,
+      children: [
+        for (var i = 0; i < c.stats.length; i++)
+          Reveal(
+            delay: Duration(milliseconds: 120 * i),
+            child: Container(
+              width: wide ? 200 : (context.w - context.gutter * 2 - 14) / 2,
+              padding: const EdgeInsets.fromLTRB(22, 20, 18, 22),
+              decoration: BoxDecoration(
+                color: Site.surface,
+                borderRadius: BorderRadius.circular(Radii.card),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  CountUp(
+                    c.stats[i].title,
+                    style: siteHead(
+                      context.fluid(40, 54),
+                      color: Site.accent,
+                      height: 1,
                     ),
                   ),
-                ),
+                  const SizedBox(height: 8),
+                  Text(
+                    c.stats[i].text,
+                    style: siteBody(14, color: Site.muted, height: 1.35),
+                  ),
+                ],
               ),
-          ],
-        );
-      },
+            ),
+          ),
+      ],
     );
     return Section(
-      color: Site.paper,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (wide)
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
+      child: wide
+          ? Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Expanded(
-                  flex: 4,
-                  child: Reveal(child: Tag(c.introKicker, number: '02')),
-                ),
-                Expanded(
-                  flex: 8,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      RevealTitle(
-                        c.introTitle,
-                        style: siteHead(context.fluid(44, 84)),
-                        accentLast: true,
-                      ),
-                      const SizedBox(height: 30),
-                      Reveal(
-                        delay: const Duration(milliseconds: 200),
-                        child: ConstrainedBox(
-                          constraints: const BoxConstraints(maxWidth: 720),
-                          child: Text(
-                            c.introText,
-                            style: siteBody(17.5, color: Site.muted),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 30),
-                      Reveal(
-                        delay: const Duration(milliseconds: 300),
-                        child: HoverLink(
-                          'LA NOSTRA STORIA',
-                          arrow: true,
-                          onTap: () => context.go('/azienda'),
-                          style: siteMono(13, weight: FontWeight.w600),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+                Expanded(child: text),
+                const SizedBox(width: 60),
+                SizedBox(width: 414, child: stats),
               ],
             )
-          else ...[
-            Reveal(child: Tag(c.introKicker, number: '02')),
-            const SizedBox(height: 20),
-            RevealTitle(
-              c.introTitle,
-              style: siteHead(context.fluid(42, 84)),
-              accentLast: true,
+          : Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [text, const SizedBox(height: 36), stats],
             ),
-            const SizedBox(height: 22),
-            Reveal(
-              child: Text(c.introText, style: siteBody(16, color: Site.muted)),
-            ),
-            const SizedBox(height: 22),
-            Reveal(
-              child: HoverLink(
-                'LA NOSTRA STORIA',
-                arrow: true,
-                onTap: () => context.go('/azienda'),
-                style: siteMono(13, weight: FontWeight.w600),
-              ),
-            ),
-          ],
-          SizedBox(height: context.fluid(56, 100)),
-          stats,
-        ],
-      ),
     );
   }
 }
 
 // ==================================================================== TICKER
 
-/// Nastro che scorre all'infinito con i servizi, alternando parole piene e
-/// parole a contorno.
+/// Nastro che scorre all'infinito con i servizi, alternando parole dritte e
+/// in corsivo.
 class Ticker extends StatefulWidget {
-  const Ticker({super.key, this.dark = false});
-  final bool dark;
+  const Ticker({super.key});
 
   @override
   State<Ticker> createState() => _TickerState();
@@ -592,7 +453,7 @@ class Ticker extends StatefulWidget {
 class _TickerState extends State<Ticker> with SingleTickerProviderStateMixin {
   late final _c = AnimationController(
     vsync: this,
-    duration: const Duration(seconds: 40),
+    duration: const Duration(seconds: 45),
   )..repeat();
   final _first = GlobalKey();
   double _w = 0;
@@ -617,39 +478,40 @@ class _TickerState extends State<Ticker> with SingleTickerProviderStateMixin {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) _measure();
     });
-    final size = context.fluid(38, 76);
-    final fg = widget.dark ? Colors.white : Site.ink;
+    final size = context.fluid(34, 64);
     Widget set([Key? key]) => Row(
       key: key,
       mainAxisSize: MainAxisSize.min,
       children: [
         for (var i = 0; i < items.length; i++) ...[
           Text(
-            items[i].toUpperCase(),
-            style: i.isEven
-                ? siteHead(size, color: fg, weight: FontWeight.w700)
-                : siteOutline(size, color: fg),
+            items[i],
+            style: siteHead(
+              size,
+              italic: i.isOdd,
+              color: i.isOdd ? Site.accent : Site.ink,
+              height: 1.2,
+            ),
           ),
           Padding(
             padding: EdgeInsets.symmetric(horizontal: size * 0.5),
-            child: Transform.rotate(
-              angle: math.pi / 4,
-              child: Container(
-                width: size * 0.18,
-                height: size * 0.18,
+            child: Container(
+              width: size * 0.16,
+              height: size * 0.16,
+              decoration: BoxDecoration(
                 color: Site.accent,
+                shape: BoxShape.circle,
               ),
             ),
           ),
         ],
       ],
     );
-    return Container(
-      color: widget.dark ? Site.night : Site.concrete,
-      padding: EdgeInsets.symmetric(vertical: context.fluid(18, 30)),
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: context.fluid(10, 24)),
       child: ClipRect(
         child: SizedBox(
-          height: size * 1.1,
+          height: size * 1.4,
           child: AnimatedBuilder(
             animation: _c,
             builder: (context, child) => OverflowBox(
@@ -673,20 +535,18 @@ class _TickerState extends State<Ticker> with SingleTickerProviderStateMixin {
 
 // ================================================================== PROGETTI
 
-/// Scheda di un progetto: foto che si avvicina al passaggio del mouse,
-/// categoria, stato, titolo e dati essenziali.
+/// Scheda di un progetto: foto arrotondata che si avvicina al passaggio del
+/// mouse, titolo e luogo.
 class ProjectCard extends StatefulWidget {
   const ProjectCard({
     super.key,
     required this.project,
     this.aspect = 4 / 3,
-    this.number,
-    this.big = false,
+    this.showSummary = false,
   });
   final Project project;
   final double aspect;
-  final int? number;
-  final bool big;
+  final bool showSummary;
 
   @override
   State<ProjectCard> createState() => _ProjectCardState();
@@ -701,7 +561,7 @@ class _ProjectCardState extends State<ProjectCard> {
     final meta = [
       p.location,
       p.year,
-    ].where((e) => e.trim().isNotEmpty).join('  ·  ');
+    ].where((e) => e.trim().isNotEmpty).join(' · ');
     return Semantics(
       button: true,
       label: 'Progetto ${p.title}',
@@ -716,31 +576,15 @@ class _ProjectCardState extends State<ProjectCard> {
             children: [
               AspectRatio(
                 aspectRatio: widget.aspect,
-                child: ClipRect(
+                child: Rounded(
                   child: Stack(
                     fit: StackFit.expand,
                     children: [
                       AnimatedScale(
-                        scale: _hover ? 1.07 : 1,
+                        scale: _hover ? 1.06 : 1,
                         duration: const Duration(milliseconds: 900),
                         curve: Curves.easeOutCubic,
                         child: PhotoImage(p.coverUrl),
-                      ),
-                      AnimatedOpacity(
-                        opacity: _hover ? 1 : 0,
-                        duration: const Duration(milliseconds: 400),
-                        child: DecoratedBox(
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                              colors: [
-                                Site.night.withValues(alpha: 0.05),
-                                Site.night.withValues(alpha: 0.65),
-                              ],
-                            ),
-                          ),
-                        ),
                       ),
                       Positioned(
                         left: 14,
@@ -749,13 +593,13 @@ class _ProjectCardState extends State<ProjectCard> {
                           spacing: 6,
                           children: [
                             if (p.category.isNotEmpty)
-                              _Badge(
+                              _Pill(
                                 p.category,
-                                color: Colors.white,
-                                onColor: Site.ink,
+                                color: Colors.white.withValues(alpha: 0.92),
+                                onColor: const Color(0xFF222222),
                               ),
                             if (p.status == ProjectStatus.inCorso)
-                              _Badge(
+                              _Pill(
                                 'In corso',
                                 color: Site.accent,
                                 onColor: Site.onAccent,
@@ -763,24 +607,27 @@ class _ProjectCardState extends State<ProjectCard> {
                           ],
                         ),
                       ),
-                      // "Apri" che entra dal basso al passaggio del mouse.
                       Positioned(
-                        right: 16,
-                        bottom: 16,
-                        child: AnimatedSlide(
-                          offset: Offset(0, _hover ? 0 : 0.4),
-                          duration: const Duration(milliseconds: 400),
-                          curve: Curves.easeOutCubic,
+                        right: 14,
+                        bottom: 14,
+                        child: AnimatedScale(
+                          scale: _hover ? 1 : 0.6,
+                          duration: const Duration(milliseconds: 350),
+                          curve: Curves.easeOutBack,
                           child: AnimatedOpacity(
                             opacity: _hover ? 1 : 0,
-                            duration: const Duration(milliseconds: 300),
+                            duration: const Duration(milliseconds: 250),
                             child: Container(
-                              width: 54,
-                              height: 54,
-                              color: Site.accent,
+                              width: 48,
+                              height: 48,
+                              decoration: BoxDecoration(
+                                color: Site.accent,
+                                shape: BoxShape.circle,
+                              ),
                               child: Icon(
                                 Icons.arrow_outward_rounded,
                                 color: Site.onAccent,
+                                size: 20,
                               ),
                             ),
                           ),
@@ -790,51 +637,22 @@ class _ProjectCardState extends State<ProjectCard> {
                   ),
                 ),
               ),
-              const SizedBox(height: 18),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (widget.number != null) ...[
-                    Padding(
-                      padding: const EdgeInsets.only(top: 4),
-                      child: Text(
-                        widget.number!.toString().padLeft(2, '0'),
-                        style: siteMono(12, color: Site.accentDeep),
-                      ),
-                    ),
-                    const SizedBox(width: 14),
-                  ],
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        AnimatedDefaultTextStyle(
-                          duration: const Duration(milliseconds: 250),
-                          style: siteHead(
-                            widget.big
-                                ? context.fluid(30, 44)
-                                : context.fluid(26, 34),
-                            color: _hover ? Site.accentDeep : Site.ink,
-                          ),
-                          child: Text(p.title.toUpperCase()),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          meta.toUpperCase(),
-                          style: siteMono(11.5, color: Site.muted),
-                        ),
-                        if (widget.big && p.summary.isNotEmpty) ...[
-                          const SizedBox(height: 10),
-                          Text(
-                            p.summary,
-                            style: siteBody(15, color: Site.muted),
-                          ),
-                        ],
-                      ],
-                    ),
-                  ),
-                ],
+              const SizedBox(height: 16),
+              AnimatedDefaultTextStyle(
+                duration: const Duration(milliseconds: 250),
+                style: siteHead(
+                  context.fluid(24, 30),
+                  color: _hover ? Site.accent : Site.ink,
+                  italic: _hover,
+                ),
+                child: Text(p.title),
               ),
+              const SizedBox(height: 4),
+              Text(meta, style: siteBody(14, color: Site.muted, height: 1.4)),
+              if (widget.showSummary && p.summary.isNotEmpty) ...[
+                const SizedBox(height: 6),
+                Text(p.summary, style: siteBody(15, color: Site.muted)),
+              ],
             ],
           ),
         ),
@@ -843,370 +661,169 @@ class _ProjectCardState extends State<ProjectCard> {
   }
 }
 
-class _Badge extends StatelessWidget {
-  const _Badge(this.text, {required this.color, required this.onColor});
+class _Pill extends StatelessWidget {
+  const _Pill(this.text, {required this.color, required this.onColor});
   final String text;
   final Color color;
   final Color onColor;
 
   @override
   Widget build(BuildContext context) => Container(
-    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-    color: color,
-    child: Text(
-      text.toUpperCase(),
-      style: siteMono(10.5, color: onColor, weight: FontWeight.w600),
+    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+    decoration: BoxDecoration(
+      color: color,
+      borderRadius: BorderRadius.circular(30),
     ),
+    child: Text(text, style: siteLabel(12, color: onColor, height: 1.2)),
   );
 }
 
-/// Progetti in evidenza: impaginazione "a rivista", schede sfalsate.
-class FeaturedProjects extends StatelessWidget {
-  const FeaturedProjects({super.key});
+/// Griglia di progetti: 1, 2 o 3 colonne secondo lo schermo.
+class ProjectGrid extends StatelessWidget {
+  const ProjectGrid({
+    super.key,
+    required this.projects,
+    this.showSummary = false,
+  });
+  final List<Project> projects;
+  final bool showSummary;
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, box) {
+        final cols = box.maxWidth >= 1000 ? 3 : (box.maxWidth >= 600 ? 2 : 1);
+        final gap = context.fluid(18, 34);
+        final w = (box.maxWidth - gap * (cols - 1)) / cols;
+        return Wrap(
+          spacing: gap,
+          runSpacing: gap * 1.6,
+          children: [
+            for (var i = 0; i < projects.length; i++)
+              SizedBox(
+                width: w,
+                child: Reveal(
+                  delay: Duration(milliseconds: 100 * (i % cols)),
+                  child: ProjectCard(
+                    project: projects[i],
+                    showSummary: showSummary,
+                    aspect: cols == 1 ? 4 / 3.4 : 4 / 3.2,
+                  ),
+                ),
+              ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+/// Gli ultimi progetti in evidenza, con il link a tutti.
+class RecentProjects extends StatelessWidget {
+  const RecentProjects({super.key});
 
   @override
   Widget build(BuildContext context) {
     final s = context.watch<AppState>();
     final c = s.content;
-    final list = s.featuredProjects.take(6).toList();
-    final wide = context.w >= 900;
-    final gap = context.fluid(24, 56);
-
-    final rows = <Widget>[];
-    if (wide) {
-      for (var i = 0; i < list.length; i += 2) {
-        final a = ProjectCard(
-          project: list[i],
-          number: i + 1,
-          aspect: 4 / 3,
-          big: true,
-        );
-        final b = i + 1 < list.length
-            ? ProjectCard(project: list[i + 1], number: i + 2, aspect: 4 / 5)
-            : null;
-        final left = (i ~/ 2).isEven;
-        rows.add(
-          Padding(
-            padding: EdgeInsets.only(bottom: gap * 1.6),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  flex: left ? 7 : 5,
-                  child: Padding(
-                    padding: EdgeInsets.only(top: left ? 0 : gap * 2.4),
-                    child: Reveal(child: left ? a : (b ?? const SizedBox())),
-                  ),
-                ),
-                SizedBox(width: gap),
-                Expanded(
-                  flex: left ? 5 : 7,
-                  child: Padding(
-                    padding: EdgeInsets.only(top: left ? gap * 2.4 : 0),
-                    child: Reveal(
-                      delay: const Duration(milliseconds: 150),
-                      child: left ? (b ?? const SizedBox()) : a,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      }
-    } else {
-      for (var i = 0; i < list.length; i++) {
-        rows.add(
-          Padding(
-            padding: EdgeInsets.only(bottom: gap * 1.6),
-            child: Reveal(
-              child: ProjectCard(
-                project: list[i],
-                number: i + 1,
-                aspect: context.isPhone ? 4 / 4.2 : 16 / 11,
-                big: true,
-              ),
-            ),
-          ),
-        );
-      }
-    }
-
+    // Righe sempre piene: 3 su tre colonne, 4 su due, 3 su una.
+    final n = context.w >= 1000 ? 3 : (context.w >= 600 ? 4 : 3);
+    final list = s.featuredProjects.take(n).toList();
+    if (list.isEmpty) return const SizedBox.shrink();
     return Section(
-      color: Site.paper,
-      top: 0,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(height: context.fluid(72, 140)),
           SectionHeading(
             kicker: c.projectsKicker,
-            number: '03',
             title: c.projectsTitle,
             text: c.projectsText,
             trailing: SiteButton(
               'Tutti i progetti',
-              kind: ButtonKind.dark,
+              kind: ButtonKind.outline,
               onTap: () => context.go('/progetti'),
             ),
           ),
-          SizedBox(height: context.fluid(48, 90)),
-          ...rows,
+          SizedBox(height: context.fluid(36, 64)),
+          ProjectGrid(projects: list),
         ],
       ),
     );
   }
 }
 
-// ==================================================================== SERVIZI
+// ================================================================== RECAPITI
 
-/// Servizi su fondo scuro: elenco numerato che si apre al passaggio del
-/// mouse (o al tocco) con la foto del servizio accanto.
-class ServicesSection extends StatefulWidget {
-  const ServicesSection({super.key, this.showHeading = true});
-  final bool showHeading;
-
-  @override
-  State<ServicesSection> createState() => _ServicesSectionState();
-}
-
-class _ServicesSectionState extends State<ServicesSection> {
-  int _open = 0;
+/// Chiusura della Home: dove siamo e come raggiungerci, senza fronzoli.
+class ContactStrip extends StatelessWidget {
+  const ContactStrip({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final s = context.watch<AppState>();
-    final c = s.content;
-    final list = s.activeServices;
-    if (list.isEmpty) return const SizedBox.shrink();
-    final open = _open.clamp(0, list.length - 1);
-    final wide = context.w >= 1000;
-
-    final rows = Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        for (var i = 0; i < list.length; i++)
-          Reveal(
-            delay: Duration(milliseconds: 70 * i),
-            child: _ServiceRow(
-              service: list[i],
-              number: i + 1,
-              open: i == open,
-              showImage: !wide,
-              onHover: wide ? () => setState(() => _open = i) : null,
-              onTap: () => setState(() => _open = i),
-            ),
-          ),
-        Container(height: 1, color: Site.lineDark),
-      ],
-    );
-
-    final image = AspectRatio(
-      aspectRatio: 4 / 5,
-      child: AnimatedSwitcher(
-        duration: const Duration(milliseconds: 700),
-        layoutBuilder: (cur, prev) =>
-            Stack(fit: StackFit.expand, children: [...prev, ?cur]),
-        child: Stack(
-          key: ValueKey(list[open].id),
-          fit: StackFit.expand,
-          children: [
-            PhotoImage(list[open].image, dark: true),
-            Positioned(
-              left: 0,
-              bottom: 0,
-              child: Container(
-                color: Site.accent,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 10,
-                ),
-                child: Text(
-                  '${(open + 1).toString().padLeft(2, '0')} — ${list[open].title.toUpperCase()}',
-                  style: siteMono(
-                    11.5,
-                    color: Site.onAccent,
-                    weight: FontWeight.w600,
-                  ),
-                ),
-              ),
-            ),
-          ],
+    final c = context.watch<AppState>().content;
+    final k = c.contacts;
+    final items = [
+      if (k.phone.isNotEmpty)
+        (
+          Icons.call_outlined,
+          'Telefono',
+          k.phone,
+          'tel:${phoneDigits(k.phone)}',
         ),
-      ),
-    );
-
+      if (k.email.isNotEmpty)
+        (Icons.mail_outline_rounded, 'Email', k.email, 'mailto:${k.email}'),
+      if (k.address.isNotEmpty)
+        (Icons.place_outlined, 'Sede', k.address, mapsUrl(k.address)),
+    ];
     return Section(
-      color: Site.night,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (widget.showHeading) ...[
-            SectionHeading(
-              kicker: c.servicesKicker,
-              number: '04',
-              title: c.servicesTitle,
-              text: c.servicesText,
-              dark: true,
-            ),
-            SizedBox(height: context.fluid(44, 80)),
-          ],
-          if (wide)
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(flex: 7, child: rows),
-                const SizedBox(width: 64),
-                Expanded(flex: 4, child: Reveal(child: image)),
-              ],
-            )
-          else
-            rows,
-        ],
-      ),
-    );
-  }
-}
-
-class _ServiceRow extends StatelessWidget {
-  const _ServiceRow({
-    required this.service,
-    required this.number,
-    required this.open,
-    required this.showImage,
-    required this.onTap,
-    this.onHover,
-  });
-  final ServiceItem service;
-  final int number;
-  final bool open;
-  final bool showImage;
-  final VoidCallback onTap;
-  final VoidCallback? onHover;
-
-  @override
-  Widget build(BuildContext context) {
-    return MouseRegion(
-      cursor: SystemMouseCursors.click,
-      onEnter: onHover == null ? null : (_) => onHover!(),
-      child: GestureDetector(
-        onTap: onTap,
-        behavior: HitTestBehavior.opaque,
+      top: 0,
+      child: Reveal(
         child: Container(
-          decoration: const BoxDecoration(
-            border: Border(top: BorderSide(color: Site.lineDark)),
+          padding: EdgeInsets.all(context.fluid(26, 56)),
+          decoration: BoxDecoration(
+            color: Site.concrete,
+            borderRadius: BorderRadius.circular(context.isPhone ? 22 : 30),
           ),
-          padding: EdgeInsets.symmetric(vertical: context.fluid(20, 28)),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
+          child: LayoutBuilder(
+            builder: (context, box) {
+              final wide = box.maxWidth >= 860;
+              final title = RevealTitle(
+                'Parliamo del\ntuo progetto.',
+                style: siteHead(context.fluid(34, 56)),
+              );
+              final list = Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  SizedBox(
-                    width: context.fluid(44, 70),
-                    child: Text(
-                      number.toString().padLeft(2, '0'),
-                      style: siteMono(13, color: Site.accent),
+                  for (final it in items)
+                    _ContactLine(
+                      icon: it.$1,
+                      label: it.$2,
+                      value: it.$3,
+                      url: it.$4,
                     ),
-                  ),
-                  Expanded(
-                    child: AnimatedDefaultTextStyle(
-                      duration: const Duration(milliseconds: 300),
-                      style: siteHead(
-                        context.fluid(28, 52),
-                        color: open ? Colors.white : Colors.white54,
-                      ),
-                      child: Text(service.title.toUpperCase()),
-                    ),
-                  ),
-                  AnimatedRotation(
-                    turns: open ? 0.125 : 0,
-                    duration: const Duration(milliseconds: 300),
-                    child: Icon(
-                      Icons.add_rounded,
-                      size: 28,
-                      color: open ? Site.accent : Colors.white54,
-                    ),
+                  const SizedBox(height: 14),
+                  HoverLink(
+                    'Scrivici dal modulo',
+                    arrow: true,
+                    onTap: () => context.go('/contatti'),
+                    style: siteLabel(15, color: Site.accentDeep),
                   ),
                 ],
-              ),
-              AnimatedSize(
-                duration: const Duration(milliseconds: 450),
-                curve: Curves.easeOutCubic,
-                alignment: Alignment.topLeft,
-                child: !open
-                    ? const SizedBox(width: double.infinity)
-                    : Padding(
-                        padding: EdgeInsets.only(
-                          left: context.fluid(44, 70),
-                          top: 18,
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            ConstrainedBox(
-                              constraints: const BoxConstraints(maxWidth: 620),
-                              child: Text(
-                                service.text,
-                                style: siteBody(16, color: Site.mutedDark),
-                              ),
-                            ),
-                            if (service.points.isNotEmpty) ...[
-                              const SizedBox(height: 16),
-                              Wrap(
-                                spacing: 8,
-                                runSpacing: 8,
-                                children: [
-                                  for (final p in service.points)
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 12,
-                                        vertical: 7,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        border: Border.all(
-                                          color: Colors.white24,
-                                        ),
-                                      ),
-                                      child: Text(
-                                        p.toUpperCase(),
-                                        style: siteMono(
-                                          10.5,
-                                          color: Colors.white,
-                                        ),
-                                      ),
-                                    ),
-                                ],
-                              ),
-                            ],
-                            if (showImage && service.image.isNotEmpty) ...[
-                              const SizedBox(height: 20),
-                              AspectRatio(
-                                aspectRatio: 16 / 10,
-                                child: PhotoImage(service.image, dark: true),
-                              ),
-                            ],
-                            const SizedBox(height: 18),
-                            HoverLink(
-                              'RICHIEDI UN SOPRALLUOGO',
-                              arrow: true,
-                              onTap: () => context.go(
-                                Uri(
-                                  path: '/contatti',
-                                  queryParameters: {'tipo': service.title},
-                                ).toString(),
-                              ),
-                              style: siteMono(
-                                12.5,
-                                color: Site.accent,
-                                weight: FontWeight.w600,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-              ),
-            ],
+              );
+              return wide
+                  ? Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(child: title),
+                        const SizedBox(width: 40),
+                        Expanded(child: list),
+                      ],
+                    )
+                  : Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [title, const SizedBox(height: 26), list],
+                    );
+            },
           ),
         ),
       ),
@@ -1214,338 +831,23 @@ class _ServiceRow extends StatelessWidget {
   }
 }
 
-// ===================================================================== METODO
-
-/// Le fasi di lavoro con una linea che si "costruisce" mentre compare.
-class ProcessSection extends StatelessWidget {
-  const ProcessSection({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final c = context.watch<AppState>().content;
-    if (c.process.isEmpty) return const SizedBox.shrink();
-    final wide = context.w >= 900;
-
-    Widget step(Milestone m, int i) => Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(m.year, style: siteOutline(context.fluid(64, 110), stroke: 1.3)),
-        const SizedBox(height: 14),
-        Text(m.title.toUpperCase(), style: siteHead(context.fluid(26, 32))),
-        const SizedBox(height: 10),
-        Text(m.text, style: siteBody(15, color: Site.muted)),
-      ],
-    );
-
-    return Section(
-      color: Site.concrete,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SectionHeading(
-            kicker: c.processKicker,
-            number: '05',
-            title: c.processTitle,
-          ),
-          SizedBox(height: context.fluid(44, 80)),
-          if (wide) ...[
-            const _BuildLine(),
-            const SizedBox(height: 34),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                for (var i = 0; i < c.process.length; i++) ...[
-                  if (i > 0) const SizedBox(width: 36),
-                  Expanded(
-                    child: Reveal(
-                      delay: Duration(milliseconds: 200 * i),
-                      child: step(c.process[i], i),
-                    ),
-                  ),
-                ],
-              ],
-            ),
-          ] else
-            for (var i = 0; i < c.process.length; i++)
-              Reveal(
-                child: Container(
-                  padding: const EdgeInsets.only(left: 22, bottom: 34),
-                  decoration: BoxDecoration(
-                    border: Border(
-                      left: BorderSide(color: Site.accent, width: 2),
-                    ),
-                  ),
-                  child: step(c.process[i], i),
-                ),
-              ),
-        ],
-      ),
-    );
-  }
-}
-
-/// Linea orizzontale che si riempie da sinistra quando diventa visibile.
-class _BuildLine extends StatelessWidget {
-  const _BuildLine();
-
-  @override
-  Widget build(BuildContext context) => Reveal(
-    offset: 0,
-    child: TweenAnimationBuilder<double>(
-      tween: Tween(begin: 0, end: 1),
-      duration: const Duration(milliseconds: 2400),
-      curve: Curves.easeInOutCubic,
-      builder: (context, t, _) => Stack(
-        children: [
-          Container(height: 2, color: Site.line),
-          FractionallySizedBox(
-            widthFactor: t,
-            child: Container(height: 2, color: Site.accent),
-          ),
-        ],
-      ),
-    ),
-  );
-}
-
-// ================================================================= CITAZIONE
-
-class QuoteBand extends StatelessWidget {
-  const QuoteBand({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final c = context.watch<AppState>().content;
-    if (c.quoteText.trim().isEmpty) return const SizedBox.shrink();
-    return SizedBox(
-      height: math.max(context.screenH * 0.8, 520.0),
-      child: Stack(
-        fit: StackFit.expand,
-        children: [
-          ColoredBox(
-            color: Site.night,
-            child: ParallaxImage(c.quoteImage, extent: 0.35, dark: true),
-          ),
-          ColoredBox(color: Site.night.withValues(alpha: 0.62)),
-          const BlueprintGrid(),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: context.gutter),
-            child: Center(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 1100),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Reveal(
-                      child: Text(
-                        '“',
-                        style: siteHead(
-                          context.fluid(90, 160),
-                          color: Site.accent,
-                          height: 0.6,
-                        ),
-                      ),
-                    ),
-                    Reveal(
-                      delay: const Duration(milliseconds: 150),
-                      child: Text(
-                        c.quoteText.toUpperCase(),
-                        textAlign: TextAlign.center,
-                        style: siteHead(
-                          context.fluid(30, 62),
-                          color: Colors.white,
-                          height: 1.05,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 30),
-                    Reveal(
-                      delay: const Duration(milliseconds: 300),
-                      child: Text(
-                        '— ${c.quoteAuthor.toUpperCase()}',
-                        textAlign: TextAlign.center,
-                        style: siteMono(12.5, color: Site.accent),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// ============================================================= TESTIMONIANZE
-
-class TestimonialsSection extends StatefulWidget {
-  const TestimonialsSection({super.key});
-
-  @override
-  State<TestimonialsSection> createState() => _TestimonialsSectionState();
-}
-
-class _TestimonialsSectionState extends State<TestimonialsSection> {
-  int _i = 0;
-  Timer? _timer;
-
-  @override
-  void initState() {
-    super.initState();
-    _restart();
-  }
-
-  void _restart() {
-    _timer?.cancel();
-    _timer = Timer.periodic(const Duration(seconds: 8), (_) {
-      if (mounted) setState(() => _i++);
-    });
-  }
-
-  @override
-  void dispose() {
-    _timer?.cancel();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final list = context.watch<AppState>().publishedTestimonials;
-    if (list.isEmpty) return const SizedBox.shrink();
-    final i = _i % list.length;
-    final t = list[i];
-    final wide = context.w >= 900;
-
-    final quote = AnimatedSwitcher(
-      duration: const Duration(milliseconds: 700),
-      layoutBuilder: (cur, prev) =>
-          Stack(alignment: Alignment.topLeft, children: [...prev, ?cur]),
-      transitionBuilder: (child, a) => FadeTransition(
-        opacity: a,
-        child: SlideTransition(
-          position: Tween(
-            begin: const Offset(0, 0.06),
-            end: Offset.zero,
-          ).animate(a),
-          child: child,
-        ),
-      ),
-      child: Column(
-        key: ValueKey(t.id),
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            '“${t.text}”',
-            style: siteBody(
-              context.fluid(20, 30),
-              weight: FontWeight.w500,
-              height: 1.45,
-            ),
-          ),
-          const SizedBox(height: 26),
-          Text(t.name.toUpperCase(), style: siteHead(24)),
-          if (t.role.isNotEmpty)
-            Text(
-              t.role.toUpperCase(),
-              style: siteMono(11.5, color: Site.accentDeep),
-            ),
-        ],
-      ),
-    );
-
-    final controls = Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        _SquareButton(
-          icon: Icons.arrow_back_rounded,
-          onTap: () {
-            setState(() => _i = (_i - 1) < 0 ? list.length - 1 : _i - 1);
-            _restart();
-          },
-        ),
-        const SizedBox(width: 10),
-        _SquareButton(
-          icon: Icons.arrow_forward_rounded,
-          onTap: () {
-            setState(() => _i++);
-            _restart();
-          },
-        ),
-        const SizedBox(width: 18),
-        Text(
-          '${(i + 1).toString().padLeft(2, '0')} / ${list.length.toString().padLeft(2, '0')}',
-          style: siteMono(12.5),
-        ),
-      ],
-    );
-
-    return Section(
-      color: Site.paper,
-      child: wide
-          ? Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  flex: 4,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Reveal(child: Tag('Dicono di noi', number: '06')),
-                      const SizedBox(height: 26),
-                      RevealTitle(
-                        'La parola\nai clienti.',
-                        style: siteHead(context.fluid(44, 80)),
-                        accentLast: true,
-                      ),
-                      const SizedBox(height: 36),
-                      controls,
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 60),
-                Expanded(
-                  flex: 7,
-                  child: Reveal(
-                    child: ConstrainedBox(
-                      constraints: const BoxConstraints(minHeight: 300),
-                      child: quote,
-                    ),
-                  ),
-                ),
-              ],
-            )
-          : Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Reveal(child: Tag('Dicono di noi', number: '06')),
-                const SizedBox(height: 20),
-                RevealTitle(
-                  'La parola\nai clienti.',
-                  style: siteHead(context.fluid(42, 80)),
-                  accentLast: true,
-                ),
-                const SizedBox(height: 28),
-                Reveal(child: quote),
-                const SizedBox(height: 28),
-                controls,
-              ],
-            ),
-    );
-  }
-}
-
-class _SquareButton extends StatefulWidget {
-  const _SquareButton({required this.icon, required this.onTap});
+class _ContactLine extends StatefulWidget {
+  const _ContactLine({
+    required this.icon,
+    required this.label,
+    required this.value,
+    required this.url,
+  });
   final IconData icon;
-  final VoidCallback onTap;
+  final String label;
+  final String value;
+  final String url;
 
   @override
-  State<_SquareButton> createState() => _SquareButtonState();
+  State<_ContactLine> createState() => _ContactLineState();
 }
 
-class _SquareButtonState extends State<_SquareButton> {
+class _ContactLineState extends State<_ContactLine> {
   bool _hover = false;
 
   @override
@@ -1554,116 +856,44 @@ class _SquareButtonState extends State<_SquareButton> {
     onEnter: (_) => setState(() => _hover = true),
     onExit: (_) => setState(() => _hover = false),
     child: GestureDetector(
-      onTap: widget.onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 250),
-        width: 52,
-        height: 52,
-        decoration: BoxDecoration(
-          color: _hover ? Site.ink : Colors.transparent,
-          border: Border.all(color: Site.ink, width: 1.4),
-        ),
-        child: Icon(
-          widget.icon,
-          size: 20,
-          color: _hover ? Colors.white : Site.ink,
+      onTap: () => openUrl(widget.url),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 9),
+        child: Row(
+          children: [
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 250),
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: _hover ? Site.accent : Site.surface,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                widget.icon,
+                size: 19,
+                color: _hover ? Site.onAccent : Site.ink,
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    widget.label,
+                    style: siteBody(12.5, color: Site.muted, height: 1.3),
+                  ),
+                  Text(
+                    widget.value,
+                    style: siteBody(16, weight: FontWeight.w500, height: 1.4),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     ),
   );
-}
-
-// ======================================================================= CTA
-
-/// Invito finale: testo su fondo scuro accanto a una foto di cantiere.
-class CtaSection extends StatelessWidget {
-  const CtaSection({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final c = context.watch<AppState>().content;
-    final wide = context.w >= 900;
-    final phone = c.contacts.phone;
-
-    final text = Padding(
-      padding: EdgeInsets.all(context.fluid(28, 80)),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Reveal(child: Tag('Inizia da qui', number: '07', dark: true)),
-          const SizedBox(height: 24),
-          RevealTitle(
-            c.ctaTitle,
-            style: siteHead(context.fluid(46, 96), color: Colors.white),
-            accentLast: true,
-          ),
-          const SizedBox(height: 22),
-          Reveal(
-            delay: const Duration(milliseconds: 200),
-            child: Text(c.ctaText, style: siteBody(17, color: Site.mutedDark)),
-          ),
-          const SizedBox(height: 34),
-          Reveal(
-            delay: const Duration(milliseconds: 300),
-            child: Wrap(
-              spacing: 14,
-              runSpacing: 14,
-              children: [
-                SiteButton(
-                  'Richiedi sopralluogo',
-                  onTap: () => context.go('/contatti'),
-                ),
-                if (phone.isNotEmpty)
-                  SiteButton(
-                    phone,
-                    kind: ButtonKind.light,
-                    icon: Icons.call_outlined,
-                    onTap: () => openUrl('tel:${phoneDigits(phone)}'),
-                  ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-
-    final image = ParallaxImage(c.ctaImage, extent: 0.25, dark: true);
-
-    return Container(
-      color: Site.graphite,
-      // Su schermi larghi la foto occupa la metà destra, alta quanto il testo.
-      child: wide
-          ? Stack(
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: ConstrainedBox(
-                        constraints: const BoxConstraints(minHeight: 600),
-                        child: Center(child: text),
-                      ),
-                    ),
-                    const Spacer(),
-                  ],
-                ),
-                Positioned.fill(
-                  child: Row(
-                    children: [
-                      const Spacer(),
-                      Expanded(child: image),
-                    ],
-                  ),
-                ),
-              ],
-            )
-          : Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                AspectRatio(aspectRatio: 16 / 10, child: image),
-                text,
-              ],
-            ),
-    );
-  }
 }

@@ -40,7 +40,7 @@ class AdminLook extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const AdminHeader(
-          title: 'STILE E COLORI',
+          title: 'Stile e colori',
           subtitle:
               'Le stesse pagine con tonalità diverse. Scegli la tavolozza predefinita, quali proporre ai '
               'visitatori e chi vede il pulsante "Colori".',
@@ -181,7 +181,7 @@ class _ThemeCard extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(14, 10, 6, 4),
             child: Row(
               children: [
-                Expanded(child: Text(t.name.toUpperCase(), style: display(22))),
+                Expanded(child: Text(t.name, style: display(24))),
                 IconButton(
                   tooltip: isDefault ? 'Predefinita' : 'Rendi predefinita',
                   onPressed: isDefault ? null : onDefault,

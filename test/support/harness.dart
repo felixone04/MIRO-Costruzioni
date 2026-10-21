@@ -69,7 +69,7 @@ class _FakeManifest implements AssetManifest {
 bool _envReady = false;
 
 /// Tutte le famiglie usate dal sito e dal gestionale.
-const _families = ['Barlow Condensed', 'IBM Plex Mono', 'Manrope'];
+const _families = ['Fraunces', 'DM Sans'];
 
 /// Prepara l'ambiente: font Google sostituiti da Roboto (metriche realistiche,
 /// niente rete), date in italiano, VisibilityDetector immediato.

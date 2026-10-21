@@ -75,7 +75,7 @@ class _AdminRequestsState extends State<AdminRequests> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const AdminHeader(
-          title: 'RICHIESTE',
+          title: 'Richieste',
           subtitle: 'Chi ha compilato il modulo contatti: richiama, fissa il sopralluogo e segui la trattativa.',
         ),
         ConstrainedBox(

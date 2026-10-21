@@ -160,7 +160,7 @@ class AdminDashboard extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const AdminHeader(
-          title: 'BENVENUTO',
+          title: 'Bentornato',
           subtitle: 'La situazione di oggi.',
         ),
         LayoutBuilder(

@@ -7,7 +7,6 @@ import '../../theme/app_theme.dart';
 import '../../theme/site_theme.dart';
 import '../../widgets/brand_logo.dart';
 import '../../widgets/common.dart';
-import '../../widgets/site_scaffold.dart' show BlueprintGrid;
 import 'admin_calendar.dart';
 import 'admin_catalog.dart';
 import 'admin_content.dart';
@@ -128,7 +127,7 @@ class _LoginState extends State<_Login> {
     final wide = MediaQuery.sizeOf(context).width >= 900;
     final photo = s.heroProjects.isNotEmpty
         ? s.heroProjects.first.coverUrl
-        : s.content.ctaImage;
+        : s.content.aboutImage;
 
     final form = ConstrainedBox(
       constraints: const BoxConstraints(maxWidth: 380),
@@ -143,7 +142,7 @@ class _LoginState extends State<_Login> {
             ),
             const SizedBox(height: 18),
             Text(
-              create ? 'SCEGLI LA\nPASSWORD.' : 'BENTORNATO.',
+              create ? 'Scegli la\npassword.' : 'Bentornato.',
               style: display(wide ? 62 : 50, height: 0.95),
             ),
             const SizedBox(height: 12),
@@ -242,7 +241,6 @@ class _LoginState extends State<_Login> {
       children: [
         PhotoImage(photo, dark: true),
         ColoredBox(color: Site.night.withValues(alpha: 0.55)),
-        const BlueprintGrid(opacity: 0.08),
         Center(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -355,10 +353,7 @@ class _ShellState extends State<_Shell> {
         foregroundColor: Colors.white,
         surfaceTintColor: Colors.transparent,
         titleSpacing: 0,
-        title: Text(
-          current.label.toUpperCase(),
-          style: display(26, color: Colors.white),
-        ),
+        title: Text(current.label, style: display(26, color: Colors.white)),
         actions: [
           IconButton(
             tooltip: 'Vedi il sito',
@@ -409,7 +404,7 @@ class _NavPanel extends StatelessWidget {
                       padding: EdgeInsets.fromLTRB(12, g == 0 ? 0 : 18, 12, 8),
                       child: Text(
                         _groups[g].$1.toUpperCase(),
-                        style: siteMono(10, color: Site.mutedDark),
+                        style: siteLabel(10, color: Site.mutedDark),
                       ),
                     ),
                     for (final sec in _groups[g].$2)

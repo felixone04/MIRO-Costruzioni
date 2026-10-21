@@ -5,7 +5,7 @@ import '../state/app_state.dart';
 import '../theme/app_theme.dart';
 import '../theme/site_theme.dart';
 
-/// Quadratino che riassume una tavolozza: fondo scuro, fondo chiaro e accento.
+/// Pallino che riassume una tavolozza: metà fondo, metà colore delle scritte.
 class ThemeSwatch extends StatelessWidget {
   const ThemeSwatch({
     super.key,
@@ -25,14 +25,17 @@ class ThemeSwatch extends StatelessWidget {
       height: size,
       padding: EdgeInsets.all(selected ? 2.5 : 0),
       decoration: BoxDecoration(
+        shape: BoxShape.circle,
         border: Border.all(
-          color: selected ? Site.accent : Colors.white24,
+          color: selected ? Site.accent : Site.line,
           width: selected ? 1.6 : 1,
         ),
       ),
-      child: CustomPaint(
-        painter: _SwatchPainter(theme),
-        size: Size.square(size),
+      child: ClipOval(
+        child: CustomPaint(
+          painter: _SwatchPainter(theme),
+          size: Size.square(size),
+        ),
       ),
     );
   }
@@ -44,17 +47,15 @@ class _SwatchPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final w = size.width;
-    final h = size.height;
-    canvas.drawRect(Offset.zero & size, Paint()..color = t.night);
-    canvas.drawRect(
-      Rect.fromLTWH(w / 2, 0, w / 2, h),
-      Paint()..color = t.concrete,
-    );
-    canvas.drawRect(
-      Rect.fromLTWH(0, h * 0.62, w, h * 0.38),
-      Paint()..color = t.accent,
-    );
+    final r = Offset.zero & size;
+    canvas.drawRect(r, Paint()..color = t.paper);
+    final p = Path()
+      ..moveTo(size.width, 0)
+      ..lineTo(size.width, size.height)
+      ..lineTo(0, size.height)
+      ..close();
+    canvas.drawPath(p, Paint()..color = t.accent);
+    canvas.drawCircle(r.center, size.width * 0.13, Paint()..color = t.ink);
   }
 
   @override
@@ -62,7 +63,7 @@ class _SwatchPainter extends CustomPainter {
 }
 
 /// Pulsante fisso "Colori": apre l'elenco delle tavolozze e le applica al
-/// volo a tutto il sito, per vedere le stesse pagine con tonalità diverse.
+/// volo a tutto il sito, per vedere le stesse pagine con atmosfere diverse.
 class ThemeSwitcher extends StatefulWidget {
   const ThemeSwitcher({super.key});
 
@@ -78,20 +79,21 @@ class _ThemeSwitcherState extends State<ThemeSwitcher> {
     final s = context.watch<AppState>();
     final current = s.currentTheme;
     final themes = s.offeredThemes;
-    final maxW = (context.w - 28).clamp(200.0, 290.0);
+    final maxW = (context.w - 28).clamp(200.0, 270.0);
 
     final panel = Container(
       width: maxW,
       margin: const EdgeInsets.only(bottom: 10),
-      padding: const EdgeInsets.fromLTRB(6, 14, 6, 6),
+      padding: const EdgeInsets.fromLTRB(8, 14, 8, 8),
       decoration: BoxDecoration(
-        color: Site.night,
-        border: Border.all(color: Site.lineDark),
-        boxShadow: const [
+        color: Site.surface,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Site.line),
+        boxShadow: [
           BoxShadow(
-            color: Colors.black45,
+            color: Colors.black.withValues(alpha: Site.dark ? 0.5 : 0.14),
             blurRadius: 30,
-            offset: Offset(0, 12),
+            offset: const Offset(0, 12),
           ),
         ],
       ),
@@ -100,10 +102,10 @@ class _ThemeSwitcherState extends State<ThemeSwitcher> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(10, 0, 10, 10),
+            padding: const EdgeInsets.fromLTRB(10, 0, 10, 8),
             child: Text(
-              'SCEGLI LE TONALITÀ',
-              style: siteMono(10.5, color: Site.mutedDark),
+              'Colori del sito',
+              style: siteBody(13, color: Site.muted),
             ),
           ),
           ConstrainedBox(
@@ -143,17 +145,17 @@ class _ThemeSwitcherState extends State<ThemeSwitcher> {
             child: GestureDetector(
               onTap: () => setState(() => _open = !_open),
               child: Container(
-                height: context.isPhone ? 50 : 54,
+                height: context.isPhone ? 48 : 52,
                 padding: EdgeInsets.only(
-                  left: 8,
-                  right: !_open && context.isPhone ? 12 : 16,
+                  left: 7,
+                  right: !_open && context.isPhone ? 7 : 18,
                 ),
                 decoration: BoxDecoration(
-                  color: Site.night,
-                  border: Border.all(color: Site.accent, width: 1.4),
+                  color: Site.ink,
+                  borderRadius: BorderRadius.circular(40),
                   boxShadow: const [
                     BoxShadow(
-                      color: Colors.black38,
+                      color: Colors.black26,
                       blurRadius: 18,
                       offset: Offset(0, 6),
                     ),
@@ -162,23 +164,22 @@ class _ThemeSwitcherState extends State<ThemeSwitcher> {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    ThemeSwatch(theme: current, size: 32),
-                    const SizedBox(width: 10),
-                    Icon(
-                      _open ? Icons.close_rounded : Icons.palette_outlined,
-                      size: 18,
-                      color: Colors.white,
+                    ThemeSwatch(
+                      theme: current,
+                      size: context.isPhone ? 34 : 38,
                     ),
-                    // Da telefono, chiuso, resta solo l'icona: copre meno.
+                    // Da telefono, chiuso, resta solo il pallino: copre meno.
                     if (_open || !context.isPhone) ...[
+                      const SizedBox(width: 10),
+                      Icon(
+                        _open ? Icons.close_rounded : Icons.palette_outlined,
+                        size: 18,
+                        color: Site.paper,
+                      ),
                       const SizedBox(width: 8),
                       Text(
-                        _open ? 'CHIUDI' : 'COLORI',
-                        style: siteMono(
-                          11.5,
-                          color: Colors.white,
-                          weight: FontWeight.w600,
-                        ),
+                        _open ? 'Chiudi' : 'Colori',
+                        style: siteLabel(14, color: Site.paper),
                       ),
                     ],
                   ],
@@ -215,7 +216,7 @@ class _ThemeRowState extends State<_ThemeRow> {
     return Semantics(
       button: true,
       selected: widget.selected,
-      label: 'Tonalità ${th.name}',
+      label: 'Colori ${th.name}',
       child: MouseRegion(
         cursor: SystemMouseCursors.click,
         onEnter: (_) => setState(() => _hover = true),
@@ -225,27 +226,30 @@ class _ThemeRowState extends State<_ThemeRow> {
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 200),
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-            color: widget.selected || _hover
-                ? Colors.white.withValues(alpha: widget.selected ? 0.09 : 0.05)
-                : Colors.transparent,
+            decoration: BoxDecoration(
+              color: widget.selected || _hover
+                  ? Site.ink.withValues(alpha: widget.selected ? 0.08 : 0.04)
+                  : Colors.transparent,
+              borderRadius: BorderRadius.circular(14),
+            ),
             child: Row(
               children: [
                 ThemeSwatch(theme: th, size: 32, selected: widget.selected),
-                const SizedBox(width: 14),
+                const SizedBox(width: 12),
                 Expanded(
-                  child: Text(
-                    th.name.toUpperCase(),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: siteHead(20, color: Colors.white, height: 1.1),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(th.name, style: siteHead(19, height: 1.15)),
+                      Text(
+                        th.dark ? 'Scuro' : 'Chiaro',
+                        style: siteBody(12, color: Site.muted, height: 1.3),
+                      ),
+                    ],
                   ),
                 ),
-                // Il colore d'accento della tavolozza come anteprima.
-                Container(width: 10, height: 10, color: th.accent),
-                if (widget.selected) ...[
-                  const SizedBox(width: 10),
-                  Icon(Icons.check_rounded, size: 18, color: Site.accent),
-                ],
+                if (widget.selected)
+                  Icon(Icons.check_rounded, size: 18, color: Site.accentDeep),
               ],
             ),
           ),

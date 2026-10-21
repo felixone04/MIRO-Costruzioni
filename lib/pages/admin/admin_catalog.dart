@@ -17,7 +17,7 @@ class AdminServices extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         AdminHeader(
-          title: 'SERVIZI',
+          title: 'Servizi',
           subtitle: 'Cosa fa l\'impresa: compaiono in Home e nella pagina Servizi. Trascina per riordinare.',
           actions: [
             FilledButton.icon(
@@ -166,6 +166,31 @@ class _ServiceDialogState extends State<_ServiceDialog> {
                   onChanged: (l) => _d.points = l,
                 ),
                 const SizedBox(height: 22),
+                Text(
+                  'Lavori da mostrare',
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                const SizedBox(height: 4),
+                const Text(
+                  'Nella pagina Servizi compaiono le foto dei progetti di queste categorie.',
+                  style: TextStyle(color: Colors.black54, fontSize: 13),
+                ),
+                const SizedBox(height: 10),
+                Wrap(
+                  spacing: 6,
+                  runSpacing: 6,
+                  children: [
+                    for (final c in context.read<AppState>().content.categories)
+                      FilterChip(
+                        label: Text(c),
+                        selected: _d.categories.contains(c),
+                        onSelected: (v) => setState(() {
+                          v ? _d.categories.add(c) : _d.categories.remove(c);
+                        }),
+                      ),
+                  ],
+                ),
+                const SizedBox(height: 22),
                 ImageField(
                   label: 'FOTO',
                   aspect: 4 / 3,
@@ -207,7 +232,7 @@ class AdminTestimonials extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         AdminHeader(
-          title: 'TESTIMONIANZE',
+          title: 'Testimonianze',
           subtitle: 'Le parole dei clienti che scorrono in Home. Trascina per riordinare.',
           actions: [
             FilledButton.icon(

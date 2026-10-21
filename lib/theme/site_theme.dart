@@ -1,174 +1,163 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-/// Una tavolozza del sito: le stesse pagine con tonalità diverse.
+/// Una tavolozza del sito: le stesse pagine con atmosfere diverse, chiare o
+/// scure.
 @immutable
 class SiteTheme {
   const SiteTheme({
     required this.id,
     required this.name,
-    required this.night,
-    required this.graphite,
-    required this.steel,
-    required this.concrete,
+    required this.dark,
     required this.paper,
+    required this.concrete,
+    required this.surface,
     required this.ink,
     required this.muted,
-    required this.mutedDark,
     required this.accent,
     required this.accentDeep,
     required this.onAccent,
+    required this.night,
+    required this.mutedDark,
   });
 
   final String id;
   final String name;
 
-  /// Fondo delle sezioni scure (barra, servizi, piè di pagina).
-  final Color night;
-  final Color graphite;
-  final Color steel;
+  /// Pagine su fondo scuro e testo chiaro.
+  final bool dark;
 
-  /// Fondi chiari.
-  final Color concrete;
+  /// Fondo della pagina, fondo alternato delle sezioni, schede e campi.
   final Color paper;
+  final Color concrete;
+  final Color surface;
 
-  /// Testo sul chiaro e secondario sul chiaro / sullo scuro.
+  /// Testo e testo secondario.
   final Color ink;
   final Color muted;
-  final Color mutedDark;
 
-  /// Colore del marchio, la sua versione leggibile sul chiaro e il testo
-  /// che ci va sopra.
+  /// Colore delle scritte in evidenza, la sua versione per i testi piccoli e
+  /// il colore che ci va sopra.
   final Color accent;
   final Color accentDeep;
   final Color onAccent;
+
+  /// Fondo delle parti sempre scure (prima schermata, piè di pagina) e testo
+  /// secondario che ci va sopra.
+  final Color night;
+  final Color mutedDark;
 
   static SiteTheme lerp(SiteTheme a, SiteTheme b, double t) {
     Color c(Color x, Color y) => Color.lerp(x, y, t)!;
     return SiteTheme(
       id: t < 0.5 ? a.id : b.id,
       name: t < 0.5 ? a.name : b.name,
-      night: c(a.night, b.night),
-      graphite: c(a.graphite, b.graphite),
-      steel: c(a.steel, b.steel),
-      concrete: c(a.concrete, b.concrete),
+      dark: t < 0.5 ? a.dark : b.dark,
       paper: c(a.paper, b.paper),
+      concrete: c(a.concrete, b.concrete),
+      surface: c(a.surface, b.surface),
       ink: c(a.ink, b.ink),
       muted: c(a.muted, b.muted),
-      mutedDark: c(a.mutedDark, b.mutedDark),
       accent: c(a.accent, b.accent),
       accentDeep: c(a.accentDeep, b.accentDeep),
       onAccent: c(a.onAccent, b.onAccent),
+      night: c(a.night, b.night),
+      mutedDark: c(a.mutedDark, b.mutedDark),
     );
   }
 }
 
-/// Le tavolozze proposte dal pulsante "Colori".
+/// Le tavolozze proposte dal pulsante "Colori": tre chiare e tre scure.
 const builtInThemes = <SiteTheme>[
   SiteTheme(
-    id: 'cantiere',
-    name: 'Ocra cantiere',
-    night: Color(0xFF111315),
-    graphite: Color(0xFF1A1D20),
-    steel: Color(0xFF2A2E33),
-    concrete: Color(0xFFE7E4DE),
-    paper: Color(0xFFF3F1ED),
-    ink: Color(0xFF141618),
-    muted: Color(0xFF666A70),
-    mutedDark: Color(0xFFA2A6AB),
-    accent: Color(0xFFE29B2E),
-    accentDeep: Color(0xFFB9761A),
-    onAccent: Color(0xFF141618),
-  ),
-  SiteTheme(
-    id: 'cotto',
-    name: 'Cotto e argilla',
-    night: Color(0xFF1C1512),
-    graphite: Color(0xFF261C18),
-    steel: Color(0xFF3A2C26),
-    concrete: Color(0xFFEDE3D9),
-    paper: Color(0xFFF7F1EA),
-    ink: Color(0xFF1F1612),
-    muted: Color(0xFF76665C),
-    mutedDark: Color(0xFFB5A79D),
-    accent: Color(0xFFD0623A),
-    accentDeep: Color(0xFFAE4520),
+    id: 'sabbia',
+    name: 'Sabbia',
+    dark: false,
+    paper: Color(0xFFF4EEE4),
+    concrete: Color(0xFFEBE2D4),
+    surface: Color(0xFFFBF8F3),
+    ink: Color(0xFF3B2B27),
+    muted: Color(0xFF7D6C64),
+    accent: Color(0xFFCD5C5C),
+    accentDeep: Color(0xFFB44848),
     onAccent: Color(0xFFFFFFFF),
+    night: Color(0xFF2E2120),
+    mutedDark: Color(0xFFC9B9B0),
   ),
   SiteTheme(
-    id: 'progetto',
-    name: 'Blu progetto',
-    night: Color(0xFF0D1522),
-    graphite: Color(0xFF142034),
-    steel: Color(0xFF22324B),
-    concrete: Color(0xFFE3E8EF),
-    paper: Color(0xFFF2F5F9),
-    ink: Color(0xFF0E1A2B),
-    muted: Color(0xFF5A6779),
-    mutedDark: Color(0xFF9CA9BB),
-    accent: Color(0xFF4C8DF6),
-    accentDeep: Color(0xFF235FCB),
+    id: 'calce',
+    name: 'Calce',
+    dark: false,
+    paper: Color(0xFFF6F5F2),
+    concrete: Color(0xFFECEAE5),
+    surface: Color(0xFFFFFFFF),
+    ink: Color(0xFF23262A),
+    muted: Color(0xFF6B6F74),
+    accent: Color(0xFF7A2E3A),
+    accentDeep: Color(0xFF7A2E3A),
     onAccent: Color(0xFFFFFFFF),
+    night: Color(0xFF1E2023),
+    mutedDark: Color(0xFFB4B7BB),
   ),
   SiteTheme(
-    id: 'oliva',
-    name: 'Verde oliva',
-    night: Color(0xFF141A15),
-    graphite: Color(0xFF1C241E),
-    steel: Color(0xFF2C382F),
-    concrete: Color(0xFFE4E7DE),
-    paper: Color(0xFFF2F3EC),
-    ink: Color(0xFF151C16),
-    muted: Color(0xFF5E6A60),
-    mutedDark: Color(0xFFA0ABA1),
-    accent: Color(0xFF9DB55A),
-    accentDeep: Color(0xFF627A24),
-    onAccent: Color(0xFF141C10),
-  ),
-  SiteTheme(
-    id: 'mattone',
-    name: 'Rosso mattone',
-    night: Color(0xFF161414),
-    graphite: Color(0xFF201C1C),
-    steel: Color(0xFF332D2D),
-    concrete: Color(0xFFE9E5E2),
-    paper: Color(0xFFF5F3F1),
-    ink: Color(0xFF181414),
-    muted: Color(0xFF6C6563),
-    mutedDark: Color(0xFFAAA3A1),
-    accent: Color(0xFFD9412F),
-    accentDeep: Color(0xFFB52E1E),
+    id: 'salvia',
+    name: 'Salvia',
+    dark: false,
+    paper: Color(0xFFEEF0E8),
+    concrete: Color(0xFFE2E6DA),
+    surface: Color(0xFFF8F9F4),
+    ink: Color(0xFF2D3830),
+    muted: Color(0xFF66716A),
+    accent: Color(0xFF8A6A3D),
+    accentDeep: Color(0xFF7A5C31),
     onAccent: Color(0xFFFFFFFF),
+    night: Color(0xFF233026),
+    mutedDark: Color(0xFFB3BDB5),
   ),
   SiteTheme(
-    id: 'sicurezza',
-    name: 'Giallo sicurezza',
-    night: Color(0xFF0F0F10),
-    graphite: Color(0xFF19191B),
-    steel: Color(0xFF29292C),
-    concrete: Color(0xFFE6E5E0),
-    paper: Color(0xFFF4F3EF),
-    ink: Color(0xFF111112),
-    muted: Color(0xFF66666A),
-    mutedDark: Color(0xFFA5A5A9),
-    accent: Color(0xFFF5C518),
-    accentDeep: Color(0xFF9E7C00),
-    onAccent: Color(0xFF111112),
+    id: 'bordeaux',
+    name: 'Bordeaux',
+    dark: true,
+    paper: Color(0xFF3A1A20),
+    concrete: Color(0xFF452128),
+    surface: Color(0xFF4A2530),
+    ink: Color(0xFFF3E7DA),
+    muted: Color(0xFFCDB5AE),
+    accent: Color(0xFFE9C39B),
+    accentDeep: Color(0xFFE9C39B),
+    onAccent: Color(0xFF3A1A20),
+    night: Color(0xFF26100F),
+    mutedDark: Color(0xFFCDB5AE),
   ),
   SiteTheme(
-    id: 'oro',
-    name: 'Nero e oro',
-    night: Color(0xFF0A0A0A),
-    graphite: Color(0xFF141413),
-    steel: Color(0xFF242321),
-    concrete: Color(0xFFE2DDD2),
-    paper: Color(0xFFF1EEE7),
-    ink: Color(0xFF0D0C0B),
-    muted: Color(0xFF6B665D),
-    mutedDark: Color(0xFFA9A397),
-    accent: Color(0xFFC9A961),
-    accentDeep: Color(0xFF8E7234),
-    onAccent: Color(0xFF0D0C0B),
+    id: 'terra',
+    name: 'Terra',
+    dark: true,
+    paper: Color(0xFF2A2320),
+    concrete: Color(0xFF332A26),
+    surface: Color(0xFF3A302B),
+    ink: Color(0xFFF1E6D8),
+    muted: Color(0xFFBDAEA2),
+    accent: Color(0xFFE07A6F),
+    accentDeep: Color(0xFFE88B80),
+    onAccent: Color(0xFF2A1A17),
+    night: Color(0xFF1A1513),
+    mutedDark: Color(0xFFBDAEA2),
+  ),
+  SiteTheme(
+    id: 'notte',
+    name: 'Notte',
+    dark: true,
+    paper: Color(0xFF17191C),
+    concrete: Color(0xFF1F2226),
+    surface: Color(0xFF25292E),
+    ink: Color(0xFFECE9E3),
+    muted: Color(0xFFA7A9AD),
+    accent: Color(0xFFD9A65B),
+    accentDeep: Color(0xFFDDB06C),
+    onAccent: Color(0xFF17191C),
+    night: Color(0xFF0F1012),
+    mutedDark: Color(0xFFA7A9AD),
   ),
 ];
 
@@ -179,66 +168,56 @@ const builtInThemes = <SiteTheme>[
 class Site {
   static SiteTheme current = builtInThemes.first;
 
-  static Color get night => current.night;
-  static Color get graphite => current.graphite;
-  static Color get steel => current.steel;
-  static Color get concrete => current.concrete;
+  static bool get dark => current.dark;
   static Color get paper => current.paper;
+  static Color get concrete => current.concrete;
+  static Color get surface => current.surface;
   static Color get ink => current.ink;
   static Color get muted => current.muted;
-  static Color get mutedDark => current.mutedDark; // testo secondario sul buio
   static Color get accent => current.accent;
-  static Color get accentDeep => current.accentDeep; // leggibile sul chiaro
-  static Color get onAccent => current.onAccent; // testo sopra l'accento
-  static Color get line => current.ink.withValues(alpha: 0.12);
-  static const lineDark = Color(0x24FFFFFF);
+  static Color get accentDeep => current.accentDeep; // testi piccoli
+  static Color get onAccent => current.onAccent;
+  static Color get night => current.night;
+  static Color get mutedDark => current.mutedDark; // secondario sul buio
+  static Color get line => current.ink.withValues(alpha: 0.13);
+  static const lineDark = Color(0x26FFFFFF);
 }
 
-/// Titoli: condensato, deciso, sempre maiuscolo.
+/// Raggi degli angoli arrotondati.
+class Radii {
+  static const photo = 22.0;
+  static const card = 18.0;
+  static const field = 14.0;
+}
+
+/// Titoli: un serif morbido, in minuscolo come si scrive.
 TextStyle siteHead(
   double size, {
   Color? color,
+  FontWeight weight = FontWeight.w400,
+  double height = 1.04,
+  bool italic = false,
+}) => GoogleFonts.fraunces(
+  fontSize: size,
+  fontWeight: weight,
+  color: color ?? Site.ink,
+  height: height,
+  letterSpacing: -size * 0.015,
+  fontStyle: italic ? FontStyle.italic : FontStyle.normal,
+);
+
+/// Etichette piccole (categorie, dati, menu).
+TextStyle siteLabel(
+  double size, {
+  Color? color,
   FontWeight weight = FontWeight.w600,
-  double height = 0.95,
-  double spacing = 0,
-}) => GoogleFonts.barlowCondensed(
-  fontSize: size,
-  fontWeight: weight,
-  color: color ?? Site.ink,
-  height: height,
-  letterSpacing: spacing,
-);
-
-/// Titolo "a contorno" (solo il bordo delle lettere).
-TextStyle siteOutline(
-  double size, {
-  Color? color,
-  double stroke = 1.2,
-  FontWeight weight = FontWeight.w700,
-  double height = 0.95,
-}) => GoogleFonts.barlowCondensed(
-  fontSize: size,
-  fontWeight: weight,
-  height: height,
-  foreground: Paint()
-    ..style = PaintingStyle.stroke
-    ..strokeWidth = stroke
-    ..color = color ?? Site.ink,
-);
-
-/// Etichette "da tavola tecnica": numeri, coordinate, dati del cantiere.
-TextStyle siteMono(
-  double size, {
-  Color? color,
-  FontWeight weight = FontWeight.w500,
-  double spacing = 0.12,
   double height = 1.4,
-}) => GoogleFonts.ibmPlexMono(
+}) => GoogleFonts.dmSans(
   fontSize: size,
   fontWeight: weight,
   color: color ?? Site.ink,
   height: height,
-  letterSpacing: size * spacing,
+  letterSpacing: size * 0.02,
 );
 
 /// Testo corrente.
@@ -247,7 +226,7 @@ TextStyle siteBody(
   Color? color,
   FontWeight weight = FontWeight.w400,
   double height = 1.65,
-}) => GoogleFonts.manrope(
+}) => GoogleFonts.dmSans(
   fontSize: size,
   fontWeight: weight,
   color: color ?? Site.ink,
@@ -255,44 +234,60 @@ TextStyle siteBody(
 );
 
 ThemeData siteThemeData() {
+  final scheme = Site.dark
+      ? ColorScheme.dark(
+          primary: Site.accent,
+          onPrimary: Site.onAccent,
+          secondary: Site.accent,
+          tertiary: Site.accent,
+          surface: Site.paper,
+          onSurface: Site.ink,
+        )
+      : ColorScheme.light(
+          primary: Site.ink,
+          onPrimary: Site.paper,
+          secondary: Site.accent,
+          tertiary: Site.accent,
+          surface: Site.paper,
+          onSurface: Site.ink,
+        );
   final base = ThemeData(
     useMaterial3: true,
-    brightness: Brightness.light,
-    colorScheme: ColorScheme.light(
-      primary: Site.ink,
-      onPrimary: Colors.white,
-      secondary: Site.accent,
-      tertiary: Site.accent,
-      surface: Site.paper,
-      onSurface: Site.ink,
-    ),
+    colorScheme: scheme,
     scaffoldBackgroundColor: Site.paper,
   );
   OutlineInputBorder b(Color c, [double w = 1]) => OutlineInputBorder(
-    borderRadius: BorderRadius.zero,
+    borderRadius: BorderRadius.circular(Radii.field),
     borderSide: BorderSide(color: c, width: w),
   );
   return base.copyWith(
-    textTheme: GoogleFonts.manropeTextTheme(base.textTheme),
+    textTheme: GoogleFonts.dmSansTextTheme(base.textTheme),
     textSelectionTheme: TextSelectionThemeData(
       cursorColor: Site.ink,
       selectionColor: Site.accent.withValues(alpha: 0.33),
     ),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
-      fillColor: Colors.white,
-      border: b(const Color(0xFFD5D2CC)),
-      enabledBorder: b(const Color(0xFFD5D2CC)),
-      focusedBorder: b(Site.ink, 1.5),
-      errorBorder: b(const Color(0xFFB3261E)),
-      focusedErrorBorder: b(const Color(0xFFB3261E), 1.5),
-      labelStyle: GoogleFonts.manrope(color: Site.muted),
-      floatingLabelStyle: GoogleFonts.manrope(color: Site.ink),
+      fillColor: Site.surface,
+      border: b(Site.line),
+      enabledBorder: b(Site.line),
+      focusedBorder: b(Site.accent, 1.5),
+      errorBorder: b(const Color(0xFFC0392B)),
+      focusedErrorBorder: b(const Color(0xFFC0392B), 1.5),
+      labelStyle: GoogleFonts.dmSans(color: Site.muted),
+      floatingLabelStyle: GoogleFonts.dmSans(color: Site.ink),
       contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 20),
     ),
     checkboxTheme: CheckboxThemeData(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
       fillColor: WidgetStateProperty.resolveWith(
-        (s) => s.contains(WidgetState.selected) ? Site.ink : null,
+        (s) => s.contains(WidgetState.selected) ? Site.accent : null,
+      ),
+      checkColor: WidgetStatePropertyAll(Site.onAccent),
+    ),
+    dropdownMenuTheme: DropdownMenuThemeData(
+      menuStyle: MenuStyle(
+        backgroundColor: WidgetStatePropertyAll(Site.surface),
       ),
     ),
   );

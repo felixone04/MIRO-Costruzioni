@@ -10,12 +10,7 @@ import '../widgets/common.dart';
 import '../widgets/site_scaffold.dart';
 
 class ContactPage extends StatelessWidget {
-  const ContactPage({super.key, this.type, this.project, this.category});
-
-  /// Precompilati dai link "Richiedi sopralluogo" di servizi e progetti.
-  final String? type;
-  final String? project;
-  final String? category;
+  const ContactPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -24,42 +19,25 @@ class ContactPage extends StatelessWidget {
     return SiteScaffold(
       current: '/contatti',
       children: [
-        PageHero(
+        PageHeader(
           kicker: 'Contatti',
           title: c.contactTitle,
           text: c.contactText,
-          image: c.contactImage,
-          height: context.screenH * 0.66 < 460 ? 460 : context.screenH * 0.66,
         ),
         Section(
-          top: context.fluid(50, 100),
+          top: 0,
           child: wide
-              ? Row(
+              ? const Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Expanded(flex: 4, child: _Info()),
-                    const SizedBox(width: 80),
-                    Expanded(
-                      flex: 7,
-                      child: _RequestForm(
-                        type: type,
-                        project: project,
-                        category: category,
-                      ),
-                    ),
+                    Expanded(flex: 4, child: _Info()),
+                    SizedBox(width: 70),
+                    Expanded(flex: 7, child: _RequestForm()),
                   ],
                 )
-              : Column(
+              : const Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    _RequestForm(
-                      type: type,
-                      project: project,
-                      category: category,
-                    ),
-                    const SizedBox(height: 60),
-                    const _Info(),
-                  ],
+                  children: [_RequestForm(), SizedBox(height: 50), _Info()],
                 ),
         ),
       ],
@@ -97,33 +75,27 @@ class _Info extends StatelessWidget {
       if (c.hours.isNotEmpty)
         (Icons.schedule_rounded, 'Orari ufficio', c.hours, ''),
     ];
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Reveal(child: Tag('Dove trovarci', number: '01')),
-        const SizedBox(height: 22),
-        for (var i = 0; i < items.length; i++)
-          Reveal(
-            delay: Duration(milliseconds: 70 * i),
-            child: _InfoRow(
-              icon: items[i].$1,
-              label: items[i].$2,
-              value: items[i].$3,
-              url: items[i].$4,
+    return Container(
+      padding: EdgeInsets.all(context.fluid(22, 32)),
+      decoration: BoxDecoration(
+        color: Site.concrete,
+        borderRadius: BorderRadius.circular(Radii.photo),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          for (var i = 0; i < items.length; i++)
+            Reveal(
+              delay: Duration(milliseconds: 70 * i),
+              child: _InfoRow(
+                icon: items[i].$1,
+                label: items[i].$2,
+                value: items[i].$3,
+                url: items[i].$4,
+              ),
             ),
-          ),
-        if (c.address.isNotEmpty) ...[
-          const SizedBox(height: 30),
-          Reveal(
-            child: SiteButton(
-              'Apri in Google Maps',
-              kind: ButtonKind.dark,
-              icon: Icons.map_outlined,
-              onTap: () => openUrl(mapsUrl(c.address)),
-            ),
-          ),
         ],
-      ],
+      ),
     );
   }
 }
@@ -150,57 +122,51 @@ class _InfoRowState extends State<_InfoRow> {
   @override
   Widget build(BuildContext context) {
     final link = widget.url.isNotEmpty;
+    final on = _hover && link;
     return MouseRegion(
       cursor: link ? SystemMouseCursors.click : SystemMouseCursors.basic,
       onEnter: (_) => setState(() => _hover = true),
       onExit: (_) => setState(() => _hover = false),
       child: GestureDetector(
         onTap: link ? () => openUrl(widget.url) : null,
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 18),
-          decoration: BoxDecoration(
-            border: Border(bottom: BorderSide(color: Site.line)),
-          ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 10),
           child: Row(
             children: [
               AnimatedContainer(
                 duration: const Duration(milliseconds: 250),
-                width: 46,
-                height: 46,
-                color: _hover && link ? Site.accent : Site.concrete,
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: on ? Site.accent : Site.surface,
+                  shape: BoxShape.circle,
+                ),
                 child: Icon(
                   widget.icon,
-                  size: 20,
-                  color: _hover && link ? Site.onAccent : Site.ink,
+                  size: 19,
+                  color: on ? Site.onAccent : Site.ink,
                 ),
               ),
-              const SizedBox(width: 18),
+              const SizedBox(width: 16),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      widget.label.toUpperCase(),
-                      style: siteMono(10.5, color: Site.muted),
+                      widget.label,
+                      style: siteBody(12.5, color: Site.muted, height: 1.3),
                     ),
-                    const SizedBox(height: 3),
                     Text(
                       widget.value,
-                      style: siteBody(16, weight: FontWeight.w600, height: 1.4),
+                      style: siteBody(
+                        15.5,
+                        weight: FontWeight.w500,
+                        height: 1.4,
+                      ),
                     ),
                   ],
                 ),
               ),
-              if (link)
-                AnimatedSlide(
-                  offset: Offset(_hover ? 0.2 : 0, 0),
-                  duration: const Duration(milliseconds: 250),
-                  child: Icon(
-                    Icons.arrow_outward_rounded,
-                    size: 18,
-                    color: Site.muted,
-                  ),
-                ),
             ],
           ),
         ),
@@ -212,10 +178,7 @@ class _InfoRowState extends State<_InfoRow> {
 // ==================================================================== MODULO
 
 class _RequestForm extends StatefulWidget {
-  const _RequestForm({this.type, this.project, this.category});
-  final String? type;
-  final String? project;
-  final String? category;
+  const _RequestForm();
 
   @override
   State<_RequestForm> createState() => _RequestFormState();
@@ -227,40 +190,24 @@ class _RequestFormState extends State<_RequestForm> {
   final _phone = TextEditingController();
   final _email = TextEditingController();
   final _city = TextEditingController();
-  final _area = TextEditingController();
-  late final _message = TextEditingController(
-    text: widget.project == null
-        ? ''
-        : 'Ho visto il progetto "${widget.project}" e vorrei realizzare qualcosa di simile.',
-  );
+  final _message = TextEditingController();
   String _type = '';
-  String _timing = '';
   bool _privacy = false;
   bool _privacyError = false;
   bool _sending = false;
   bool _sent = false;
 
-  @override
-  void initState() {
-    super.initState();
-    final types = context.read<AppState>().content.requestTypes;
-    // Il servizio o la categoria del progetto scelgono il tipo d'intervento.
-    final hint = (widget.type ?? widget.category ?? '').toLowerCase();
-    if (hint.isNotEmpty) {
-      // Basta una parola in comune, al singolare o al plurale
-      // ("Ristrutturazioni" → "Ristrutturazione").
-      bool similar(String t) => t
-          .toLowerCase()
-          .split(RegExp(r'[^a-zàèéìòù]+'))
-          .where((w) => w.length >= 5)
-          .any((w) => hint.contains(w.substring(0, w.length - 1)));
-      _type = types.firstWhere(similar, orElse: () => '');
-    }
-  }
+  List<TextEditingController> get _all => [
+    _name,
+    _phone,
+    _email,
+    _city,
+    _message,
+  ];
 
   @override
   void dispose() {
-    for (final c in [_name, _phone, _email, _city, _area, _message]) {
+    for (final c in _all) {
       c.dispose();
     }
     super.dispose();
@@ -278,10 +225,7 @@ class _RequestFormState extends State<_RequestForm> {
         email: _email.text.trim(),
         city: _city.text.trim(),
         type: _type,
-        timing: _timing,
-        area: _area.text.trim(),
         message: _message.text.trim(),
-        projectRef: widget.project ?? '',
       ),
     );
     // Una breve attesa rende percepibile l'invio.
@@ -319,8 +263,11 @@ class _RequestFormState extends State<_RequestForm> {
   Widget _thanks() => Container(
     key: const ValueKey('sent'),
     width: double.infinity,
-    padding: EdgeInsets.all(context.fluid(28, 56)),
-    color: Site.night,
+    padding: EdgeInsets.all(context.fluid(28, 52)),
+    decoration: BoxDecoration(
+      color: Site.concrete,
+      borderRadius: BorderRadius.circular(Radii.photo),
+    ),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -331,51 +278,43 @@ class _RequestFormState extends State<_RequestForm> {
           builder: (context, t, child) =>
               Transform.scale(scale: t, child: child),
           child: Container(
-            width: 64,
-            height: 64,
-            color: Site.accent,
-            child: Icon(Icons.check_rounded, size: 34, color: Site.onAccent),
+            width: 60,
+            height: 60,
+            decoration: BoxDecoration(
+              color: Site.accent,
+              shape: BoxShape.circle,
+            ),
+            child: Icon(Icons.check_rounded, size: 30, color: Site.onAccent),
           ),
         ),
+        const SizedBox(height: 24),
+        Text('Richiesta inviata', style: siteHead(context.fluid(34, 52))),
+        const SizedBox(height: 12),
+        Text(
+          'Grazie ${_name.text.trim().split(' ').first}, ti richiamiamo '
+          'entro due giorni lavorativi.',
+          style: siteBody(17, color: Site.muted),
+        ),
         const SizedBox(height: 28),
-        Text(
-          'RICHIESTA INVIATA.',
-          style: siteHead(context.fluid(40, 64), color: Colors.white),
-        ),
-        const SizedBox(height: 14),
-        Text(
-          'Grazie ${_name.text.trim().split(' ').first}: ti ricontatteremo entro due '
-          'giorni lavorativi per fissare il sopralluogo.',
-          style: siteBody(17, color: Site.mutedDark),
-        ),
-        const SizedBox(height: 30),
         Wrap(
-          spacing: 14,
-          runSpacing: 14,
+          spacing: 12,
+          runSpacing: 12,
           children: [
             SiteButton(
               'Guarda i progetti',
               onTap: () => context.go('/progetti'),
             ),
             SiteButton(
-              'Nuova richiesta',
-              kind: ButtonKind.light,
+              'Nuovo messaggio',
+              kind: ButtonKind.outline,
               icon: Icons.refresh_rounded,
               onTap: () => setState(() {
                 _sent = false;
                 _privacy = false;
-                for (final ctl in [
-                  _name,
-                  _phone,
-                  _email,
-                  _city,
-                  _area,
-                  _message,
-                ]) {
+                for (final ctl in _all) {
                   ctl.clear();
                 }
                 _type = '';
-                _timing = '';
               }),
             ),
           ],
@@ -385,14 +324,14 @@ class _RequestFormState extends State<_RequestForm> {
   );
 
   Widget _formView(SiteContent c) {
-    const gap = SizedBox(height: 16);
+    const gap = SizedBox(height: 14);
     final two = context.w >= 640;
     Widget pair(Widget a, Widget b) => two
         ? Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(child: a),
-              const SizedBox(width: 16),
+              const SizedBox(width: 14),
               Expanded(child: b),
             ],
           )
@@ -405,33 +344,13 @@ class _RequestFormState extends State<_RequestForm> {
           key: const ValueKey('form'),
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Reveal(child: Tag('Richiedi un sopralluogo', number: '02')),
-            const SizedBox(height: 22),
-            if (widget.project != null)
-              Container(
-                margin: const EdgeInsets.only(bottom: 20),
-                padding: const EdgeInsets.all(16),
-                color: Site.concrete,
-                child: Row(
-                  children: [
-                    const Icon(Icons.apartment_rounded, size: 20),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        'Richiesta a partire dal progetto “${widget.project}”',
-                        style: siteBody(14.5, weight: FontWeight.w600),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
             Reveal(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'DI COSA HAI BISOGNO?',
-                    style: siteMono(11.5, color: Site.muted),
+                    'Di cosa si tratta?',
+                    style: siteBody(15, color: Site.muted),
                   ),
                   const SizedBox(height: 12),
                   Wrap(
@@ -450,7 +369,7 @@ class _RequestFormState extends State<_RequestForm> {
                 ],
               ),
             ),
-            const SizedBox(height: 26),
+            const SizedBox(height: 24),
             Reveal(
               child: Column(
                 children: [
@@ -496,30 +415,7 @@ class _RequestFormState extends State<_RequestForm> {
                     ),
                     TextFormField(
                       controller: _city,
-                      decoration: const InputDecoration(
-                        labelText: 'Località dell\'intervento',
-                      ),
-                    ),
-                  ),
-                  gap,
-                  pair(
-                    TextFormField(
-                      controller: _area,
-                      decoration: const InputDecoration(
-                        labelText: 'Superficie indicativa (m²)',
-                      ),
-                    ),
-                    DropdownButtonFormField<String>(
-                      initialValue: _timing.isEmpty ? null : _timing,
-                      isExpanded: true,
-                      decoration: const InputDecoration(
-                        labelText: 'Quando vorresti iniziare?',
-                      ),
-                      items: [
-                        for (final t in c.timings)
-                          DropdownMenuItem(value: t, child: Text(t)),
-                      ],
-                      onChanged: (v) => setState(() => _timing = v ?? ''),
+                      decoration: const InputDecoration(labelText: 'Comune'),
                     ),
                   ),
                   gap,
@@ -528,14 +424,14 @@ class _RequestFormState extends State<_RequestForm> {
                     minLines: 4,
                     maxLines: 8,
                     decoration: const InputDecoration(
-                      labelText: 'Raccontaci il progetto',
+                      labelText: 'Raccontaci cosa hai in mente',
                       alignLabelWithHint: true,
                     ),
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 10),
             Reveal(
               child: CheckboxListTile(
                 value: _privacy,
@@ -546,21 +442,21 @@ class _RequestFormState extends State<_RequestForm> {
                 controlAffinity: ListTileControlAffinity.leading,
                 contentPadding: EdgeInsets.zero,
                 title: Text(
-                  'Acconsento al trattamento dei dati per essere ricontattato (GDPR). *',
+                  'Acconsento al trattamento dei dati per essere ricontattato. *',
                   style: siteBody(14, height: 1.4),
                 ),
                 subtitle: _privacyError
                     ? Text(
-                        'Serve il consenso per inviare la richiesta.',
-                        style: siteBody(13, color: const Color(0xFFB3261E)),
+                        'Serve il consenso per inviare il messaggio.',
+                        style: siteBody(13, color: const Color(0xFFC0392B)),
                       )
                     : null,
               ),
             ),
-            const SizedBox(height: 18),
+            const SizedBox(height: 16),
             Reveal(
               child: SiteButton(
-                'Invia richiesta',
+                'Invia',
                 big: true,
                 loading: _sending,
                 onTap: _submit,
@@ -593,40 +489,23 @@ class _Choice extends StatelessWidget {
         onTap: onTap,
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 220),
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
           decoration: BoxDecoration(
-            color: selected ? Site.accent : Colors.white,
+            color: selected ? Site.accent : Colors.transparent,
             border: Border.all(
-              color: selected ? Site.accent : const Color(0xFFD5D2CC),
+              color: selected ? Site.accent : Site.line,
               width: 1.2,
             ),
+            borderRadius: BorderRadius.circular(30),
           ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              AnimatedSize(
-                duration: const Duration(milliseconds: 220),
-                child: selected
-                    ? Padding(
-                        padding: const EdgeInsets.only(right: 6),
-                        child: Icon(
-                          Icons.check_rounded,
-                          size: 16,
-                          color: Site.onAccent,
-                        ),
-                      )
-                    : const SizedBox.shrink(),
-              ),
-              Text(
-                label,
-                style: siteBody(
-                  14,
-                  weight: FontWeight.w600,
-                  height: 1.2,
-                  color: selected ? Site.onAccent : Site.ink,
-                ),
-              ),
-            ],
+          child: Text(
+            label,
+            style: siteBody(
+              14.5,
+              weight: FontWeight.w500,
+              height: 1.2,
+              color: selected ? Site.onAccent : Site.ink,
+            ),
           ),
         ),
       ),

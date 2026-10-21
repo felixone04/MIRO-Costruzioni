@@ -6,7 +6,7 @@ import '../theme/site_theme.dart';
 import 'common.dart';
 
 /// Il simbolo di prova: due tetti a capanna che disegnano una "M" dentro un
-/// quadrato ocra, come un timbro di cantiere.
+/// quadrato dagli angoli morbidi.
 class LogoMark extends StatelessWidget {
   const LogoMark({super.key, this.size = 40});
   final double size;
@@ -26,44 +26,38 @@ class _MarkPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size s) {
     final w = s.width;
-    canvas.drawRect(Offset.zero & s, Paint()..color = bg);
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(Offset.zero & s, Radius.circular(w * 0.26)),
+      Paint()..color = bg,
+    );
     final p = Paint()
       ..color = fg
       ..style = PaintingStyle.stroke
-      ..strokeWidth = w * 0.085
-      ..strokeJoin = StrokeJoin.miter
-      ..strokeCap = StrokeCap.square;
+      ..strokeWidth = w * 0.08
+      ..strokeJoin = StrokeJoin.round
+      ..strokeCap = StrokeCap.round;
     // Due capanne affiancate: la "M".
     final m = Path()
-      ..moveTo(w * 0.18, w * 0.80)
-      ..lineTo(w * 0.18, w * 0.46)
-      ..lineTo(w * 0.34, w * 0.26)
-      ..lineTo(w * 0.50, w * 0.46)
-      ..lineTo(w * 0.66, w * 0.26)
-      ..lineTo(w * 0.82, w * 0.46)
-      ..lineTo(w * 0.82, w * 0.80);
+      ..moveTo(w * 0.22, w * 0.74)
+      ..lineTo(w * 0.22, w * 0.47)
+      ..lineTo(w * 0.36, w * 0.30)
+      ..lineTo(w * 0.50, w * 0.47)
+      ..lineTo(w * 0.64, w * 0.30)
+      ..lineTo(w * 0.78, w * 0.47)
+      ..lineTo(w * 0.78, w * 0.74);
     canvas.drawPath(m, p);
-    // La linea di terra.
-    canvas.drawLine(
-      Offset(w * 0.12, w * 0.80),
-      Offset(w * 0.88, w * 0.80),
-      p..strokeWidth = w * 0.05,
-    );
-    // La "porta" centrale.
-    canvas.drawRect(
-      Rect.fromLTWH(w * 0.455, w * 0.60, w * 0.09, w * 0.20),
-      Paint()..color = fg,
-    );
+    // La porta centrale.
+    canvas.drawLine(Offset(w * 0.5, w * 0.62), Offset(w * 0.5, w * 0.74), p);
   }
 
   @override
   bool shouldRepaint(_MarkPainter old) => old.bg != bg || old.fg != fg;
 }
 
-/// Logo completo: simbolo + "M.I.R.O." + "COSTRUZIONI". Se nel gestionale è
-/// stato caricato un logo, si usa quello.
+/// Logo completo: simbolo + nome breve + resto della ragione sociale. Se nel
+/// gestionale è stato caricato un logo, si usa quello.
 class BrandLogo extends StatelessWidget {
-  const BrandLogo({super.key, this.height = 44, this.light = false});
+  const BrandLogo({super.key, this.height = 42, this.light = false});
 
   /// Altezza del simbolo.
   final double height;
@@ -86,7 +80,7 @@ class BrandLogo extends StatelessWidget {
       );
     }
     final color = light ? Colors.white : Site.ink;
-    // "M.I.R.O. Costruzioni" → sotto il nome breve va "COSTRUZIONI".
+    // "M.I.R.O. Costruzioni" → sotto il nome breve va "Costruzioni".
     final rest = c.companyName.replaceFirst(c.shortName, '').trim();
     return Semantics(
       label: c.companyName,
@@ -95,30 +89,28 @@ class BrandLogo extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             LogoMark(size: height),
-            SizedBox(width: height * 0.3),
+            SizedBox(width: height * 0.28),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  c.shortName.toUpperCase(),
+                  c.shortName,
                   style: siteHead(
-                    height * 0.62,
+                    height * 0.5,
                     color: color,
-                    weight: FontWeight.w700,
+                    weight: FontWeight.w600,
                     height: 1,
-                    spacing: height * 0.04,
                   ),
                 ),
                 if (rest.isNotEmpty) ...[
-                  SizedBox(height: height * 0.05),
+                  SizedBox(height: height * 0.06),
                   Text(
-                    rest.toUpperCase(),
-                    style: siteMono(
-                      height * 0.2,
-                      color: color.withValues(alpha: 0.75),
-                      weight: FontWeight.w600,
-                      spacing: 0.32,
+                    rest,
+                    style: siteLabel(
+                      height * 0.27,
+                      color: color.withValues(alpha: 0.7),
+                      weight: FontWeight.w500,
                       height: 1,
                     ),
                   ),

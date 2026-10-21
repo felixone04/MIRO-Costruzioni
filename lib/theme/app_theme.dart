@@ -29,7 +29,7 @@ TextStyle display(
   Color color = Palette.ink,
   FontWeight weight = FontWeight.w600,
   double height = 1.05,
-}) => GoogleFonts.barlowCondensed(
+}) => GoogleFonts.fraunces(
   fontSize: size,
   fontWeight: weight,
   color: color,
@@ -42,7 +42,7 @@ TextStyle label(
   Color color = Palette.ink,
   FontWeight weight = FontWeight.w600,
   double spacing = 0.2,
-}) => GoogleFonts.manrope(
+}) => GoogleFonts.dmSans(
   fontSize: size,
   fontWeight: weight,
   color: color,
@@ -56,7 +56,7 @@ TextStyle body(
   Color color = Palette.ink,
   FontWeight weight = FontWeight.w400,
   double height = 1.6,
-}) => GoogleFonts.manrope(
+}) => GoogleFonts.dmSans(
   fontSize: size,
   fontWeight: weight,
   color: color,
@@ -89,7 +89,7 @@ class AppTheme {
       borderSide: BorderSide(color: c, width: w),
     );
     return base.copyWith(
-      textTheme: GoogleFonts.manropeTextTheme(base.textTheme),
+      textTheme: GoogleFonts.dmSansTextTheme(base.textTheme),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: Colors.white,
@@ -98,8 +98,8 @@ class AppTheme {
         focusedBorder: b(strong, 1.4),
         errorBorder: b(Palette.error),
         focusedErrorBorder: b(Palette.error, 1.4),
-        labelStyle: GoogleFonts.manrope(color: const Color(0xFF63676C)),
-        floatingLabelStyle: GoogleFonts.manrope(color: strong),
+        labelStyle: GoogleFonts.dmSans(color: const Color(0xFF63676C)),
+        floatingLabelStyle: GoogleFonts.dmSans(color: strong),
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 16,
           vertical: 18,
@@ -130,13 +130,13 @@ class AppTheme {
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
-          textStyle: GoogleFonts.manrope(fontWeight: FontWeight.w600),
+          textStyle: GoogleFonts.dmSans(fontWeight: FontWeight.w600),
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
-          textStyle: GoogleFonts.manrope(fontWeight: FontWeight.w600),
+          textStyle: GoogleFonts.dmSans(fontWeight: FontWeight.w600),
         ),
       ),
     );

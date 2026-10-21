@@ -22,7 +22,7 @@ class AdminProjects extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         AdminHeader(
-          title: 'PROGETTI',
+          title: 'Progetti',
           subtitle:
               'I lavori mostrati sul sito. Trascina per riordinare; la stella li mette in evidenza in Home '
               'e nella prima schermata.',

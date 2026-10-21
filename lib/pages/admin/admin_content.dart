@@ -305,7 +305,7 @@ Widget _highlights(
 );
 
 const _titleHelper =
-    'Vai a capo per la riga successiva: l\'ultima riga appare in ocra.';
+    'Vai a capo per la riga successiva: l\'ultima riga appare in corsivo, colorata.';
 
 // ====================================================================== HOME
 
@@ -315,7 +315,7 @@ class AdminHomeEditor extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DraftEditor(
-      title: 'PAGINA HOME',
+      title: 'Pagina Home',
       subtitle: 'I testi della prima pagina. Le foto della prima schermata sono le copertine dei progetti in evidenza.',
       builder: (context, d, changed) => [
         Panel(
@@ -394,7 +394,9 @@ class AdminHomeEditor extends StatelessWidget {
           ),
         ),
         Panel(
-          title: 'Progetti in evidenza',
+          title: 'Progetti',
+          subtitle:
+              'Il titolo della sezione in Home e in cima alla pagina Progetti.',
           child: Column(
             children: [
               _field(
@@ -424,7 +426,8 @@ class AdminHomeEditor extends StatelessWidget {
           ),
         ),
         Panel(
-          title: 'Servizi',
+          title: 'Pagina Servizi',
+          subtitle: 'Il titolo e il testo in cima alla pagina Servizi.',
           trailing: TextButton.icon(
             onPressed: () => context.go('/admin/servizi'),
             icon: const Icon(Icons.construction_outlined, size: 18),
@@ -463,89 +466,6 @@ class AdminHomeEditor extends StatelessWidget {
           subtitle: 'Le parole che scorrono a tutta larghezza.',
           child: _strings(d.ticker, changed, addLabel: 'Nuova parola'),
         ),
-        Panel(
-          title: 'Metodo di lavoro',
-          child: Column(
-            children: [
-              _field(
-                'Etichetta',
-                d.processKicker,
-                (v) => d.processKicker = v,
-                changed,
-              ),
-              _gap,
-              _field(
-                'Titolo',
-                d.processTitle,
-                (v) => d.processTitle = v,
-                changed,
-                maxLines: 3,
-                helper: _titleHelper,
-              ),
-              const SizedBox(height: 22),
-              _milestones(
-                d.process,
-                changed,
-                item: 'Fase',
-                numberLabel: 'Numero',
-                addLabel: 'Aggiungi fase',
-              ),
-            ],
-          ),
-        ),
-        Panel(
-          title: 'Citazione',
-          child: Column(
-            children: [
-              _field(
-                'Frase',
-                d.quoteText,
-                (v) => d.quoteText = v,
-                changed,
-                maxLines: 4,
-              ),
-              _gap,
-              _field(
-                'Autore',
-                d.quoteAuthor,
-                (v) => d.quoteAuthor = v,
-                changed,
-              ),
-              _gap,
-              _image(
-                'Foto di sfondo',
-                d.quoteImage,
-                (v) => d.quoteImage = v,
-                changed,
-              ),
-            ],
-          ),
-        ),
-        Panel(
-          title: 'Invito finale',
-          child: Column(
-            children: [
-              _field(
-                'Titolo',
-                d.ctaTitle,
-                (v) => d.ctaTitle = v,
-                changed,
-                maxLines: 3,
-                helper: _titleHelper,
-              ),
-              _gap,
-              _field(
-                'Testo',
-                d.ctaText,
-                (v) => d.ctaText = v,
-                changed,
-                maxLines: 3,
-              ),
-              _gap,
-              _image('Foto', d.ctaImage, (v) => d.ctaImage = v, changed),
-            ],
-          ),
-        ),
       ],
     );
   }
@@ -559,7 +479,7 @@ class AdminAboutEditor extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DraftEditor(
-      title: 'AZIENDA',
+      title: 'Azienda',
       subtitle: 'Storia, valori, tappe e persone della pagina Azienda.',
       builder: (context, d, changed) => [
         Panel(
@@ -740,7 +660,7 @@ class AdminIdentityEditor extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DraftEditor(
-      title: 'IDENTITÀ E CONTATTI',
+      title: 'Identità e contatti',
       subtitle:
           'Nome, logo, recapiti, modulo contatti e categorie dei progetti.',
       builder: (context, d, changed) => [
@@ -921,27 +841,13 @@ class AdminIdentityEditor extends StatelessWidget {
                 changed,
                 maxLines: 3,
               ),
-              _gap,
-              _image(
-                'Foto',
-                d.contactImage,
-                (v) => d.contactImage = v,
-                changed,
-              ),
               const SizedBox(height: 22),
               const Text(
-                'Tipi di intervento (scelta nel modulo)',
+                'Tipi di lavoro (scelta nel modulo)',
                 style: TextStyle(fontWeight: FontWeight.w600),
               ),
               const SizedBox(height: 10),
               _strings(d.requestTypes, changed, addLabel: 'Nuovo tipo'),
-              const SizedBox(height: 22),
-              const Text(
-                'Tempistiche (menu del modulo)',
-                style: TextStyle(fontWeight: FontWeight.w600),
-              ),
-              const SizedBox(height: 10),
-              _strings(d.timings, changed, addLabel: 'Nuova voce'),
             ],
           ),
         ),
