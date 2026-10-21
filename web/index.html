@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <base href="$FLUTTER_BASE_HREF">
+
+  <meta charset="UTF-8">
+  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="M.I.R.O. Costruzioni · Impresa edile dal 1987: nuove costruzioni, ristrutturazioni, restauri ed edilizia industriale. Scopri i progetti realizzati e richiedi un sopralluogo gratuito.">
+  <meta name="theme-color" content="#111315">
+
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="M.I.R.O.">
+  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+  <link rel="icon" type="image/png" href="favicon.png"/>
+
+  <title>M.I.R.O. Costruzioni · Costruiamo ciò che resta</title>
+  <link rel="manifest" href="manifest.json">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+
+  <style>
+    html, body { margin: 0; height: 100%; background: #111315; }
+    /* Logo d'apertura: il simbolo si "costruisce", poi tutto sfuma. */
+    #splash {
+      position: fixed; inset: 0; z-index: 9999;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      background: #111315; color: #fff; padding: 0 32px;
+      background-image:
+        linear-gradient(rgba(255,255,255,.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.04) 1px, transparent 1px);
+      background-size: 96px 96px;
+      transition: opacity .8s ease, visibility .8s ease;
+    }
+    #splash.hide { opacity: 0; visibility: hidden; }
+    #splash .row { display: flex; align-items: center; gap: 18px; }
+    #splash svg { width: clamp(52px, 12vw, 76px); height: auto; }
+    #splash svg rect.bg { transform-origin: center; transform: scale(0); animation: pop .6s cubic-bezier(.2,.8,.2,1) .05s forwards; }
+    #splash svg path { stroke-dasharray: 260; stroke-dashoffset: 260; animation: draw 1s ease .35s forwards; }
+    #splash .name {
+      font-family: 'Barlow Condensed', 'Arial Narrow', sans-serif; font-weight: 700;
+      font-size: clamp(38px, 10vw, 64px); letter-spacing: .04em; line-height: 1;
+      opacity: 0; transform: translateX(-10px); animation: show .9s cubic-bezier(.2,.7,.2,1) .45s forwards;
+    }
+    #splash .name small {
+      display: block; margin-top: 6px; font-family: 'IBM Plex Mono', monospace; font-weight: 500;
+      font-size: clamp(10px, 2.4vw, 13px); letter-spacing: .32em; color: rgba(255,255,255,.7);
+    }
+    #splash .bar { width: min(200px, 50vw); height: 2px; margin-top: 40px; background: rgba(255,255,255,.12); overflow: hidden; }
+    #splash .bar b { display: block; height: 100%; background: #E29B2E; transform-origin: left; transform: scaleX(0); animation: fill 1.6s ease-in-out forwards; }
+    @keyframes show { to { opacity: 1; transform: none; } }
+    @keyframes pop { to { transform: scale(1); } }
+    @keyframes draw { to { stroke-dashoffset: 0; } }
+    @keyframes fill { to { transform: scaleX(1); } }
+  </style>
+
+  <!-- Google Identity Services: serve per collegare Google Calendar dal gestionale -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body>
+  <div id="splash" aria-label="M.I.R.O. Costruzioni, caricamento">
+    <div class="row">
+      <svg viewBox="0 0 100 100" aria-hidden="true">
+        <rect class="bg" width="100" height="100" fill="#E29B2E"/>
+        <path d="M18 80 V46 L34 26 L50 46 L66 26 L82 46 V80 M12 80 H88" fill="none" stroke="#141618" stroke-width="8.5" stroke-linejoin="miter"/>
+      </svg>
+      <div class="name">M.I.R.O.<small>COSTRUZIONI</small></div>
+    </div>
+    <div class="bar"><b></b></div>
+  </div>
+  <script>
+    (function () {
+      var start = Date.now();
+      var MIN_MS = 1100; // durata minima del logo d'apertura
+      window.addEventListener('flutter-first-frame', function () {
+        var wait = Math.max(0, MIN_MS - (Date.now() - start));
+        setTimeout(function () {
+          var s = document.getElementById('splash');
+          if (!s) return;
+          s.classList.add('hide');
+          setTimeout(function () { s.remove(); }, 900);
+        }, wait);
+      });
+    })();
+  </script>
+  <script>
+    // L'avvio si scarica sempre nuovo (è piccolo): GitHub Pages lo terrebbe
+    // in memoria per 10 minuti, mostrando la versione precedente.
+    (function () {
+      var s = document.createElement('script');
+      s.src = 'flutter_bootstrap.js?t=' + Date.now();
+      s.async = true;
+      document.body.appendChild(s);
+    })();
+  </script>
+</body>
+</html>
