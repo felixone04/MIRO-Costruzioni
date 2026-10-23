@@ -1,0 +1,794 @@
+{
+  "content": {
+    "companyName": "M.I.R.O. Costruzioni",
+    "shortName": "M.I.R.O.",
+    "tagline": "Costruzioni, ristrutturazioni e restauri a Bari",
+    "logo": "",
+    "footerText": "Impresa edile a Bari dal 1987. Costruiamo case, uffici e capannoni, ristrutturiamo e restauriamo con le nostre squadre.",
+    "heroKicker": "Impresa edile a Bari dal 1987",
+    "heroTitle": "Case fatte bene,\nda chi le costruisce.",
+    "heroSubtitle": "Costruiamo, ristrutturiamo e restauriamo in Puglia da tre generazioni, con le nostre squadre e un solo referente dall'inizio alla fine.",
+    "introKicker": "Chi siamo",
+    "introTitle": "Un'impresa di famiglia,\ncresciuta in cantiere.",
+    "introText": "Siamo partiti con tre operai e una betoniera presa in prestito. Oggi seguiamo case, condomini, uffici e capannoni, ma lavoriamo ancora come allora: tempi scritti nel contratto, prezzi chiari e la stessa squadra dal primo giorno alla consegna delle chiavi.",
+    "stats": [
+      {
+        "title": "38",
+        "text": "anni di lavoro"
+      },
+      {
+        "title": "420+",
+        "text": "cantieri chiusi"
+      },
+      {
+        "title": "180k",
+        "text": "metri quadri costruiti"
+      },
+      {
+        "title": "65",
+        "text": "persone in squadra"
+      }
+    ],
+    "projectsKicker": "Progetti",
+    "projectsTitle": "Gli ultimi\ncantieri.",
+    "projectsText": "Ville, condomini, uffici e qualche recupero di cui andiamo particolarmente fieri.",
+    "servicesKicker": "Servizi",
+    "servicesTitle": "Cosa\nfacciamo.",
+    "servicesText": "Scegli un tipo di lavoro per vedere come lo affrontiamo e alcuni cantieri che abbiamo seguito.",
+    "ticker": [
+      "Nuove costruzioni",
+      "Ristrutturazioni",
+      "Restauro",
+      "Edilizia industriale",
+      "Riqualificazione energetica",
+      "Direzione lavori"
+    ],
+    "aboutKicker": "Azienda",
+    "aboutTitle": "La nostra\nstoria.",
+    "aboutIntro": "Dal 1987 progettiamo e costruiamo con la stessa squadra: ingegneri, geometri e muratori che si conoscono da anni.",
+    "aboutText": "Tutto è iniziato con Michele Romano, muratore e poi capocantiere, e una betoniera presa in prestito. Oggi siamo più di sessanta, abbiamo i nostri mezzi e un ufficio tecnico interno, ma le decisioni importanti si prendono ancora in cantiere.\n\nIl nome raccoglie le iniziali di quattro parole a cui teniamo: Metodo, Integrità, Responsabilità, Opera.",
+    "aboutImage": "https://images.unsplash.com/photo-1626885930974-4b69aa21bbf9?auto=format&fit=crop&w=1600&q=80",
+    "aboutImage2": "https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=1600&q=80",
+    "values": [
+      {
+        "title": "Metodo",
+        "text": "Cronoprogrammi reali, computi trasparenti, nessuna sorpresa a fine lavori."
+      },
+      {
+        "title": "Integrità",
+        "text": "Materiali certificati e tracciabili, lavorazioni eseguite a regola d'arte."
+      },
+      {
+        "title": "Responsabilità",
+        "text": "Sicurezza in cantiere prima di tutto e rispetto per chi abita intorno."
+      },
+      {
+        "title": "Opera",
+        "text": "Ogni edificio è firmato: lo costruiamo perché duri generazioni."
+      }
+    ],
+    "timeline": [
+      {
+        "year": "1987",
+        "title": "La prima betoniera",
+        "text": "Michele Romano fonda l'impresa con tre operai e un cantiere a Bari."
+      },
+      {
+        "year": "1998",
+        "title": "Il primo condominio",
+        "text": "Ventiquattro alloggi consegnati in anticipo: nasce l'ufficio tecnico."
+      },
+      {
+        "year": "2009",
+        "title": "Restauro e recupero",
+        "text": "Una squadra dedicata ai centri storici e ai beni vincolati."
+      },
+      {
+        "year": "2016",
+        "title": "Certificazioni",
+        "text": "ISO 9001, ISO 45001 e attestazione SOA per gli appalti pubblici."
+      },
+      {
+        "year": "2024",
+        "title": "Seconda generazione",
+        "text": "Ilaria e Riccardo guidano l'impresa verso l'edilizia a basso consumo."
+      }
+    ],
+    "team": [
+      {
+        "id": "hngzodic8x0kwna",
+        "name": "Michele Romano",
+        "role": "Fondatore",
+        "photo": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=1600&q=80"
+      },
+      {
+        "id": "hngzodic8x1gyvu",
+        "name": "Ilaria Romano",
+        "role": "Direzione tecnica",
+        "photo": "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=1600&q=80"
+      },
+      {
+        "id": "hngzodic8x2c49w",
+        "name": "Riccardo Orlando",
+        "role": "Responsabile cantieri",
+        "photo": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=1600&q=80"
+      },
+      {
+        "id": "hngzodic8x3iad2",
+        "name": "Ornella Mancini",
+        "role": "Ufficio preventivi",
+        "photo": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=1600&q=80"
+      }
+    ],
+    "certifications": [
+      "ISO 9001",
+      "ISO 45001",
+      "ISO 14001",
+      "SOA OG1 · OG2",
+      "White list Prefettura"
+    ],
+    "contacts": {
+      "phone": "+39 080 123 4567",
+      "whatsapp": "+39 333 123 4567",
+      "email": "info@mirocostruzioni.it",
+      "pec": "mirocostruzioni@pec.it",
+      "address": "Via delle Fornaci 18, 70126 Bari",
+      "hours": "Lun–Ven 8:00–13:00 · 14:30–18:30",
+      "instagram": "https://instagram.com/",
+      "facebook": "https://facebook.com/",
+      "linkedin": "https://linkedin.com/",
+      "vat": "P.IVA 01234567890"
+    },
+    "requestTypes": [
+      "Nuova costruzione",
+      "Ristrutturazione",
+      "Restauro",
+      "Edificio commerciale / industriale",
+      "Riqualificazione energetica",
+      "Altro"
+    ],
+    "timings": [
+      "Il prima possibile",
+      "Entro 6 mesi",
+      "Entro un anno",
+      "Sto solo valutando"
+    ],
+    "contactTitle": "Scrivici\ndue righe.",
+    "contactText": "Raccontaci cosa hai in mente: ti richiamiamo entro due giorni lavorativi.",
+    "contactImage": "https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=1600&q=80",
+    "categories": [
+      "Residenziale",
+      "Ristrutturazione",
+      "Commerciale",
+      "Industriale",
+      "Restauro"
+    ]
+  },
+  "projects": [
+    {
+      "id": "p-villa-querce",
+      "title": "Villa Le Querce",
+      "category": "Residenziale",
+      "location": "Monopoli (BA)",
+      "year": "2024",
+      "client": "Privato",
+      "area": "420 m²",
+      "duration": "16 mesi",
+      "status": "completato",
+      "summary": "Villa unifamiliare in classe A4 immersa in un uliveto secolare.",
+      "description": "Una villa a due livelli costruita attorno a un patio verde, con grandi vetrate scorrevoli rivolte agli ulivi. Struttura in cemento armato, cappotto in fibra di legno e impianto fotovoltaico integrato in copertura.\n\nAbbiamo seguito l'opera chiavi in mano: scavi, strutture, impianti, finiture interne e sistemazione del giardino.",
+      "works": [
+        "Strutture in c.a.",
+        "Involucro ad alta efficienza",
+        "Impianti domotici",
+        "Finiture e arredi fissi",
+        "Sistemazioni esterne"
+      ],
+      "cover": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1600&q=80",
+      "photos": [
+        {
+          "url": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1600&q=80",
+          "caption": "Il fronte sul giardino al tramonto"
+        },
+        {
+          "url": "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?auto=format&fit=crop&w=1600&q=80",
+          "caption": "Ingresso e rivestimento in legno"
+        },
+        {
+          "url": "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=1600&q=80",
+          "caption": "Il soggiorno a doppia altezza"
+        },
+        {
+          "url": "https://images.unsplash.com/photo-1600573472550-8090b5e0745e?auto=format&fit=crop&w=1600&q=80",
+          "caption": "La scala sospesa"
+        },
+        {
+          "url": "https://images.unsplash.com/photo-1600607687644-c7171b42498f?auto=format&fit=crop&w=1600&q=80",
+          "caption": "Camera padronale"
+        },
+        {
+          "url": "https://images.unsplash.com/photo-1600566752355-35792bedcfea?auto=format&fit=crop&w=1600&q=80",
+          "caption": "Bagno in resina"
+        }
+      ],
+      "before": "https://images.unsplash.com/photo-1503708928676-1cb796a0891e?auto=format&fit=crop&w=1600&q=80",
+      "after": "",
+      "featured": true,
+      "published": true
+    },
+    {
+      "id": "p-residenza-aurora",
+      "title": "Residenza Aurora",
+      "category": "Residenziale",
+      "location": "Bari",
+      "year": "2023",
+      "client": "Aurora Immobiliare S.r.l.",
+      "area": "3.200 m²",
+      "duration": "22 mesi",
+      "status": "completato",
+      "summary": "Ventiquattro appartamenti con logge, giardini pensili e box interrati.",
+      "description": "Un edificio residenziale di sei piani con struttura antisismica, facciate ventilate e logge profonde che proteggono dal sole estivo. Al piano interrato 30 box auto e cantine.\n\nConsegnato con due settimane di anticipo sul cronoprogramma.",
+      "works": [
+        "Fondazioni speciali",
+        "Struttura antisismica",
+        "Facciata ventilata",
+        "Impianti centralizzati",
+        "Parti comuni"
+      ],
+      "cover": "https://images.unsplash.com/photo-1460317442991-0ec209397118?auto=format&fit=crop&w=1600&q=80",
+      "photos": [
+        {
+          "url": "https://images.unsplash.com/photo-1460317442991-0ec209397118?auto=format&fit=crop&w=1600&q=80",
+          "caption": "Le logge sul fronte sud"
+        },
+        {
+          "url": "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=1600&q=80",
+          "caption": "Il prospetto laterale"
+        },
+        {
+          "url": "https://images.unsplash.com/photo-1574362848149-11496d93a7c7?auto=format&fit=crop&w=1600&q=80",
+          "caption": "La corte interna"
+        },
+        {
+          "url": "https://images.unsplash.com/photo-1448630360428-65456885c650?auto=format&fit=crop&w=1600&q=80",
+          "caption": "Dettaglio della facciata"
+        },
+        {
+          "url": "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=1600&q=80",
+          "caption": "Un appartamento tipo"
+        }
+      ],
+      "before": "",
+      "after": "",
+      "featured": true,
+      "published": true
+    },
+    {
+      "id": "p-casa-bianca",
+      "title": "Casa Bianca sul mare",
+      "category": "Ristrutturazione",
+      "location": "Polignano a Mare (BA)",
+      "year": "2023",
+      "client": "Privato",
+      "area": "280 m²",
+      "duration": "9 mesi",
+      "status": "completato",
+      "summary": "Una casa degli anni '70 trasformata in villa contemporanea.",
+      "description": "Ristrutturazione integrale con ampliamento: abbiamo consolidato la struttura esistente, ridisegnato gli spazi interni e aggiunto una piscina a sfioro affacciata sul mare.\n\nTrascina il cursore qui sotto per confrontare il prima e il dopo.",
+      "works": [
+        "Demolizioni e consolidamento",
+        "Ampliamento",
+        "Piscina a sfioro",
+        "Nuovi impianti",
+        "Finiture di pregio"
+      ],
+      "cover": "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1600&q=80",
+      "photos": [
+        {
+          "url": "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1600&q=80",
+          "caption": "La piscina a sfioro"
+        },
+        {
+          "url": "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1600&q=80",
+          "caption": "Il living aperto"
+        },
+        {
+          "url": "https://images.unsplash.com/photo-1519710164239-da123dc03ef4?auto=format&fit=crop&w=1600&q=80",
+          "caption": "Angolo colazione"
+        },
+        {
+          "url": "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&w=1600&q=80",
+          "caption": "Bagno ospiti"
+        },
+        {
+          "url": "https://images.unsplash.com/photo-1600585152915-d208bec867a1?auto=format&fit=crop&w=1600&q=80",
+          "caption": "Zona giorno"
+        }
+      ],
+      "before": "https://images.unsplash.com/photo-1517581177682-a085bb7ffb15?auto=format&fit=crop&w=1600&q=80",
+      "after": "",
+      "featured": true,
+      "published": true
+    },
+    {
+      "id": "p-hq-levante",
+      "title": "Headquarters Levante",
+      "category": "Commerciale",
+      "location": "Modugno (BA)",
+      "year": "2022",
+      "client": "Levante Tech S.p.A.",
+      "area": "1.800 m²",
+      "duration": "14 mesi",
+      "status": "completato",
+      "summary": "Nuova sede direzionale con open space, sale riunioni e terrazza.",
+      "description": "Un edificio per uffici su tre livelli con struttura in acciaio, pareti vetrate a controllo solare e pavimenti sopraelevati per la massima flessibilità degli spazi di lavoro.\n\nLavori eseguiti con l'azienda operativa nell'edificio accanto, senza un giorno di fermo.",
+      "works": [
+        "Struttura in acciaio",
+        "Facciate continue",
+        "Impianti HVAC",
+        "Allestimento uffici"
+      ],
+      "cover": "https://images.unsplash.com/photo-1497366811353-6870744d04b2?auto=format&fit=crop&w=1600&q=80",
+      "photos": [
+        {
+          "url": "https://images.unsplash.com/photo-1497366811353-6870744d04b2?auto=format&fit=crop&w=1600&q=80",
+          "caption": "Open space al primo piano"
+        },
+        {
+          "url": "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1600&q=80",
+          "caption": "Area relax e cucina"
+        },
+        {
+          "url": "https://images.unsplash.com/photo-1487958449943-2429e8be8625?auto=format&fit=crop&w=1600&q=80",
+          "caption": "Il volume d'ingresso"
+        },
+        {
+          "url": "https://images.unsplash.com/photo-1556761175-b413da4baf72?auto=format&fit=crop&w=1600&q=80",
+          "caption": "Sala progetti"
+        }
+      ],
+      "before": "",
+      "after": "",
+      "featured": true,
+      "published": true
+    },
+    {
+      "id": "p-masseria-san-vito",
+      "title": "Masseria San Vito",
+      "category": "Restauro",
+      "location": "Fasano (BR)",
+      "year": "2021",
+      "client": "Famiglia De Nicola",
+      "area": "950 m²",
+      "duration": "18 mesi",
+      "status": "completato",
+      "summary": "Recupero conservativo di una masseria del Settecento.",
+      "description": "Restauro di un complesso rurale vincolato: consolidamento delle volte in pietra, recupero delle travi in legno originali e nuovi impianti invisibili, nel rispetto delle prescrizioni della Soprintendenza.",
+      "works": [
+        "Consolidamento murature",
+        "Recupero travi in legno",
+        "Intonaci a calce",
+        "Impianti sotto traccia"
+      ],
+      "cover": "https://images.unsplash.com/photo-1590725140246-20acdee442be?auto=format&fit=crop&w=1600&q=80",
+      "photos": [
+        {
+          "url": "https://images.unsplash.com/photo-1590725140246-20acdee442be?auto=format&fit=crop&w=1600&q=80",
+          "caption": "Le travi originali recuperate"
+        },
+        {
+          "url": "https://images.unsplash.com/photo-1558036117-15d82a90b9b1?auto=format&fit=crop&w=1600&q=80",
+          "caption": "La masseria nel paesaggio"
+        },
+        {
+          "url": "https://images.unsplash.com/photo-1519643381401-22c77e60520e?auto=format&fit=crop&w=1600&q=80",
+          "caption": "La sala da pranzo"
+        },
+        {
+          "url": "https://images.unsplash.com/photo-1595846519845-68e298c2edd8?auto=format&fit=crop&w=1600&q=80",
+          "caption": "Il salotto"
+        }
+      ],
+      "before": "https://images.unsplash.com/photo-1517581177682-a085bb7ffb15?auto=format&fit=crop&w=1600&q=80",
+      "after": "",
+      "featured": true,
+      "published": true
+    },
+    {
+      "id": "p-polo-adriatico",
+      "title": "Polo logistico Adriatico",
+      "category": "Industriale",
+      "location": "Molfetta (BA)",
+      "year": "2025",
+      "client": "Adriatica Logistica S.r.l.",
+      "area": "6.500 m²",
+      "duration": "12 mesi",
+      "status": "inCorso",
+      "summary": "Magazzino automatizzato con uffici e copertura fotovoltaica.",
+      "description": "Capannone in carpenteria metallica con campate da 30 metri, pavimentazione industriale ad alta portata e 1 MW di fotovoltaico in copertura. Il cantiere è in corso: consegna prevista a primavera.",
+      "works": [
+        "Carpenteria metallica",
+        "Pavimentazioni industriali",
+        "Fotovoltaico",
+        "Piazzali e viabilità"
+      ],
+      "cover": "https://images.unsplash.com/photo-1590069261209-f8e9b8642343?auto=format&fit=crop&w=1600&q=80",
+      "photos": [
+        {
+          "url": "https://images.unsplash.com/photo-1590069261209-f8e9b8642343?auto=format&fit=crop&w=1600&q=80",
+          "caption": "La struttura metallica"
+        },
+        {
+          "url": "https://images.unsplash.com/photo-1429497419816-9ca5cfb4571a?auto=format&fit=crop&w=1600&q=80",
+          "caption": "Il montaggio con le gru"
+        },
+        {
+          "url": "https://images.unsplash.com/photo-1503708928676-1cb796a0891e?auto=format&fit=crop&w=1600&q=80",
+          "caption": "Movimento terra"
+        },
+        {
+          "url": "https://images.unsplash.com/photo-1626885930974-4b69aa21bbf9?auto=format&fit=crop&w=1600&q=80",
+          "caption": "Verifica in cantiere"
+        }
+      ],
+      "before": "",
+      "after": "",
+      "featured": false,
+      "published": true
+    },
+    {
+      "id": "p-il-parco",
+      "title": "Residenze Il Parco",
+      "category": "Residenziale",
+      "location": "Altamura (BA)",
+      "year": "2022",
+      "client": "Cooperativa Il Parco",
+      "area": "2.100 m²",
+      "duration": "15 mesi",
+      "status": "completato",
+      "summary": "Dodici villette a schiera con giardino privato.",
+      "description": "Un piccolo quartiere di case a schiera in classe A, con giardini privati, posti auto coperti e un parco comune piantumato.",
+      "works": [
+        "Urbanizzazioni",
+        "Strutture",
+        "Finiture",
+        "Verde comune"
+      ],
+      "cover": "https://images.unsplash.com/photo-1567496898669-ee935f5f647a?auto=format&fit=crop&w=1600&q=80",
+      "photos": [
+        {
+          "url": "https://images.unsplash.com/photo-1567496898669-ee935f5f647a?auto=format&fit=crop&w=1600&q=80",
+          "caption": "Le schiere sul viale"
+        },
+        {
+          "url": "https://images.unsplash.com/photo-1605276374104-dee2a0ed3cd6?auto=format&fit=crop&w=1600&q=80",
+          "caption": "I fronti d'ingresso"
+        },
+        {
+          "url": "https://images.unsplash.com/photo-1555636222-cae831e670b3?auto=format&fit=crop&w=1600&q=80",
+          "caption": "Il quartiere"
+        }
+      ],
+      "before": "",
+      "after": "",
+      "featured": false,
+      "published": true
+    },
+    {
+      "id": "p-villa-azzurra",
+      "title": "Villa Azzurra",
+      "category": "Residenziale",
+      "location": "Ostuni (BR)",
+      "year": "2020",
+      "client": "Privato",
+      "area": "360 m²",
+      "duration": "13 mesi",
+      "status": "completato",
+      "summary": "Linee pure e piscina tra gli ulivi della Valle d'Itria.",
+      "description": "Villa contemporanea con struttura in c.a. a vista, ampie terrazze e una piscina a sfioro che riflette il paesaggio.",
+      "works": [
+        "Strutture",
+        "Piscina",
+        "Domotica",
+        "Paesaggio"
+      ],
+      "cover": "https://images.unsplash.com/photo-1613490493576-7fde63acd811?auto=format&fit=crop&w=1600&q=80",
+      "photos": [
+        {
+          "url": "https://images.unsplash.com/photo-1613490493576-7fde63acd811?auto=format&fit=crop&w=1600&q=80",
+          "caption": "La piscina"
+        },
+        {
+          "url": "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&w=1600&q=80",
+          "caption": "Il fronte principale"
+        },
+        {
+          "url": "https://images.unsplash.com/photo-1503174971373-b1f69850bded?auto=format&fit=crop&w=1600&q=80",
+          "caption": "Il living"
+        },
+        {
+          "url": "https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=1600&q=80",
+          "caption": "Dettaglio d'interni"
+        }
+      ],
+      "before": "",
+      "after": "",
+      "featured": false,
+      "published": true
+    },
+    {
+      "id": "p-torre-meridiana",
+      "title": "Torre Meridiana",
+      "category": "Commerciale",
+      "location": "Bari",
+      "year": "2026",
+      "client": "Meridiana Sviluppo S.p.A.",
+      "area": "9.400 m²",
+      "duration": "30 mesi",
+      "status": "inCorso",
+      "summary": "Torre direzionale di dodici piani con facciata in vetro.",
+      "description": "Il cantiere più alto della nostra storia: dodici piani di uffici con nucleo in c.a., solai post-tesi e facciata continua a doppia pelle.",
+      "works": [
+        "Nucleo in c.a.",
+        "Solai post-tesi",
+        "Facciata a doppia pelle"
+      ],
+      "cover": "https://images.unsplash.com/photo-1511818966892-d7d671e672a2?auto=format&fit=crop&w=1600&q=80",
+      "photos": [
+        {
+          "url": "https://images.unsplash.com/photo-1511818966892-d7d671e672a2?auto=format&fit=crop&w=1600&q=80",
+          "caption": "Render della torre"
+        },
+        {
+          "url": "https://images.unsplash.com/photo-1531834685032-c34bf0d84c77?auto=format&fit=crop&w=1600&q=80",
+          "caption": "Getto dei solai"
+        },
+        {
+          "url": "https://images.unsplash.com/photo-1508450859948-4e04fabaa4ea?auto=format&fit=crop&w=1600&q=80",
+          "caption": "Avanzamento lavori"
+        },
+        {
+          "url": "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1600&q=80",
+          "caption": "Riferimenti di facciata"
+        }
+      ],
+      "before": "",
+      "after": "",
+      "featured": false,
+      "published": true
+    }
+  ],
+  "services": [
+    {
+      "id": "s-nuove",
+      "title": "Nuove costruzioni",
+      "text": "Ville, palazzine e piccoli quartieri, dallo scavo alla consegna delle chiavi. Seguiamo noi strutture, impianti e finiture, così chi compra casa ha un solo numero da chiamare.",
+      "image": "https://images.unsplash.com/photo-1429497419816-9ca5cfb4571a?auto=format&fit=crop&w=1600&q=80",
+      "points": [
+        "Strutture antisismiche",
+        "Classe energetica A",
+        "Chiavi in mano"
+      ],
+      "categories": [
+        "Residenziale"
+      ],
+      "active": true
+    },
+    {
+      "id": "s-ristrutturazioni",
+      "title": "Ristrutturazioni",
+      "text": "Appartamenti e case da rifare in tutto o in parte. Prima di iniziare mettiamo per iscritto lavori, tempi e prezzo; durante il cantiere ricevi ogni settimana le foto dei progressi.",
+      "image": "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1600&q=80",
+      "points": [
+        "Demolizioni e ricostruzioni",
+        "Impianti nuovi",
+        "Bonus edilizi"
+      ],
+      "categories": [
+        "Ristrutturazione"
+      ],
+      "active": true
+    },
+    {
+      "id": "s-restauro",
+      "title": "Restauro",
+      "text": "Masserie, palazzi e case nei centri storici. Usiamo calce, pietra e legno come si faceva una volta e ci occupiamo noi delle pratiche con la Soprintendenza.",
+      "image": "https://images.unsplash.com/photo-1590725140246-20acdee442be?auto=format&fit=crop&w=1600&q=80",
+      "points": [
+        "Consolidamenti",
+        "Volte e murature",
+        "Beni vincolati"
+      ],
+      "categories": [
+        "Restauro"
+      ],
+      "active": true
+    },
+    {
+      "id": "s-industriale",
+      "title": "Commerciale e industriale",
+      "text": "Capannoni, uffici e negozi pensati per durare. Organizziamo il cantiere in modo che la tua attività possa andare avanti mentre lavoriamo.",
+      "image": "https://images.unsplash.com/photo-1590069261209-f8e9b8642343?auto=format&fit=crop&w=1600&q=80",
+      "points": [
+        "Carpenteria metallica",
+        "Prefabbricati",
+        "Pavimenti industriali"
+      ],
+      "categories": [
+        "Commerciale",
+        "Industriale"
+      ],
+      "active": true
+    },
+    {
+      "id": "s-energia",
+      "title": "Efficienza energetica",
+      "text": "Cappotto, serramenti, fotovoltaico e pompe di calore. Partiamo da una diagnosi della casa e ti diciamo con onestà quali interventi conviene fare e quali no.",
+      "image": "https://images.unsplash.com/photo-1479839672679-a46483c0e7c8?auto=format&fit=crop&w=1600&q=80",
+      "points": [
+        "Cappotto termico",
+        "Fotovoltaico",
+        "Diagnosi energetica"
+      ],
+      "categories": [
+        "Residenziale",
+        "Ristrutturazione"
+      ],
+      "active": true
+    },
+    {
+      "id": "s-progettazione",
+      "title": "Progettazione",
+      "text": "Il nostro ufficio tecnico disegna il progetto, segue i permessi e la sicurezza e dirige i lavori fino al collaudo, parlando con te e con chi è in cantiere.",
+      "image": "https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=1600&q=80",
+      "points": [
+        "Pratiche edilizie",
+        "Computi metrici",
+        "Direzione lavori"
+      ],
+      "categories": [
+        "Commerciale"
+      ],
+      "active": true
+    }
+  ],
+  "testimonials": [
+    {
+      "id": "hngzodifc149zrl",
+      "name": "Francesca e Luca",
+      "role": "Villa Le Querce",
+      "text": "Ci hanno consegnato la casa nel giorno esatto scritto nel contratto. Ogni venerdì ricevevamo le foto del cantiere: non ci siamo mai sentiti soli.",
+      "published": true
+    },
+    {
+      "id": "hngzodifc15lbsj",
+      "name": "Giorgio Lattanzi",
+      "role": "Levante Tech S.p.A.",
+      "text": "Lavorare accanto a un cantiere senza fermare l'azienda sembrava impossibile. M.I.R.O. ci è riuscita, con ordine e pulizia ammirevoli.",
+      "published": true
+    },
+    {
+      "id": "hngzodifc169xdc",
+      "name": "Famiglia De Nicola",
+      "role": "Masseria San Vito",
+      "text": "Hanno trattato le pietre della nostra masseria con il rispetto che meritavano. Il risultato è andato oltre ogni aspettativa.",
+      "published": true
+    }
+  ],
+  "demoClient": {
+    "id": "c-demo",
+    "name": "Famiglia Lorusso",
+    "email": "demo@mirocostruzioni.it",
+    "phone": "+39 333 765 4321",
+    "notes": "Cliente di prova: si può eliminare.",
+    "passwordHash": "",
+    "passwordSalt": "",
+    "active": true,
+    "createdAt": "2026-10-23T08:17:59.120769",
+    "lastLogin": null
+  },
+  "demoPassword": "cantiere2026",
+  "demoWorksites": [
+    {
+      "id": "w-demo",
+      "clientId": "c-demo",
+      "title": "Casa Lorusso, ristrutturazione",
+      "address": "Via Sparano 41, Bari",
+      "start": "12 gennaio 2026",
+      "end": "Giugno 2026",
+      "status": "inCorso",
+      "progress": 62,
+      "phase": "Impianti",
+      "description": "Ristrutturazione completa dell'appartamento al terzo piano: nuova distribuzione degli spazi, impianti rifatti, due bagni e cucina aperta sul soggiorno.",
+      "cover": "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1600&q=80",
+      "steps": [
+        {
+          "title": "Sopralluogo e progetto",
+          "date": "Dicembre 2025",
+          "done": true
+        },
+        {
+          "title": "Pratiche e permessi",
+          "date": "Gennaio 2026",
+          "done": true
+        },
+        {
+          "title": "Demolizioni",
+          "date": "Febbraio 2026",
+          "done": true
+        },
+        {
+          "title": "Impianti",
+          "date": "Marzo 2026",
+          "done": false
+        },
+        {
+          "title": "Massetti e pavimenti",
+          "date": "Aprile 2026",
+          "done": false
+        },
+        {
+          "title": "Finiture e consegna",
+          "date": "Giugno 2026",
+          "done": false
+        }
+      ],
+      "updates": [
+        {
+          "id": "hngzodih0h78zwn",
+          "date": "2026-10-21T08:17:59.126945",
+          "title": "Impianto elettrico quasi finito",
+          "text": "Abbiamo completato le tracce e passato i cavi in tutte le stanze. Settimana prossima arriva l'idraulico per i bagni.",
+          "photos": [
+            "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&w=1600&q=80"
+          ]
+        },
+        {
+          "id": "hngzodih0h841hf",
+          "date": "2026-10-07T08:17:59.126945",
+          "title": "Demolizioni finite",
+          "text": "Pareti tolte come da progetto e macerie già portate via. Ora la casa è un unico ambiente: venite a vederla quando volete.",
+          "photos": [
+            "https://images.unsplash.com/photo-1517581177682-a085bb7ffb15?auto=format&fit=crop&w=1600&q=80"
+          ]
+        }
+      ],
+      "files": [
+        {
+          "id": "hngzodih0h9djiu",
+          "name": "Cronoprogramma.txt",
+          "mime": "text/plain",
+          "size": 210,
+          "data": "data:text/plain;base64,Q2FzYSBMb3J1c3NvIC0gY3Jvbm9wcm9ncmFtbWEKCkRlbW9saXppb25pOiBjb21wbGV0YXRlCkltcGlhbnRpOiBpbiBjb3JzbywgZmluZSBwcmV2aXN0YSB0cmEgZHVlIHNldHRpbWFuZQpNYXNzZXR0aSBlIHBhdmltZW50aTogYSBzZWd1aXJlCkZpbml0dXJlIGUgcHVsaXppYTogdWx0aW1lIGR1ZSBzZXR0aW1hbmUK",
+          "note": "Aggiornato a questa settimana.",
+          "uploadedAt": "2026-10-21T08:17:59.126945"
+        },
+        {
+          "id": "hngzodih0hajwgp",
+          "name": "Capitolato.txt",
+          "mime": "text/plain",
+          "size": 160,
+          "data": "data:text/plain;base64,Q2FwaXRvbGF0byBsYXZvcmkgLSBDYXNhIExvcnVzc28KClBhdmltZW50aTogZ3JlcyBlZmZldHRvIGxlZ25vIDIweDEyMApCYWduaTogc2FuaXRhcmkgc29zcGVzaSwgZG9jY2lhIGEgZmlsbyBwYXZpbWVudG8KU2VycmFtZW50aTogUFZDIGJpYW5jbyBjb24gdmV0cm9jYW1lcmEK",
+          "note": "Materiali e finiture scelti insieme.",
+          "uploadedAt": "2026-09-23T08:17:59.126945"
+        }
+      ],
+      "messages": [
+        {
+          "id": "hngzodih0hbghp1",
+          "fromClient": false,
+          "text": "Buongiorno! Da qui potete seguire il cantiere e scaricare i documenti. Per qualsiasi domanda scriveteci pure.",
+          "date": "2026-10-03T08:17:59.126945",
+          "read": true
+        },
+        {
+          "id": "hngzodih0hc5lmi",
+          "fromClient": true,
+          "text": "Grazie! Possiamo passare sabato mattina a vedere i lavori?",
+          "date": "2026-10-22T08:17:59.126945",
+          "read": false
+        }
+      ]
+    }
+  ]
+}

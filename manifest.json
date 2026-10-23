@@ -1,0 +1,17 @@
+{
+    "name": "M.I.R.O. Costruzioni",
+    "short_name": "M.I.R.O.",
+    "start_url": ".",
+    "display": "standalone",
+    "background_color": "#F4EEE4",
+    "theme_color": "#F4EEE4",
+    "description": "M.I.R.O. Costruzioni: impresa edile dal 1987. Progetti realizzati, servizi, area clienti e contatti.",
+    "orientation": "any",
+    "lang": "it",
+    "icons": [
+        { "src": "assets/img/Icon-192.png", "sizes": "192x192", "type": "image/png" },
+        { "src": "assets/img/Icon-512.png", "sizes": "512x512", "type": "image/png" },
+        { "src": "assets/img/Icon-maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+        { "src": "assets/img/Icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+    ]
+}

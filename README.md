@@ -1,8 +1,8 @@
-# M.I.R.O. Costruzioni – sito, area clienti e gestionale (Flutter Web)
+# M.I.R.O. Costruzioni – sito, area clienti e gestionale
 
-Sito di un'impresa edile con portfolio dei progetti, pagina dei servizi, area clienti riservata e gestionale. Scritto in Flutter (solo web), responsive per telefono, tablet, PC e TV.
+Sito di un'impresa edile con portfolio dei progetti, pagina dei servizi, area clienti riservata e gestionale. Scritto in **HTML, CSS, JavaScript e PHP** (nessun framework, nessuna compilazione), con database **MySQL**: pensato per l'hosting **Hostinger**. Responsive per telefono, tablet, PC e TV.
 
-Stile caldo e "fatto a mano": titoli in Fraunces (serif morbido, ultima riga in corsivo colorato), testo in DM Sans, angoli arrotondati su foto, schede e pulsanti, transizioni a ogni scorrimento. Il logo (due tetti a capanna che formano una "M") è **di prova** e si sostituisce dal gestionale.
+Stile caldo e "fatto a mano": titoli in Fraunces (serif morbido, ultima riga in corsivo colorato), testo in DM Sans, angoli arrotondati su foto, schede e pulsanti, dissolvenze allo scorrimento. Il logo (due tetti a capanna che formano una "M") è **di prova** e si sostituisce dal gestionale.
 
 | Pagina | Percorso | Cosa contiene |
 |---|---|---|
@@ -15,6 +15,17 @@ Stile caldo e "fatto a mano": titoli in Fraunces (serif morbido, ultima riga in 
 | Area clienti | `/#/area-clienti` | Accesso riservato ai clienti: avanzamento, fasi, aggiornamenti con foto, documenti da scaricare, messaggi |
 | Gestionale | `/#/admin` | Gestione di tutto il sito, dei clienti e dei cantieri |
 
+## Pubblicazione su Hostinger
+
+1. **Database** – hPanel → *Database* → *Database MySQL*: crea un database e un utente (es. `u123456789_miro`) e annota nome, utente e password.
+2. **File** – hPanel → *File Manager* (o FTP): carica in `public_html` tutto il contenuto di questa cartella (`index.php`, `api.php`, `.htaccess`, `manifest.json`, `assets/`, `inc/`, `data/`, `uploads/`). Il file `.htaccess` è nascosto: assicurati che venga copiato.
+3. **Credenziali** – in `public_html/inc/` copia `config.local.example.php` come **`config.local.php`** e inserisci i dati del database. Questo file resta solo sul server e non va su GitHub.
+4. **PHP** – hPanel → *Avanzate* → *Configurazione PHP*: versione **8.1 o superiore** (estensioni `pdo_mysql` e `gd` attive, lo sono di default). Per caricare documenti grandi alza `upload_max_filesize` e `post_max_size` (es. 25M): il limite del sito è 20 MB per file (`inc/config.php`).
+5. **Dominio e HTTPS** – collega il dominio in hPanel e attiva il certificato SSL gratuito: `.htaccess` porta automaticamente tutto su `https://`.
+6. Apri `https://tuodominio.it/#/admin`: al **primo accesso** scegli la password del gestionale. Le tabelle (prefisso `miro_`) e i contenuti di esempio si creano da soli alla prima visita.
+
+Per aggiornare il sito basta ricaricare i file modificati (senza toccare `inc/config.local.php`, `uploads/` e `data/`).
+
 ## Area clienti
 
 Un canale privato tra l'impresa e ogni cliente (privato o azienda).
@@ -25,9 +36,10 @@ Un canale privato tra l'impresa e ogni cliente (privato o azienda).
   - dati, stato e **avanzamento in percentuale**, fase attuale, foto di copertina;
   - **fasi** da spuntare man mano;
   - **aggiornamenti** con testo e foto, visibili subito al cliente;
-  - **documenti** da scaricare (PDF, foto, fogli di calcolo…, fino a 2 MB l'uno) oppure link a file più grandi (Google Drive, Dropbox), ognuno con una nota;
+  - **documenti** da scaricare (PDF, foto, fogli di calcolo…, fino a 20 MB l'uno) oppure link a file più grandi (Google Drive, Dropbox), ognuno con una nota;
   - **messaggi**: il cliente scrive dalla sua area, tu rispondi da qui. I messaggi non letti compaiono come numero accanto a "Cantieri".
-- Il cliente può cambiare la propria password e restare collegato su quel dispositivo.
+- Il cliente può cambiare la propria password e restare collegato su quel dispositivo per 30 giorni.
+- I documenti stanno in `uploads/files`, che non è raggiungibile direttamente: si scaricano solo da `api.php`, dopo aver controllato che il cantiere sia del cliente collegato.
 
 **Cliente di prova** (creato al primo avvio, si elimina da Gestionale → Clienti):
 email `demo@mirocostruzioni.it`, password `cantiere2026`.
@@ -35,30 +47,6 @@ email `demo@mirocostruzioni.it`, password `cantiere2026`.
 ## Il pulsante "Colori"
 
 Sei tavolozze, tre chiare (Sabbia – beige con #CD5C5C –, Calce, Salvia) e tre scure (Bordeaux, Terra, Notte), applicate al volo con una dissolvenza. Da Gestionale → **Stile e colori** scegli la predefinita, quali proporre e chi vede il pulsante (tutti, solo con `/#/?prova=1`, nessuno); il link `/#/?tema=bordeaux` apre il sito già con quei colori.
-
-## Dove stanno i dati (importante)
-
-Per ora **tutti i dati sono nel browser** (localStorage) tramite `LocalRepository`:
-
-- richieste, account dei clienti, documenti e messaggi si vedono **solo nel browser in cui sono stati inseriti**: un cliente dal suo telefono non vedrebbe i cantieri creati dal tuo PC;
-- l'area clienti quindi oggi serve a **provare e mostrare** il funzionamento;
-- foto e documenti caricati occupano lo spazio del browser (circa 5 MB in tutto).
-
-Per usarla davvero con i clienti serve un archivio online condiviso (es. **Supabase**: database, accessi e archivio file). Tutta l'app passa da `Repository` (`lib/data/repository.dart`): basta un'implementazione online al posto di `LocalRepository` in `lib/main.dart`; per l'area clienti andranno spostati online anche l'accesso (account veri invece delle password salvate nel browser) e i file (archivio con permessi per cliente).
-
-## Avvio
-
-```bash
-flutter pub get
-flutter run -d chrome
-```
-
-Build di produzione: `flutter build web --release` (output in `build/web`).
-Per provarla dal telefono sulla stessa Wi-Fi: `dart run tool/serve_release.dart` (porta 8080).
-
-Test (tutte le pagine, l'area clienti e il gestionale su 7 misure di schermo, dal telefono da 320 px alla TV 4K, più modulo contatti, accessi dei clienti, colori e backup): `flutter test`.
-
-> Nota: usa `google_fonts` 8.x. La 9.x dipende dal nuovo pacchetto `material_ui` ed è incompatibile con il `material.dart` di Flutter 3.47.
 
 ## Gestionale
 
@@ -68,30 +56,51 @@ Al primo accesso (`/#/admin`, oppure "Area riservata" in fondo al sito) si crea 
 - **Clienti** e **Cantieri** – l'area clienti, vedi sopra
 - **Progetti**, **Servizi** (con le categorie di lavori da mostrare), **Testimonianze**
 - **Stile e colori**, **Pagina Home**, **Azienda**, **Identità e contatti**
-- **Impostazioni** – Client ID Google, password, backup/ripristino (il backup comprende anche clienti e cantieri)
+- **Impostazioni** – Client ID Google, password, backup/ripristino in un file JSON (comprende clienti, cantieri e messaggi; i documenti caricati restano nella cartella `uploads/files`)
+
+Sicurezza: password cifrate con `password_hash`, sessioni PHP con token CSRF, blocco temporaneo dopo 8 tentativi di accesso sbagliati in 15 minuti, cartelle `inc/`, `data/` e `uploads/files/` chiuse da `.htaccess`.
 
 ## Google Calendar
 
-Gli appuntamenti si scrivono nel calendario principale dell'account Google con cui si fa l'accesso. Serve una sola volta un Client ID OAuth (Gestionale → Impostazioni spiega i passaggi). Lo scope richiesto è solo `calendar.events`.
+Gli appuntamenti si scrivono nel calendario principale dell'account Google con cui si fa l'accesso. Serve una sola volta un Client ID OAuth (Gestionale → Impostazioni spiega i passaggi; tra le origini autorizzate va messo l'indirizzo del dominio). Lo scope richiesto è solo `calendar.events`.
 
-## Pubblicazione
+## Prova in locale
 
-A ogni push su `master` la GitHub Action `.github/workflows/deploy.yml` ricompila il sito e lo pubblica su GitHub Pages.
+Serve PHP 8.1+ con `pdo_sqlite`. In locale si può usare SQLite al posto di MySQL:
+
+```bash
+MIRO_DB=sqlite php -S 127.0.0.1:8094
+```
+
+(su Windows PowerShell: `$env:MIRO_DB='sqlite'; php -S 127.0.0.1:8094`) e poi apri `http://127.0.0.1:8094`. Il database di prova si crea in `data/miro.sqlite`.
 
 ## Struttura
 
 ```
-lib/
-  main.dart, app.dart          avvio, router, link ?prova= / ?tema=
-  models/models.dart           contenuti, progetti, servizi, richieste, appuntamenti, clienti, cantieri, colori
-  data/                        Repository (+ implementazione locale) e dati di esempio
-  state/app_state.dart         stato dell'app, accessi del gestionale e dei clienti
-  services/                    Google Calendar, download dei file
-  theme/                       tavolozze, caratteri, dissolvenza dei colori, tema del gestionale
-  widgets/                     logo, sezioni della Home, schede, prima/dopo, galleria, pulsante colori, navigazione
-  pages/                       home, progetti, servizi, azienda, contatti, area clienti
-  pages/admin/                 gestionale
-test/                          test su 7 misure di schermo, area clienti, modulo, colori, backup
+index.php                pagina unica: carica i dati iniziali e gli script
+api.php                  tutte le operazioni (sito, area clienti, gestionale)
+inc/
+  config.php             impostazioni (database, limiti foto e documenti)
+  config.local.example.php   modello per le credenziali di Hostinger
+  db.php                 tabelle, contenuti, clienti, cantieri, documenti
+  auth.php               sessioni, accessi, CSRF, tentativi
+  funzioni.php           risposte JSON, foto ridimensionate
+  seed.json              contenuti di esempio e cliente di prova
+assets/
+  css/site.css           sito pubblico e area clienti
+  css/admin.css          gestionale
+  js/core.js             tavolozze, router, intestazione, animazioni, visore foto
+  js/site.js             pagine pubbliche
+  js/client.js           area clienti
+  js/admin.js            gestionale: componenti, accesso, Panoramica, Richieste, Calendario, Impostazioni
+  js/admin-pages.js      gestionale: Clienti, Cantieri, Progetti, Servizi, Testimonianze, Stile, testi del sito
+  js/gcal.js             Google Calendar
+  img/                   icone
+uploads/img              foto caricate dal gestionale
+uploads/files            documenti dei cantieri (protetti)
+data/                    database SQLite per le prove in locale
 ```
 
 I contenuti di esempio (testi, foto Unsplash, contatti, persone e il cliente di prova) vanno sostituiti dal gestionale.
+
+La prima versione del sito, in Flutter, resta nella cronologia di git (commit `8e4d0cd`).
