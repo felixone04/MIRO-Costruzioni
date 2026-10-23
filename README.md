@@ -18,13 +18,23 @@ Stile caldo e "fatto a mano": titoli in Fraunces (serif morbido, ultima riga in 
 ## Pubblicazione su Hostinger
 
 1. **Database** – hPanel → *Database* → *Database MySQL*: crea un database e un utente (es. `u123456789_miro`) e annota nome, utente e password.
-2. **File** – hPanel → *File Manager* (o FTP): carica in `public_html` tutto il contenuto di questa cartella (`index.php`, `api.php`, `.htaccess`, `manifest.json`, `assets/`, `inc/`, `data/`, `uploads/`). Il file `.htaccess` è nascosto: assicurati che venga copiato.
+2. **File** – hPanel → *File Manager* (o FTP): carica in `public_html` `index.php`, `api.php`, `.htaccess`, `manifest.json` e le cartelle `assets/`, `inc/`, `data/`, `uploads/`. Il file `.htaccess` è nascosto: assicurati che venga copiato.
 3. **Credenziali** – in `public_html/inc/` copia `config.local.example.php` come **`config.local.php`** e inserisci i dati del database. Questo file resta solo sul server e non va su GitHub.
 4. **PHP** – hPanel → *Avanzate* → *Configurazione PHP*: versione **8.1 o superiore** (estensioni `pdo_mysql` e `gd` attive, lo sono di default). Per caricare documenti grandi alza `upload_max_filesize` e `post_max_size` (es. 25M): il limite del sito è 20 MB per file (`inc/config.php`).
 5. **Dominio e HTTPS** – collega il dominio in hPanel e attiva il certificato SSL gratuito: `.htaccess` porta automaticamente tutto su `https://`.
 6. Apri `https://tuodominio.it/#/admin`: al **primo accesso** scegli la password del gestionale. Le tabelle (prefisso `miro_`) e i contenuti di esempio si creano da soli alla prima visita.
 
 Per aggiornare il sito basta ricaricare i file modificati (senza toccare `inc/config.local.php`, `uploads/` e `data/`).
+
+## Anteprima su GitHub Pages
+
+**https://felixone04.github.io/MIRO-Costruzioni/** mostra il sito con i contenuti di esempio, per vederne la grafica prima che sia su Hostinger. GitHub Pages non esegue PHP, quindi a ogni push su `master` la GitHub Action `.github/workflows/anteprima.yml` lancia `php demo/build.php` e pubblica una copia statica. In quella copia `demo/demo.js` fa le veci di `api.php` dentro il browser.
+
+- Tutte le pagine, le animazioni e il pulsante "Colori" sono quelli veri.
+- Gestionale e area clienti si possono provare, ma i dati restano **solo nel browser di chi li modifica** (al primo accesso a `/#/admin` si sceglie una password qualsiasi). Nessun altro vede le modifiche.
+- Nell'anteprima i documenti caricati possono essere al massimo di 1 MB.
+
+La cartella `demo/` serve solo all'anteprima: su Hostinger non va caricata (non fa danni se c'è).
 
 ## Area clienti
 
@@ -99,6 +109,8 @@ assets/
 uploads/img              foto caricate dal gestionale
 uploads/files            documenti dei cantieri (protetti)
 data/                    database SQLite per le prove in locale
+demo/                    anteprima statica per GitHub Pages (build.php, demo.js)
+.github/workflows/       pubblicazione dell'anteprima
 ```
 
 I contenuti di esempio (testi, foto Unsplash, contatti, persone e il cliente di prova) vanno sostituiti dal gestionale.

@@ -5,9 +5,18 @@
  */
 require_once __DIR__ . '/inc/funzioni.php';
 
-avvia_sessione();
-$avvio = dati_avvio();
-$c = $avvio['content'];
+// Anteprima statica per GitHub Pages (demo/build.php): niente database né
+// sessioni, i dati di esempio vivono nel browser grazie a demo/demo.js.
+$demo = defined('MIRO_ANTEPRIMA');
+if ($demo) {
+    $seed = json_decode(file_get_contents(__DIR__ . '/inc/seed.json'), true);
+    $c = $seed['content'];
+} else {
+    avvia_sessione();
+    $avvio = dati_avvio();
+    $c = $avvio['content'];
+}
+$json = fn($x) => json_encode($x, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP);
 $titolo = ($c['companyName'] ?? 'M.I.R.O. Costruzioni') . ' · ' . ($c['tagline'] ?? '');
 $descrizione = ($c['companyName'] ?? '') . ': ' . ($c['heroSubtitle'] ?? '');
 $e = fn($s) => htmlspecialchars((string) $s, ENT_QUOTES, 'UTF-8');
@@ -67,7 +76,12 @@ header('Content-Type: text/html; charset=utf-8');
       Telefono: <?= $e($c['contacts']['phone'] ?? '') ?> · Email: <?= $e($c['contacts']['email'] ?? '') ?></p>
   </noscript>
 
-  <script>window.__BOOT__ = <?= json_encode($avvio, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP) ?>;</script>
+<?php if ($demo): ?>
+  <script>window.__SEED__ = <?= $json($seed) ?>;</script>
+  <script src="<?= $v('demo/demo.js') ?>"></script>
+<?php else: ?>
+  <script>window.__BOOT__ = <?= $json($avvio) ?>;</script>
+<?php endif ?>
   <script src="<?= $v('assets/js/core.js') ?>"></script>
   <script src="<?= $v('assets/js/site.js') ?>"></script>
   <script src="<?= $v('assets/js/client.js') ?>"></script>

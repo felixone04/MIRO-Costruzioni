@@ -13,6 +13,9 @@ uploads/files/*
 !uploads/files/.htaccess
 !uploads/files/.gitkeep
 
+# Anteprima statica generata da demo/build.php
+_site/
+
 # Varie
 *.log
 .DS_Store
