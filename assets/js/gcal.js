@@ -14,6 +14,15 @@ const GCAL = (() => {
 
   const connected = () => !!token && Date.now() < expires - 60000;
 
+  // Lo script di Google si carica insieme al gestionale (questo file): il sito pubblico non contatta Google.
+  if (!document.getElementById('gsi')) {
+    const s = document.createElement('script');
+    s.id = 'gsi';
+    s.src = 'https://accounts.google.com/gsi/client';
+    s.async = true;
+    document.head.appendChild(s);
+  }
+
   async function waitGis() {
     for (let i = 0; i < 50; i++) {
       if (window.google?.accounts?.oauth2) return window.google.accounts.oauth2;

@@ -23,31 +23,42 @@ if ($post) controlla_csrf();
 if ($a === 'boot') rispondi(dati_avvio());
 
 if ($a === 'contact' && $post) {
+    // Il modulo arriva come multipart (con le foto dell'immobile) o come JSON.
+    $in = $_POST ?: corpo();
+    $v = fn($k, $max = 120) => mb_substr(trim((string) ($in[$k] ?? '')), 0, $max);
     // Campo trappola: i robot lo compilano, le persone non lo vedono.
-    if (trim((string) campo('website')) !== '') rispondi(['ok' => true]);
-    $nome = trim((string) campo('name'));
-    $tel = trim((string) campo('phone'));
-    $email = trim((string) campo('email'));
-    if ($nome === '' || $tel === '' || !filter_var($email, FILTER_VALIDATE_EMAIL) || !campo('privacy')) {
+    if ($v('website') !== '') rispondi(['ok' => true]);
+    controlla_tentativi('modulo', 'Hai già inviato diverse richieste: riprova tra qualche minuto o chiamaci.');
+    $nome = $v('name');
+    $tel = $v('phone', 40);
+    $email = $v('email', 190);
+    if ($nome === '' || $tel === '' || !filter_var($email, FILTER_VALIDATE_EMAIL) || empty($in['privacy'])) {
         rispondi(['errore' => 'Controlla i campi obbligatori.'], 422);
+    }
+    $foto = [];
+    foreach (array_slice(file_caricati('photos'), 0, 6) as $f) {
+        if ($n = salva_foto_richiesta($f)) $foto[] = 'api.php?a=admin.rfoto&f=' . $n;
     }
     $r = [
         'id' => nuovo_id(),
         'createdAt' => adesso(),
-        'name' => mb_substr($nome, 0, 120),
-        'phone' => mb_substr($tel, 0, 40),
-        'email' => mb_substr($email, 0, 190),
-        'city' => mb_substr(trim((string) campo('city')), 0, 120),
-        'type' => mb_substr(trim((string) campo('type')), 0, 120),
-        'timing' => '',
-        'area' => '',
-        'message' => mb_substr(trim((string) campo('message')), 0, 4000),
-        'projectRef' => '',
+        'name' => $nome,
+        'phone' => $tel,
+        'email' => $email,
+        'city' => $v('city'),
+        'type' => $v('type'),
+        'timing' => $v('timing'),
+        'area' => $v('area', 40),
+        'message' => $v('message', 4000),
+        'projectRef' => $v('projectRef'),
+        'photos' => $foto,
         'status' => 'nuova',
         'appointmentId' => null,
         'notes' => '',
     ];
     salva_richiesta($r);
+    segna_tentativo('modulo');
+    avvisa_nuova_richiesta($r);
     rispondi(['ok' => true]);
 }
 
@@ -95,6 +106,31 @@ if ($a === 'client.message' && $post) {
     $testo = trim((string) campo('text'));
     if ($testo === '') rispondi(['errore' => 'Scrivi un messaggio.'], 422);
     nuovo_messaggio($w['id'], $testo, true);
+    $completo = cantiere_completo($w);
+    avvisa_titolare($completo, 'Nuovo messaggio da ' . cliente_corrente_nome(), $testo);
+    rispondi(['worksite' => $completo]);
+}
+
+/** Nome del cliente collegato, per gli avvisi. */
+function cliente_corrente_nome(): string
+{
+    return cliente_pubblico(cliente_corrente())['name'] ?: 'un cliente';
+}
+
+// Il cliente approva un documento per cui l'impresa ha chiesto l'approvazione.
+if ($a === 'client.approve' && $post) {
+    $w = cantiere_del_cliente((string) campo('worksiteId'));
+    $s = db()->prepare('SELECT d.nome, a.data FROM ' . t('documenti') . ' d JOIN ' . t('approvazioni') . ' a ON a.documento = d.id WHERE d.id = ? AND d.cantiere = ?');
+    $s->execute([campo('id'), $w['id']]);
+    $doc = $s->fetch();
+    if (!$doc) rispondi(['errore' => 'Documento non trovato.'], 404);
+    if (!$doc['data']) {
+        db()->prepare('UPDATE ' . t('approvazioni') . ' SET data = ?, ip = ? WHERE documento = ?')
+            ->execute([adesso(), $_SERVER['REMOTE_ADDR'] ?? '', campo('id')]);
+        $completo = cantiere_completo($w);
+        avvisa_titolare($completo, cliente_corrente_nome() . ' ha approvato ' . $doc['nome'],
+            cliente_corrente_nome() . " ha approvato il documento «{$doc['nome']}» dall'area clienti.");
+    }
     rispondi(['worksite' => cantiere_completo($w)]);
 }
 
@@ -218,8 +254,29 @@ if ($a === 'admin.request' && $post) {
 }
 
 if ($a === 'admin.request.delete' && $post) {
+    $s = db()->prepare('SELECT dati FROM ' . t('richieste') . ' WHERE id = ?');
+    $s->execute([campo('id')]);
+    foreach (json_decode((string) $s->fetchColumn(), true)['photos'] ?? [] as $u) {
+        parse_str((string) parse_url($u, PHP_URL_QUERY), $q);
+        if (preg_match('/^rq-[\w-]+\.jpg$/', $q['f'] ?? '')) @unlink(cartella_documenti() . '/' . $q['f']);
+    }
     db()->prepare('DELETE FROM ' . t('richieste') . ' WHERE id = ?')->execute([campo('id')]);
     rispondi(['ok' => true]);
+}
+
+// Foto allegate a una richiesta dal modulo del sito (solo per il gestionale).
+if ($a === 'admin.rfoto') {
+    $f = (string) ($_GET['f'] ?? '');
+    $path = cartella_documenti() . '/' . $f;
+    if (!preg_match('/^rq-[\w-]+\.jpg$/', $f) || !is_file($path)) {
+        http_response_code(404);
+        exit;
+    }
+    header('Content-Type: image/jpeg');
+    header('Cache-Control: private, max-age=86400');
+    header('X-Content-Type-Options: nosniff');
+    readfile($path);
+    exit;
 }
 
 if ($a === 'admin.appointment' && $post) {
@@ -284,7 +341,16 @@ if ($a === 'admin.worksite' && $post) {
     if (empty($w['id']) || !cliente_da_id($w['clientId'] ?? '')) {
         rispondi(['errore' => 'Scegli il cliente del cantiere.'], 422);
     }
+    $prima = cantiere_da_id($w['id']);
+    $vecchi = array_column(json_decode($prima['dati'] ?? '[]', true)['updates'] ?? [], 'id');
     salva_cantiere($w);
+    // Aggiornamenti appena pubblicati (e cantiere già esistente): il cliente riceve un avviso.
+    foreach ($prima ? ($w['updates'] ?? []) : [] as $u) {
+        if (!in_array($u['id'] ?? '', $vecchi, true)) {
+            avvisa_cliente($w, 'Novità dal cantiere: ' . ($u['title'] ?? ''), trim(($u['title'] ?? '') . "\n" . ($u['text'] ?? ''))
+                . (!empty($u['photos']) ? "\n\n" . count($u['photos']) . ' nuove foto.' : ''));
+        }
+    }
     rispondi_cantiere($w['id']);
 }
 
@@ -307,8 +373,10 @@ if ($a === 'admin.file.upload' && $post) {
         $tipo = (new finfo(FILEINFO_MIME_TYPE))->file(cartella_documenti() . '/' . $nome) ?: 'application/octet-stream';
         db()->prepare('INSERT INTO ' . t('documenti') . ' (id, cantiere, nome, tipo, peso, file, link, nota, caricato) VALUES (?,?,?,?,?,?,0,?,?)')
             ->execute([nuovo_id(), $wid, mb_substr(basename($f['name']), 0, 255), $tipo, $f['size'], $nome, '', adesso()]);
+        $caricati[] = basename($f['name']);
     }
     $w = cantiere_completo(cantiere_da_id($wid));
+    if (!empty($caricati)) avvisa_cliente($w, 'Nuovi documenti nella tua area clienti', 'Abbiamo caricato: ' . implode(', ', $caricati) . '.');
     rispondi(['worksite' => $w, 'skipped' => $saltati]);
 }
 
@@ -320,6 +388,25 @@ if ($a === 'admin.file.link' && $post) {
     }
     db()->prepare('INSERT INTO ' . t('documenti') . ' (id, cantiere, nome, tipo, peso, file, link, nota, caricato) VALUES (?,?,?,?,0,?,1,?,?)')
         ->execute([nuovo_id(), $wid, trim((string) campo('name')) ?: 'Documento', '', $url, '', adesso()]);
+    avvisa_cliente(cantiere_completo(cantiere_da_id($wid)), 'Nuovi documenti nella tua area clienti',
+        'Abbiamo aggiunto: ' . (trim((string) campo('name')) ?: 'un documento') . '.');
+    rispondi_cantiere($wid);
+}
+
+// Chiede (o toglie) l'approvazione del cliente su un documento.
+if ($a === 'admin.file.approval' && $post) {
+    $wid = (string) campo('worksiteId');
+    $id = (string) campo('id');
+    $c = db()->prepare('SELECT COUNT(*) FROM ' . t('approvazioni') . ' WHERE documento = ?');
+    $c->execute([$id]);
+    if (campo('on', false) && !$c->fetchColumn()) {
+        db()->prepare('INSERT INTO ' . t('approvazioni') . ' (documento, data, ip) VALUES (?, NULL, ?)')->execute([$id, '']);
+        $w = cantiere_completo(cantiere_da_id($wid));
+        $nome = array_column($w['files'], 'name', 'id')[$id] ?? 'un documento';
+        avvisa_cliente($w, 'Un documento da approvare', "Ti chiediamo di guardare e approvare «{$nome}». Trovi il pulsante \"Approvo\" accanto al documento.");
+    } elseif (!campo('on', false)) {
+        db()->prepare('DELETE FROM ' . t('approvazioni') . ' WHERE documento = ?')->execute([$id]);
+    }
     rispondi_cantiere($wid);
 }
 
@@ -334,6 +421,7 @@ if ($a === 'admin.file.delete' && $post) {
     if ($f = $s->fetch()) {
         if (!$f['link']) @unlink(cartella_documenti() . '/' . basename($f['file']));
         db()->prepare('DELETE FROM ' . t('documenti') . ' WHERE id = ?')->execute([$f['id']]);
+        db()->prepare('DELETE FROM ' . t('approvazioni') . ' WHERE documento = ?')->execute([$f['id']]);
     }
     rispondi_cantiere((string) campo('worksiteId'));
 }
@@ -349,7 +437,17 @@ if ($a === 'admin.message' && $post) {
     $testo = trim((string) campo('text'));
     if (!cantiere_da_id($wid) || $testo === '') rispondi(['errore' => 'Scrivi un messaggio.'], 422);
     nuovo_messaggio($wid, $testo, false);
+    avvisa_cliente(cantiere_completo(cantiere_da_id($wid)), 'Nuovo messaggio da ' . (kv_get('content', [])['companyName'] ?? ''), $testo);
     rispondi_cantiere($wid);
+}
+
+// Prova della casella email (dalle Impostazioni).
+if ($a === 'admin.mailtest' && $post) {
+    if (!email_attiva()) rispondi(['errore' => 'Email non ancora configurata: compila la sezione email di inc/config.local.php.'], 422);
+    if (!invia_email(email_titolare(), 'Prova dal sito', ['Se leggi questo messaggio, gli avvisi via email del sito funzionano.'])) {
+        rispondi(['errore' => 'Invio non riuscito: ' . ($GLOBALS['miro_email_errore'] ?? 'errore sconosciuto')], 502);
+    }
+    rispondi(['ok' => true, 'to' => email_titolare()]);
 }
 
 if ($a === 'admin.read' && $post) {
@@ -386,7 +484,10 @@ function tutti_i_dati(bool $backup): array
         'clients' => $clienti,
         'worksites' => $cantieri,
     ];
-    if (!$backup) $d['settings'] = kv_get('settings', ['googleClientId' => '', 'googleWasConnected' => false]);
+    if (!$backup) {
+        $d['settings'] = kv_get('settings', ['googleClientId' => '', 'googleWasConnected' => false]);
+        $d['mail'] = ['active' => email_attiva(), 'to' => email_titolare()];
+    }
     return $d;
 }
 

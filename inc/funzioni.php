@@ -5,6 +5,7 @@
 
 require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/auth.php';
+require_once __DIR__ . '/mail.php';
 
 function rispondi(array $dati, int $codice = 200): never
 {
@@ -12,6 +13,7 @@ function rispondi(array $dati, int $codice = 200): never
     header('Content-Type: application/json; charset=utf-8');
     header('Cache-Control: no-store');
     echo json_encode($dati, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    invia_coda_email();
     exit;
 }
 
@@ -48,6 +50,119 @@ function dati_avvio(): array
         'admin' => is_admin(),
         'adminSetup' => !admin_ha_password(),
     ];
+}
+
+// --------------------------------------------------------- indirizzi delle pagine
+
+/** Parola per l'indirizzo: "Casa Bianca sul mare" → "casa-bianca-sul-mare". Uguale a MIRO.slug in core.js. */
+function slug(string $s): string
+{
+    $s = strtr(mb_strtolower(trim($s)), [
+        'à' => 'a', 'á' => 'a', 'â' => 'a', 'ä' => 'a', 'è' => 'e', 'é' => 'e', 'ê' => 'e', 'ë' => 'e',
+        'ì' => 'i', 'í' => 'i', 'î' => 'i', 'ï' => 'i', 'ò' => 'o', 'ó' => 'o', 'ô' => 'o', 'ö' => 'o',
+        'ù' => 'u', 'ú' => 'u', 'û' => 'u', 'ü' => 'u', 'ç' => 'c', 'ñ' => 'n',
+    ]);
+    $s = trim(preg_replace('/[^a-z0-9]+/', '-', $s), '-');
+    return $s !== '' ? $s : 'progetto';
+}
+
+/** id del progetto → parola dell'indirizzo (con l'id in coda se due titoli coincidono). */
+function slug_progetti(array $progetti): array
+{
+    $out = [];
+    $visti = [];
+    foreach ($progetti as $p) {
+        $s = slug($p['title'] ?? '');
+        if (isset($visti[$s])) $s .= '-' . $p['id'];
+        $visti[$s] = true;
+        $out[$p['id']] = $s;
+    }
+    return $out;
+}
+
+/** Indirizzo completo del sito, es. https://www.mirocostruzioni.it/ */
+function indirizzo_sito(): string
+{
+    if (defined('MIRO_ORIGINE')) return MIRO_ORIGINE . MIRO_BASE;
+    $https = ($_SERVER['HTTPS'] ?? '') === 'on' || ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https';
+    return ($https ? 'https' : 'http') . '://' . ($_SERVER['HTTP_HOST'] ?? 'localhost') . percorso_base();
+}
+
+/** Indirizzo assoluto di una foto (le foto caricate hanno un percorso relativo). */
+function url_assoluto(string $u): string
+{
+    if ($u === '' || str_starts_with($u, 'data:')) return '';
+    if (preg_match('#^(https?:)?//#i', $u)) return $u;
+    return indirizzo_sito() . ltrim($u, '/');
+}
+
+/**
+ * Titolo, descrizione e foto della pagina richiesta: servono a Google e
+ * all'anteprima dei link condivisi (WhatsApp, Facebook…).
+ */
+function meta_pagina(string $percorso, array $dati): array
+{
+    $c = $dati['content'];
+    $nome = $c['companyName'] ?? 'M.I.R.O. Costruzioni';
+    $riga = fn($s) => trim(preg_replace('/\s+/', ' ', (string) $s));
+    $cover = fn($p) => trim($p['cover'] ?? '') ?: ($p['photos'][0]['url'] ?? '');
+    $evidenza = array_values(array_filter($dati['projects'], fn($p) => !empty($p['featured'])))[0] ?? ($dati['projects'][0] ?? null);
+    $m = [
+        'title' => $nome . ' · ' . ($c['tagline'] ?? ''),
+        'description' => $riga($c['heroSubtitle'] ?? ''),
+        'image' => $evidenza ? $cover($evidenza) : ($c['aboutImage'] ?? ''),
+        'noindex' => false,
+        'status' => 200,
+    ];
+    $parti = explode('/', $percorso);
+    $sezioni = [
+        'progetti' => ['Progetti', $c['projectsText'] ?? ''],
+        'servizi' => ['Servizi', $c['servicesText'] ?? ''],
+        'azienda' => ['Azienda', $c['aboutIntro'] ?? ''],
+        'contatti' => ['Contatti', $c['contactText'] ?? ''],
+        'privacy' => ['Privacy', 'Informativa sul trattamento dei dati personali.'],
+        'cookie' => ['Cookie', 'Informativa sui cookie del sito.'],
+        'area-clienti' => ['Area clienti', 'Accesso riservato ai clienti.'],
+        'admin' => ['Area riservata', ''],
+    ];
+    if ($percorso === '') return $m;
+    if (!isset($sezioni[$parti[0]])) return ['noindex' => true, 'status' => 404, 'title' => 'Pagina non trovata · ' . $nome] + $m;
+    [$t, $d] = $sezioni[$parti[0]];
+    $m['title'] = $t . ' · ' . $nome;
+    if ($d !== '') $m['description'] = $riga($d);
+    if ($parti[0] === 'azienda' && !empty($c['aboutImage'])) $m['image'] = $c['aboutImage'];
+    if (in_array($parti[0], ['area-clienti', 'admin'], true)) $m['noindex'] = true;
+    if ($parti[0] === 'progetti' && isset($parti[1])) {
+        $slug = array_search($parti[1], slug_progetti($dati['projects']), true);
+        $p = null;
+        foreach ($dati['projects'] as $x) if ($x['id'] === $slug || $x['id'] === $parti[1]) $p = $x;
+        if (!$p) return ['noindex' => true, 'status' => 404] + $m;
+        $m['title'] = $p['title'] . ' · ' . $nome;
+        $m['description'] = $riga($p['summary'] ?? '') ?: $m['description'];
+        $m['image'] = $cover($p) ?: $m['image'];
+    }
+    return $m;
+}
+
+/** Scheda dell'impresa per Google (dati strutturati schema.org). */
+function scheda_impresa(array $c): array
+{
+    $k = $c['contacts'] ?? [];
+    $s = [
+        '@context' => 'https://schema.org',
+        '@type' => 'GeneralContractor',
+        'name' => $c['companyName'] ?? '',
+        'description' => $c['tagline'] ?? '',
+        'url' => indirizzo_sito(),
+        'logo' => url_assoluto(trim($c['logo'] ?? '') ?: 'assets/img/Icon-512.png'),
+        'image' => url_assoluto($c['aboutImage'] ?? ''),
+        'telephone' => $k['phone'] ?? '',
+        'email' => $k['email'] ?? '',
+        'address' => ['@type' => 'PostalAddress', 'streetAddress' => $k['address'] ?? '', 'addressCountry' => 'IT'],
+        'vatID' => trim(str_ireplace('P.IVA', '', $k['vat'] ?? '')),
+        'sameAs' => array_values(array_filter([$k['instagram'] ?? '', $k['facebook'] ?? '', $k['linkedin'] ?? ''])),
+    ];
+    return array_filter($s, fn($v) => $v !== '' && $v !== []);
 }
 
 // --------------------------------------------------------------- foto
@@ -95,6 +210,32 @@ function salva_foto(array $file): string
         move_uploaded_file($file['tmp_name'], $dest);
     }
     return 'uploads/img/' . $nome;
+}
+
+/**
+ * Foto allegata dal modulo del sito (la manda chiunque): si ricodifica sempre
+ * in JPEG, così resta solo l'immagine, e si salva nella cartella protetta
+ * uploads/files. La vede solo il gestionale (api.php?a=admin.rfoto).
+ */
+function salva_foto_richiesta(array $file): ?string
+{
+    if (($file['error'] ?? 1) !== UPLOAD_ERR_OK || $file['size'] > 12 * 1024 * 1024) return null;
+    $info = @getimagesize($file['tmp_name']);
+    if (!$info || !in_array($info[2], [IMAGETYPE_JPEG, IMAGETYPE_PNG, IMAGETYPE_WEBP], true) || !function_exists('imagecreatetruecolor')) return null;
+    $src = match ($info[2]) {
+        IMAGETYPE_JPEG => @imagecreatefromjpeg($file['tmp_name']),
+        IMAGETYPE_PNG => @imagecreatefrompng($file['tmp_name']),
+        IMAGETYPE_WEBP => @imagecreatefromwebp($file['tmp_name']),
+    };
+    if (!$src) return null;
+    [$w, $h] = $info;
+    $k = min(1, 1600 / max($w, $h));
+    $dst = imagecreatetruecolor((int) round($w * $k), (int) round($h * $k));
+    imagefill($dst, 0, 0, imagecolorallocate($dst, 255, 255, 255));
+    imagecopyresampled($dst, $src, 0, 0, 0, 0, imagesx($dst), imagesy($dst), $w, $h);
+    $nome = 'rq-' . date('Ym') . '-' . bin2hex(random_bytes(10)) . '.jpg';
+    imagejpeg($dst, cartella_documenti() . '/' . $nome, 82);
+    return $nome;
 }
 
 /** Normalizza l'elenco $_FILES['x'] (anche multiplo) in una lista di file. */

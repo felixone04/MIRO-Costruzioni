@@ -1,5 +1,5 @@
 /* =====================================================================
-   Gestionale (#/admin): componenti comuni, struttura, accesso, Panoramica,
+   Gestionale (/admin): componenti comuni, struttura, accesso, Panoramica,
    Richieste, Calendario, Impostazioni. Le altre sezioni sono in
    admin-pages.js.
    ===================================================================== */
@@ -306,10 +306,8 @@ const ADM = (() => {
   };
 
   /** Indirizzo del sito (con eventuali parametri del link). */
-  A.siteLink = (hash = '/', q = null) => {
-    const base = location.origin + location.pathname;
-    return base + '#' + hash + (q ? '?' + new URLSearchParams(q) : '');
-  };
+  A.siteLink = (path = '/', q = null) =>
+    location.origin + MIRO.BASE + MIRO.link(path).replace(/^\.\//, '') + (q ? '?' + new URLSearchParams(q) : '');
   A.copy = async (text, msg = 'Copiato.') => {
     try { await navigator.clipboard.writeText(text); A.toast(msg); } catch { A.toast('Copia non riuscita: seleziona il testo e copialo a mano.', true); }
   };
@@ -339,10 +337,10 @@ const ADM = (() => {
       const n = id === 'richieste' ? A.newRequests() : id === 'cantieri' ? A.unreadClient() : 0;
       return n ? `<span class="badge">${n}</span>` : '';
     };
-    return `<aside class="adm-nav"><div class="brand"><a href="#/admin">${MIRO.logo({ height: '2.375rem', light: true })}</a></div>
+    return `<aside class="adm-nav"><div class="brand"><a href="admin">${MIRO.logo({ height: '2.375rem', light: true })}</a></div>
       <div class="groups">${GROUPS.map(([g, items]) => `<div class="gl">${esc(g)}</div>${items.map(([id, l, ic]) =>
-        `<a class="item ${id === cur ? 'on' : ''}" href="#/admin/${id}">${ms(ic)}<span>${esc(l)}</span>${badge(id)}</a>`).join('')}`).join('')}</div>
-      <div class="foot"><a href="#/" target="_blank">${ms('open_in_new')}Vedi il sito</a><button id="logout">${ms('logout')}Esci</button></div></aside>`;
+        `<a class="item ${id === cur ? 'on' : ''}" href="admin/${id}">${ms(ic)}<span>${esc(l)}</span>${badge(id)}</a>`).join('')}`).join('')}</div>
+      <div class="foot"><a href="./" target="_blank">${ms('open_in_new')}Vedi il sito</a><button id="logout">${ms('logout')}Esci</button></div></aside>`;
   }
 
   A.go = () => render(A.section, A.query);
@@ -352,6 +350,7 @@ const ADM = (() => {
     A.query = query || new URLSearchParams();
     MIRO.scaffoldSite = false;
     $('#switcher')?.remove();
+    $('#wa')?.remove();
     $('#mmenu')?.remove();
     document.body.style.overflow = '';
     document.body.classList.add('admin-mode');
@@ -364,9 +363,10 @@ const ADM = (() => {
     }
     const cur = SECTIONS.some(([id]) => id === section) ? section : 'panoramica';
     const label = SECTIONS.find(([id]) => id === cur)[1];
+    document.title = `${label} · Gestionale ${boot.content.shortName || ''}`.trim();
     app.innerHTML = `<div class="adm"><div class="adm-shell">${nav(cur)}<div class="adm-main">
       <div class="adm-bar"><button class="ib" id="drawer" style="color:#fff" aria-label="Menu">${ms('menu')}</button><span class="t">${esc(label)}</span>
-      <a class="ib" href="#/" target="_blank" style="color:#fff" aria-label="Vedi il sito">${ms('open_in_new')}</a></div>
+      <a class="ib" href="./" target="_blank" style="color:#fff" aria-label="Vedi il sito">${ms('open_in_new')}</a></div>
       <div id="am" style="flex:1;display:flex;flex-direction:column"></div></div></div></div>`;
     scrollTo(0, 0);
     $('#drawer').onclick = () => {
@@ -396,7 +396,7 @@ const ADM = (() => {
     try { await api('admin.logout', {}); } catch { /* comunque fuori */ }
     boot.admin = false;
     A.D = null;
-    location.hash = '#/admin';
+    MIRO.go('admin');
     A.go();
   }
 
@@ -427,7 +427,7 @@ const ADM = (() => {
       <label class="chk" style="margin-top:.375rem"><input type="checkbox" name="remember" checked>Ricordami su questo dispositivo</label>
       <p class="err" style="color:#B3261E;font-size:.875rem;min-height:1.25rem" id="lerr"></p>
       <button class="b fill" style="width:100%;height:3.75rem;border-radius:0;margin-top:.75rem;letter-spacing:.2em;font-size:.75rem">${create ? 'CREA E ENTRA' : 'ENTRA'}</button>
-      <div style="text-align:center;margin-top:.875rem"><a class="b text" href="#/">${ms('arrow_back')}Torna al sito</a></div></form></div></div></div>`;
+      <div style="text-align:center;margin-top:.875rem"><a class="b text" href="./">${ms('arrow_back')}Torna al sito</a></div></form></div></div></div>`;
     const f = $('#lf');
     $('#eye').onclick = () => {
       const t = f.pw.type === 'password' ? 'text' : 'password';
@@ -478,15 +478,15 @@ const ADM = (() => {
     const D = A.D;
     const nr = A.newRequests();
     const up = A.upcoming();
-    const stat = (label, value, icon, href, hl) => `<a class="card stat-a" href="#/admin/${href}"><span class="ic" style="color:${hl || '#16191C'};background:${hl || '#16191C'}1A">${ms(icon)}</span>
+    const stat = (label, value, icon, href, hl) => `<a class="card stat-a" href="admin/${href}"><span class="ic" style="color:${hl || '#16191C'};background:${hl || '#16191C'}1A">${ms(icon)}</span>
       <span><div class="v">${value}</div><div class="l">${esc(label)}</div></span></a>`;
-    const recent = A.panel('Ultime richieste', '', D.requests.length ? D.requests.slice(0, 5).map((r) => `<a class="li" href="#/admin/richieste"><span class="bd">
+    const recent = A.panel('Ultime richieste', '', D.requests.length ? D.requests.slice(0, 5).map((r) => `<a class="li" href="admin/richieste"><span class="bd">
       <div class="t1">${esc(r.name)}</div><div class="t2">${esc([r.type, r.city].filter(Boolean).join(' · ') || 'Richiesta')} · ${esc(fmtD(r.createdAt, { day: 'numeric', month: 'short' }))}</div></span>
-      ${A.statusPill(r.status)}</a>`).join('') : A.empty('inbox', 'Ancora nessuna richiesta dal sito.'), '<a class="b text" href="#/admin/richieste">Vedi tutte</a>');
-    const next = A.panel('Prossimi appuntamenti', '', up.length ? up.slice(0, 5).map((a) => `<a class="li" href="#/admin/calendario"><span class="datebox"><b>${new Date(a.start).getDate()}</b>
+      ${A.statusPill(r.status)}</a>`).join('') : A.empty('inbox', 'Ancora nessuna richiesta dal sito.'), '<a class="b text" href="admin/richieste">Vedi tutte</a>');
+    const next = A.panel('Prossimi appuntamenti', '', up.length ? up.slice(0, 5).map((a) => `<a class="li" href="admin/calendario"><span class="datebox"><b>${new Date(a.start).getDate()}</b>
       <small>${esc(fmtD(a.start, { month: 'short' }).toUpperCase())}</small></span><span class="bd"><div class="t1" style="font-weight:400">${esc(a.title)}</div>
       <div class="t2">${a.allDay ? 'Tutto il giorno' : new Date(a.start).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}</div></span></a>`).join('')
-      : A.empty('event_available', 'Nessun appuntamento in programma.'), '<a class="b text" href="#/admin/calendario">Apri calendario</a>');
+      : A.empty('event_available', 'Nessun appuntamento in programma.'), '<a class="b text" href="admin/calendario">Apri calendario</a>');
     return {
       html: A.header('Bentornato', 'La situazione di oggi.') + `<div class="stats-a">
         ${stat('Richieste nuove', nr, 'mark_email_unread', 'richieste', nr ? '#C77A12' : '')}
@@ -514,9 +514,11 @@ const ADM = (() => {
           <a class="b out" href="https://wa.me/${digits.replace('+', '')}" target="_blank" rel="noopener">${ms('chat')}WhatsApp</a>
           <a class="b out" href="mailto:${esc(r.email)}">${ms('mail')}${esc(r.email)}</a></div>
         ${r.message ? `<div style="margin-top:1.125rem;font-weight:600">Messaggio del cliente</div><p style="margin-top:.375rem;white-space:pre-wrap">${esc(r.message)}</p>` : ''}
+        ${r.photos?.length ? `<div style="margin-top:1.125rem;font-weight:600">Foto dell'immobile</div>
+          <div class="thumbs-a" style="margin-top:.5rem">${r.photos.map((u, i) => `<div class="t" data-rph="${i}" style="cursor:zoom-in">${ph(u)}</div>`).join('')}</div>` : ''}
         <div style="margin-top:1.125rem">${A.field({ label: 'Appunti interni (non visibili al cliente)', area: true, rows: 2, value: r.notes, attrs: 'data-notes' })}</div>
         <div class="achips" style="margin-top:1.25rem;align-items:center"><div style="width:13.75rem">${A.field({ label: 'Stato', value: r.status, options: Object.entries(A.STATUS), attrs: 'data-status' })}</div>
-          ${appt ? `<a class="b out" href="#/admin/calendario">${ms('event_available')}Sopralluogo: ${esc(fmtDT(appt.start))}</a>`
+          ${appt ? `<a class="b out" href="admin/calendario">${ms('event_available')}Sopralluogo: ${esc(fmtDT(appt.start))}</a>`
             : `<button class="b fill" data-appt>${ms('event')}Fissa sopralluogo</button>`}
           <button class="b text danger" data-delr>${ms('delete')}Elimina</button></div></div></div>`;
     };
@@ -544,6 +546,8 @@ const ADM = (() => {
           const card = e.target.closest('.rq');
           if (!card) return;
           const r = A.D.requests.find((x) => x.id === card.dataset.id);
+          const rph = e.target.closest('[data-rph]');
+          if (rph) { MIRO.lightbox(r.photos.map((url) => ({ url, caption: '' })), +rph.dataset.rph); return; }
           if (e.target.closest('.rh')) { card.classList.toggle('open'); return; }
           if (e.target.closest('[data-appt]')) { A.appointmentDialog({ request: r, onDone: () => draw(root) }); return; }
           if (e.target.closest('[data-delr]')) {
@@ -718,7 +722,7 @@ const ADM = (() => {
       let c;
       if (!(st.googleClientId || '').trim()) {
         c = `${ms('event_available', '" style="color:#4A78C2')}<span class="tx">Per vedere gli appuntamenti su tutti i dispositivi collega il tuo Google Calendar: serve un breve passaggio di configurazione, una sola volta.</span>
-          <a class="b fill" href="#/admin/impostazioni">Configura</a>`;
+          <a class="b fill" href="admin/impostazioni">Configura</a>`;
       } else if (!GCAL.connected()) {
         c = `${ms('event_busy', '" style="color:#4A78C2')}<span class="tx">${st.googleWasConnected ? 'La sessione con Google è scaduta: ricollega il calendario per sincronizzare.' : 'Google Calendar non è ancora collegato.'}</span>
           <button class="b fill" data-gc>${ms('link')}${st.googleWasConnected ? 'Ricollega Google' : 'Collega Google Calendar'}</button>`;
@@ -855,9 +859,22 @@ const ADM = (() => {
         <button class="b out" id="restore">${ms('restore')}Ripristina da backup</button>
         <button class="b out danger" id="reset">${ms('refresh')}Ripristina contenuti di esempio</button></div>
       <p class="hint" style="margin-top:.875rem">La copia comprende tutti i dati; i documenti caricati per i clienti restano sul server (cartella uploads/files) e vanno salvati a parte.</p>`);
+    const mail = A.D.mail || { active: false, to: '' };
+    const email = A.panel('Avvisi via email', 'Ti avvisiamo di nuove richieste e messaggi dei clienti; i clienti ricevono un avviso quando pubblichi aggiornamenti, documenti o messaggi.',
+      `${mail.active ? `<p style="display:flex;gap:.625rem;align-items:center;font-weight:600">${ms('check_circle', '" style="color:#2E7D4F')}Attivi · gli avvisi per te arrivano a ${esc(mail.to)}</p>`
+        : `<p class="muted-a">Non ancora attivi: quando avrai la casella dell'azienda, inserisci i suoi dati nella sezione <b>email</b> del file <code>inc/config.local.php</code> sul server (le istruzioni sono nel file). Fino ad allora il sito funziona normalmente, senza email.</p>`}
+      ${A.sw('Avvisa i clienti via email', st.notifyClients !== false, { sub: 'Aggiornamenti, documenti, messaggi e richieste di approvazione.', attrs: 'id="notify"' })}
+      ${mail.active ? `<div style="margin-top:.5rem"><button class="b out" id="mtest">${ms('send')}Invia un'email di prova</button></div>` : ''}`);
     return {
-      html: A.header('Impostazioni', 'Google Calendar, password e backup.') + google + pw + data,
+      html: A.header('Impostazioni', 'Google Calendar, email, password e backup.') + google + email + pw + data,
       mount(root) {
+        $('#notify', root).addEventListener('change', async (e) => { st.notifyClients = e.target.checked; await A.saveSettings(); A.toast('Impostazione salvata.'); });
+        $('#mtest', root)?.addEventListener('click', async (e) => {
+          const b = e.currentTarget;
+          b.disabled = true;
+          try { const r = await A.call('admin.mailtest', {}); A.toast(`Email di prova inviata a ${r.to}.`); } catch (x) { A.toast(x.message, true); }
+          b.disabled = false;
+        });
         const gcid = $('#gcid', root);
         const saveId = async () => { st.googleClientId = gcid.value.trim(); await A.saveSettings(); };
         $('#gsave', root).onclick = async () => { await saveId(); A.toast('Client ID salvato.'); };

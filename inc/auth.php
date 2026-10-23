@@ -69,14 +69,14 @@ function controlla_csrf(): void
 // ----------------------------------------------------- tentativi di accesso
 
 /** Blocca chi sbaglia troppe volte di fila (8 tentativi in 15 minuti). */
-function controlla_tentativi(string $tipo): void
+function controlla_tentativi(string $tipo, string $messaggio = 'Troppi tentativi sbagliati: riprova tra qualche minuto.'): void
 {
     $chiave = $tipo . ':' . ($_SERVER['REMOTE_ADDR'] ?? '');
     db()->prepare('DELETE FROM ' . t('tentativi') . ' WHERE quando < ?')->execute([time() - 900]);
     $s = db()->prepare('SELECT COUNT(*) FROM ' . t('tentativi') . ' WHERE chiave = ?');
     $s->execute([$chiave]);
     if ((int) $s->fetchColumn() >= 8) {
-        rispondi(['errore' => 'Troppi tentativi sbagliati: riprova tra qualche minuto.'], 429);
+        rispondi(['errore' => $messaggio], 429);
     }
 }
 

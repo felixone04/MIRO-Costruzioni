@@ -1,7 +1,10 @@
 <?php
 /*
- * Pagina unica del sito: il sito pubblico, l'area clienti e il gestionale
- * (#/admin) sono disegnati da JavaScript a partire dai dati qui sotto.
+ * Pagina unica del sito: ogni indirizzo (/, /progetti/villa-le-querce,
+ * /area-clienti, /admin…) arriva qui grazie a .htaccess. Il sito pubblico,
+ * l'area clienti e il gestionale sono disegnati da JavaScript; titolo,
+ * descrizione e foto della pagina sono già nell'HTML per Google e per
+ * l'anteprima dei link condivisi.
  */
 require_once __DIR__ . '/inc/funzioni.php';
 
@@ -10,34 +13,57 @@ require_once __DIR__ . '/inc/funzioni.php';
 $demo = defined('MIRO_ANTEPRIMA');
 if ($demo) {
     $seed = json_decode(file_get_contents(__DIR__ . '/inc/seed.json'), true);
-    $c = $seed['content'];
+    $dati = ['content' => $seed['content'], 'projects' => array_values(array_filter($seed['projects'], fn($p) => $p['published'] ?? true))];
+    $base = MIRO_BASE;
 } else {
     avvia_sessione();
     $avvio = dati_avvio();
-    $c = $avvio['content'];
+    $dati = $avvio;
+    $base = percorso_base();
 }
+$c = $dati['content'];
+$percorso = trim(substr(parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/', strlen($base) - 1), '/');
+$meta = meta_pagina($demo ? '' : rawurldecode($percorso), $dati);
+http_response_code($meta['status']);
+
 $json = fn($x) => json_encode($x, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP);
-$titolo = ($c['companyName'] ?? 'M.I.R.O. Costruzioni') . ' · ' . ($c['tagline'] ?? '');
-$descrizione = ($c['companyName'] ?? '') . ': ' . ($c['heroSubtitle'] ?? '');
 $e = fn($s) => htmlspecialchars((string) $s, ENT_QUOTES, 'UTF-8');
 $v = fn($f) => $f . '?v=' . filemtime(__DIR__ . '/' . $f); // niente vecchie copie in memoria
+$url = indirizzo_sito() . ($meta['status'] === 200 ? $percorso : '');
+$foto = url_assoluto($meta['image']);
 header('Content-Type: text/html; charset=utf-8');
 ?><!DOCTYPE html>
 <html lang="it">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title><?= $e($titolo) ?></title>
-  <meta name="description" content="<?= $e($descrizione) ?>">
+  <base href="<?= $e($base) ?>">
+  <title><?= $e($meta['title']) ?></title>
+  <meta name="description" content="<?= $e($meta['description']) ?>">
+<?php if ($meta['noindex'] || $demo): ?>
+  <meta name="robots" content="noindex">
+<?php else: ?>
+  <link rel="canonical" href="<?= $e($url) ?>">
+<?php endif ?>
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="it_IT">
+  <meta property="og:site_name" content="<?= $e($c['companyName'] ?? '') ?>">
+  <meta property="og:title" content="<?= $e($meta['title']) ?>">
+  <meta property="og:description" content="<?= $e($meta['description']) ?>">
+  <meta property="og:url" content="<?= $e($url) ?>">
+<?php if ($foto): ?>
+  <meta property="og:image" content="<?= $e($foto) ?>">
+  <meta name="twitter:card" content="summary_large_image">
+<?php endif ?>
   <meta name="theme-color" content="#F4EEE4">
   <link rel="icon" type="image/png" href="assets/img/favicon.png">
   <link rel="apple-touch-icon" href="assets/img/Icon-192.png">
   <link rel="manifest" href="manifest.json">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,300..500,0..1,0&display=block" rel="stylesheet">
+  <link rel="preload" href="assets/fonts/fraunces-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="assets/fonts/material-symbols-rounded.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="<?= $v('assets/fonts/fonts.css') ?>">
   <link rel="stylesheet" href="<?= $v('assets/css/site.css') ?>">
+  <script type="application/ld+json"><?= $json(scheda_impresa($c)) ?></script>
   <style>
     #splash { position: fixed; inset: 0; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center;
       background: #F4EEE4; color: #3B2B27; padding: 0 32px; transition: opacity .8s ease, visibility .8s ease; }
@@ -101,7 +127,5 @@ header('Content-Type: text/html; charset=utf-8');
     window.MIRO_ADMIN = { css: <?= json_encode($v('assets/css/admin.css')) ?>, js: [<?= json_encode($v('assets/js/gcal.js')) ?>, <?= json_encode($v('assets/js/admin.js')) ?>, <?= json_encode($v('assets/js/admin-pages.js')) ?>] };
     MIRO.start();
   </script>
-  <!-- Google Identity Services: serve per collegare Google Calendar dal gestionale -->
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
 </body>
 </html>

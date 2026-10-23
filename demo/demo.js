@@ -65,7 +65,7 @@
       requests: [...S.requests].sort((a, b) => b.createdAt.localeCompare(a.createdAt)), appointments: S.appointments, look: S.look,
       clients: S.clients.map(publicClient), worksites: S.worksites,
     };
-    if (!backup) d.settings = S.settings;
+    if (!backup) { d.settings = S.settings; d.mail = { active: false, to: '' }; }
     return clone(d);
   }
 
@@ -121,12 +121,14 @@
     switch (a) {
       case 'boot': return boot();
       case 'contact': {
-        if (String(b.website || '').trim()) return { ok: true };
-        if (!String(b.name || '').trim() || !String(b.phone || '').trim() || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(b.email || '') || !b.privacy) {
-          throw fail('Controlla i campi obbligatori.');
-        }
-        S.requests.push({ id: newId(), createdAt: now(), name: b.name.trim(), phone: b.phone.trim(), email: b.email.trim(), city: (b.city || '').trim(),
-          type: (b.type || '').trim(), timing: '', area: '', message: (b.message || '').trim(), projectRef: '', status: 'nuova', appointmentId: null, notes: '' });
+        // Il modulo a passi arriva come FormData (con le foto), quello vecchio come JSON.
+        const v = form ? Object.fromEntries([...form.entries()].filter(([, x]) => typeof x === 'string')) : b;
+        const t = (k) => String(v[k] || '').trim();
+        if (t('website')) return { ok: true };
+        if (!t('name') || !t('phone') || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(t('email')) || !v.privacy) throw fail('Controlla i campi obbligatori.');
+        const photos = form ? await Promise.all(form.getAll('photos[]').slice(0, 6).map(readAsDataUrl)) : [];
+        S.requests.push({ id: newId(), createdAt: now(), name: t('name'), phone: t('phone'), email: t('email'), city: t('city'), type: t('type'),
+          timing: t('timing'), area: t('area'), message: t('message'), projectRef: t('projectRef'), photos, status: 'nuova', appointmentId: null, notes: '' });
         return { ok: true };
       }
 
@@ -143,6 +145,13 @@
       case 'client.worksites': { const c = needClient(); return { worksites: clone(S.worksites.filter((w) => w.clientId === c.id)) }; }
       case 'client.message': { const w = clientWorksite(b.worksiteId); message(w, b.text, true); return { worksite: clone(w) }; }
       case 'client.read': clientWorksite(b.worksiteId).messages.forEach((m) => { if (!m.fromClient) m.read = true; }); return { ok: true };
+      case 'client.approve': {
+        const w = clientWorksite(b.worksiteId);
+        const f = w.files.find((x) => x.id === b.id && x.approvalRequested);
+        if (!f) throw fail('Documento non trovato.', 404);
+        f.approvedAt ||= now();
+        return { worksite: clone(w) };
+      }
       case 'client.password': {
         const c = needClient();
         if (c.password !== b.old) throw fail('La password attuale non è corretta.');
@@ -245,6 +254,13 @@
         if (f) f.note = String(b.note || '').trim();
         return { worksite: clone(w) };
       }
+      case 'admin.file.approval': {
+        const w = adminWorksite(b.worksiteId);
+        const f = w.files.find((x) => x.id === b.id);
+        if (f) Object.assign(f, b.on ? { approvalRequested: true } : { approvalRequested: false, approvedAt: null });
+        return { worksite: clone(w) };
+      }
+      case 'admin.mailtest': throw fail("Nell'anteprima le email non partono: si attivano sul sito vero, con la casella dell'azienda.");
       case 'admin.file.delete': { const w = adminWorksite(b.worksiteId); w.files = w.files.filter((x) => x.id !== b.id); return { worksite: clone(w) }; }
       case 'admin.message': { const w = adminWorksite(b.worksiteId); message(w, b.text, false); return { worksite: clone(w) }; }
       case 'admin.read': adminWorksite(b.worksiteId).messages.forEach((m) => { if (m.fromClient) m.read = true; }); return { ok: true };

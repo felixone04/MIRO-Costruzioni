@@ -66,7 +66,7 @@
       <button class="btn big mt-s" type="submit">Entra${ms('lock_open')}</button></form>`;
     const note = `<div><h3 class="serif" style="font-size:1.625rem">Non hai le credenziali?</h3>
       <p class="muted mt-s">L'accesso è riservato a chi ha un lavoro in corso con noi: quando apriamo il cantiere ti mandiamo email e password.
-      Se le hai perse, chiamaci o scrivici.</p><div class="mt-s">${MIRO.hl('Contattaci', '#/contatti', { arrow: true, style: 'color:var(--accent-deep);font-weight:600' })}</div></div>`;
+      Se le hai perse, chiamaci o scrivici.</p><div class="mt-s">${MIRO.hl('Contattaci', 'contatti', { arrow: true, style: 'color:var(--accent-deep);font-weight:600' })}</div></div>`;
     MIRO.page('/area-clienti', MIRO.pageHeader({ kicker: 'Area clienti', title: 'Il tuo\ncantiere.',
       text: 'Segui i lavori da vicino: avanzamento, foto, documenti da scaricare e un filo diretto con noi.' })
       + `<section class="section t0"><div class="wrap">${reveal(`<div class="lgrid">${form}${note}</div>`)}</div></section>`, {
@@ -116,7 +116,7 @@
       try { await api('client.logout', {}); } catch { /* comunque fuori */ }
       boot.client = null;
       worksites = null;
-      location.hash = '#/area-clienti';
+      MIRO.go('area-clienti');
       MIRO.render();
     });
   }
@@ -126,7 +126,7 @@
     const list = worksites || [];
     const cards = list.map((w, i) => {
       const unread = w.messages.filter((m) => !m.fromClient && !m.read).length;
-      return reveal(`<a class="wcard" href="#/area-clienti/${encodeURIComponent(w.id)}"><div class="img">${ph(w.cover)}
+      return reveal(`<a class="wcard" href="area-clienti/${encodeURIComponent(w.id)}"><div class="img">${ph(w.cover)}
         ${unread ? `<span class="pill acc">${unread === 1 ? '1 messaggio nuovo' : unread + ' messaggi nuovi'}</span>` : ''}</div>
         <div class="bd"><div class="t">${esc(w.title)}</div><div class="m">${esc([w.address, STATUS[w.status]].filter(Boolean).join(' · '))}</div>
         ${progressBar(w.progress)}</div></a>`, 100 * (i % 2));
@@ -162,7 +162,7 @@
     const updates = [...(w.updates || [])].sort((a, b) => b.date.localeCompare(a.date));
     const files = [...w.files].sort((a, b) => b.uploadedAt.localeCompare(a.uploadedAt));
     const html = MIRO.pageHeader({ kicker: w.address || 'Il tuo cantiere', title: w.title, text: w.description,
-      bottom: MIRO.hl('I tuoi lavori', '#/area-clienti', { style: 'color:var(--muted);font-weight:600;font-size:.906rem' }) })
+      bottom: MIRO.hl('I tuoi lavori', 'area-clienti', { style: 'color:var(--muted);font-weight:600;font-size:.906rem' }) })
       + `<section class="section t0" style="padding-bottom:clamp(2.5rem, calc(2.5rem + (100vw - 22.5rem) * .0242), 4.375rem)"><div class="wrap">${reveal(progress)}</div></section>`
       + ((w.steps || []).length || w.cover
         ? `<section class="section t0" style="padding-bottom:clamp(2.5rem, calc(2.5rem + (100vw - 22.5rem) * .0242), 4.375rem)"><div class="wrap wsplit">
@@ -172,11 +172,7 @@
           <h4>${esc(u.title)}</h4>${u.text ? `<p>${esc(u.text)}</p>` : ''}
           ${u.photos?.length ? `<div class="photos">${u.photos.map((p, pi) => ph(p, { attrs: `data-up="${ui}:${pi}"` })).join('')}</div>` : ''}</div>`)).join('')
         : '<p class="muted">Ancora nessun aggiornamento: arriveranno qui con foto e note.</p>')
-      + block('Documenti', files.length ? files.map((f) => reveal(`<a class="frow" href="${esc(f.url)}" ${f.link ? 'target="_blank" rel="noopener"' : 'download'}>
-          <span class="fi-ic">${ms(fileIcon(f.name))}</span><span style="flex:1;min-width:0"><div class="nm">${esc(f.name)}</div>
-          ${f.note ? `<div class="nt">${esc(f.note)}</div>` : ''}<div class="mt">${esc([fmtDate(f.uploadedAt), sizeLabel(f.size)].filter(Boolean).join(' · '))}</div></span>
-          <span class="dl">${ms(f.link ? 'open_in_new' : 'download')}</span></a>`)).join('')
-        : '<p class="muted">Nessun documento per ora.</p>')
+      + block('Documenti', `<div id="docs">${docsHtml(w)}</div>`)
       + block('Messaggi', `<div class="chat" id="chat">${chatHtml(w)}</div>`, true);
     MIRO.page('/area-clienti', html, {
       mount(root) {
@@ -185,7 +181,19 @@
           api('client.read', { worksiteId: w.id }).catch(() => {});
           w.messages.forEach((m) => { if (!m.fromClient) m.read = true; });
         }
-        root.addEventListener('click', (e) => {
+        root.addEventListener('click', async (e) => {
+          const ap = e.target.closest('[data-approve]');
+          if (ap) {
+            const f = w.files.find((x) => x.id === ap.dataset.approve);
+            if (!(await confirmDialog('Approvi il documento?', `Confermi di aver letto «${f.name}» e di approvarlo? Registreremo data e ora dell'approvazione.`, 'Approvo'))) return;
+            try {
+              const r = await api('client.approve', { worksiteId: w.id, id: f.id });
+              Object.assign(w, r.worksite);
+              $('#docs', root).innerHTML = docsHtml(w, false);
+              toast('Documento approvato: grazie!');
+            } catch (x) { toast(x.message, true); }
+            return;
+          }
           const p = e.target.closest('[data-up]');
           if (!p) return;
           const [ui, pi] = p.dataset.up.split(':').map(Number);
@@ -194,6 +202,38 @@
         });
         bindChat(root, w);
       },
+    });
+  }
+
+  /** Documenti da scaricare; quelli da approvare hanno il pulsante "Approvo". */
+  function docsHtml(w, animate = true) {
+    const files = [...w.files].sort((a, b) => b.uploadedAt.localeCompare(a.uploadedAt));
+    if (!files.length) return '<p class="muted">Nessun documento per ora.</p>';
+    return files.map((f) => {
+      const row = `<a class="frow" href="${esc(f.url)}" ${f.link ? 'target="_blank" rel="noopener"' : 'download'}>
+        <span class="fi-ic">${ms(fileIcon(f.name))}</span><span style="flex:1;min-width:0"><div class="nm">${esc(f.name)}</div>
+        ${f.note ? `<div class="nt">${esc(f.note)}</div>` : ''}<div class="mt">${esc([fmtDate(f.uploadedAt), sizeLabel(f.size)].filter(Boolean).join(' · '))}</div></span>
+        <span class="dl">${ms(f.link ? 'open_in_new' : 'download')}</span></a>`;
+      const appr = !f.approvalRequested ? ''
+        : f.approvedAt ? `<div class="appr ok">${ms('verified')}<span>Approvato da te il ${esc(fmtDate(f.approvedAt, { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' }))}</span></div>`
+          : `<div class="appr">${ms('draw')}<span>Ti chiediamo di leggere e approvare questo documento.</span>
+            <button class="btn" type="button" data-approve="${esc(f.id)}">Approvo${ms('check')}</button></div>`;
+      const html = `<div class="fbox">${row}${appr}</div>`;
+      return animate ? reveal(html) : html;
+    }).join('');
+  }
+
+  /** Conferma con lo stile del sito. */
+  function confirmDialog(title, text, ok) {
+    return new Promise((resolve) => {
+      const bg = document.createElement('div');
+      bg.className = 'modal-bg';
+      bg.innerHTML = `<div class="modal" role="dialog" aria-label="${esc(title)}"><h3>${esc(title)}</h3><p class="muted" style="margin-top:.5rem">${esc(text)}</p>
+        <div class="row-wrap mt-m" style="justify-content:flex-end"><button class="btn outline" data-no type="button">Annulla</button>
+        <button class="btn" data-yes type="button">${esc(ok)}${ms('check')}</button></div></div>`;
+      const close = (v) => { bg.remove(); resolve(v); };
+      bg.addEventListener('click', (e) => { if (e.target === bg || e.target.closest('[data-no]')) close(false); else if (e.target.closest('[data-yes]')) close(true); });
+      document.body.appendChild(bg);
     });
   }
 

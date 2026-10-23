@@ -63,6 +63,8 @@ function crea_tabelle(PDO $pdo): void
         'messaggi' => "id VARCHAR(40) PRIMARY KEY, cantiere VARCHAR(40) NOT NULL, dal_cliente INT NOT NULL,
             testo TEXT NOT NULL, data VARCHAR(32) NOT NULL, letto INT NOT NULL DEFAULT 0",
         'tentativi' => "chiave VARCHAR(120) NOT NULL, quando INT NOT NULL",
+        // Documenti per cui si chiede l'approvazione del cliente (data vuota = in attesa)
+        'approvazioni' => "documento VARCHAR(40) PRIMARY KEY, data VARCHAR(32), ip VARCHAR(64) NOT NULL DEFAULT ''",
     ];
     foreach ($tabelle as $nome => $colonne) {
         $pdo->exec('CREATE TABLE IF NOT EXISTS ' . t($nome) . " ($colonne)");
@@ -200,9 +202,12 @@ function cantiere_completo(array $riga): array
     $w = json_decode($riga['dati'], true) ?: [];
     $w['id'] = $riga['id'];
     $w['clientId'] = $riga['cliente'];
-    $s = db()->prepare('SELECT * FROM ' . t('documenti') . ' WHERE cantiere = ? ORDER BY caricato');
+    $s = db()->prepare('SELECT d.*, a.documento AS approvazione, a.data AS approvato FROM ' . t('documenti') . ' d
+        LEFT JOIN ' . t('approvazioni') . ' a ON a.documento = d.id WHERE d.cantiere = ? ORDER BY d.caricato');
     $s->execute([$riga['id']]);
     $w['files'] = array_map(fn($f) => [
+        'approvalRequested' => $f['approvazione'] !== null,
+        'approvedAt' => $f['approvato'] ?: null,
         'id' => $f['id'],
         'name' => $f['nome'],
         'mime' => $f['tipo'],
@@ -248,10 +253,11 @@ function salva_cantiere(array $w): void
 
 function elimina_cantiere(string $id): void
 {
-    $s = db()->prepare('SELECT file, link FROM ' . t('documenti') . ' WHERE cantiere = ?');
+    $s = db()->prepare('SELECT id, file, link FROM ' . t('documenti') . ' WHERE cantiere = ?');
     $s->execute([$id]);
     foreach ($s->fetchAll() as $f) {
         if (!$f['link']) @unlink(cartella_documenti() . '/' . basename($f['file']));
+        db()->prepare('DELETE FROM ' . t('approvazioni') . ' WHERE documento = ?')->execute([$f['id']]);
     }
     foreach (['documenti' => 'cantiere', 'messaggi' => 'cantiere', 'cantieri' => 'id'] as $tab => $col) {
         db()->prepare('DELETE FROM ' . t($tab) . " WHERE $col = ?")->execute([$id]);
@@ -277,9 +283,13 @@ function importa_cantiere(array $w): void
             $nomeFile = $dati;
             $link = 1;
         }
+        $id = $f['id'] ?? nuovo_id();
         db()->prepare('INSERT INTO ' . t('documenti') . ' (id, cantiere, nome, tipo, peso, file, link, nota, caricato) VALUES (?,?,?,?,?,?,?,?,?)')
-            ->execute([$f['id'] ?? nuovo_id(), $w['id'], $f['name'] ?? 'documento', $f['mime'] ?? '',
+            ->execute([$id, $w['id'], $f['name'] ?? 'documento', $f['mime'] ?? '',
                 (int) ($f['size'] ?? 0), $nomeFile, $link, $f['note'] ?? '', $f['uploadedAt'] ?? adesso()]);
+        if (!empty($f['approvalRequested'])) {
+            db()->prepare('REPLACE INTO ' . t('approvazioni') . ' (documento, data, ip) VALUES (?, ?, ?)')->execute([$id, $f['approvedAt'] ?? null, '']);
+        }
     }
     foreach ($messages as $m) {
         db()->prepare('INSERT INTO ' . t('messaggi') . ' (id, cantiere, dal_cliente, testo, data, letto) VALUES (?,?,?,?,?,?)')

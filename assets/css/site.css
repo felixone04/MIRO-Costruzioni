@@ -175,6 +175,7 @@ h1, h2, h3 { margin: 0; font-weight: 400; }
 .footer .bottom { margin-top: clamp(2.5rem, calc(2.5rem + (100vw - 22.5rem) * .0194), 4rem); padding-top: 1.125rem; border-top: 1px solid var(--line-dark);
   display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: .5rem 1.5rem; color: var(--muted-dark); font-size: .78rem; }
 .footer .bottom .hl { color: var(--muted-dark); font-size: .78rem; }
+.footer .bottom .legal { display: flex; flex-wrap: wrap; gap: .25rem 1.25rem; }
 @media (max-width: 899px) { .footer .cols { grid-template-columns: 1fr; gap: 2rem; } }
 @media (max-width: 599px) { .footer { margin: 0 .5rem .5rem; border-radius: 1.25rem; } }
 
@@ -435,6 +436,29 @@ h1, h2, h3 { margin: 0; font-weight: 400; }
 .check input:checked { background: var(--accent); border-color: var(--accent); }
 .check input:checked::after { content: ''; width: .3rem; height: .6rem; border: solid var(--on-accent); border-width: 0 2px 2px 0; transform: translateY(-1px) rotate(45deg); }
 .formerr { color: #C0392B; font-size: .8125rem; }
+a.ul { text-decoration: underline; text-underline-offset: 2px; }
+.legal-text { max-width: 46rem; }
+.legal-text h2 { margin: 2.25rem 0 .625rem; font-family: var(--serif); font-weight: 500; font-size: 1.5rem; line-height: 1.2; }
+.legal-text h2:first-child { margin-top: 0; }
+.legal-text p { margin: 0 0 1rem; color: var(--muted); white-space: pre-line; }
+
+/* Richiesta di preventivo a passi */
+.wizard .whead { color: var(--muted); font-size: .8125rem; font-weight: 600; letter-spacing: .02em; }
+.wbar { height: 4px; margin-top: .625rem; border-radius: 4px; background: color-mix(in srgb, var(--ink) 10%, transparent); overflow: hidden; }
+.wbar i { display: block; height: 100%; border-radius: 4px; background: var(--accent); transition: width .5s var(--ease-cubic); }
+.wizard .q { margin: 1.5rem 0 1rem; font-family: var(--serif); font-weight: 500; font-size: clamp(1.625rem, calc(1.625rem + (100vw - 22.5rem) * .006), 2.125rem); line-height: 1.15; }
+.wizard .sub { margin: 1.375rem 0 .625rem; color: var(--muted); font-size: .9375rem; }
+.wizard .ref { display: inline-flex; align-items: center; gap: .375rem; margin: -.25rem 0 1rem; color: var(--accent-deep); font-size: .875rem; font-weight: 600; }
+.wizard .ref .ms { font-size: 1.125rem; }
+.wnav { display: flex; justify-content: space-between; align-items: center; gap: .75rem; margin-top: 1.75rem; flex-wrap: wrap; }
+.wphotos { display: grid; grid-template-columns: repeat(auto-fill, minmax(6.5rem, 1fr)); gap: .625rem; margin-top: 1rem; }
+.wph { position: relative; aspect-ratio: 1; border-radius: var(--r-field); overflow: hidden; background: var(--surface); }
+.wph img { width: 100%; height: 100%; object-fit: cover; }
+.wph button { position: absolute; top: .375rem; right: .375rem; width: 1.75rem; height: 1.75rem; border-radius: 50%; background: rgba(0,0,0,.55); color: #fff; display: grid; place-items: center; }
+.wph button .ms { font-size: 1rem; }
+.wph.add { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .25rem; border: 1.5px dashed color-mix(in srgb, var(--ink) 25%, transparent);
+  background: transparent; color: var(--muted); font-size: .8125rem; cursor: pointer; }
+.wph.add .ms { font-size: 1.5rem; color: var(--accent-deep); }
 .thanks-ic { width: 3.75rem; height: 3.75rem; border-radius: 50%; background: var(--accent); color: var(--on-accent); display: grid; place-items: center;
   animation: pop .7s cubic-bezier(.175,.885,.32,1.275); }
 .thanks-ic .ms { font-size: 1.875rem; }
@@ -454,6 +478,12 @@ h1, h2, h3 { margin: 0; font-weight: 400; }
 .icon-b { width: 3rem; height: 3rem; display: grid; place-items: center; border-radius: 50%; }
 
 /* ------------------------------------------------------------ pulsante Colori */
+/* WhatsApp: solo su telefono e tablet, in basso a destra (i Colori stanno a sinistra) */
+.wa { position: fixed; right: 1.375rem; bottom: 1.375rem; z-index: 40; display: none; align-items: center; gap: .5rem; height: 3.25rem; padding: 0 1.25rem 0 1rem;
+  border-radius: 2.5rem; background: #1F9D55; color: #fff; font-weight: 600; font-size: .9375rem; box-shadow: 0 8px 24px rgba(0,0,0,.18); animation: swin .5s 2s both; }
+.wa .ms { font-size: 1.375rem; }
+@media (max-width: 899px) { .wa:not([hidden]) { display: inline-flex; } }
+@media (max-width: 599px) { .wa { height: 3rem; right: .875rem; bottom: .875rem; padding: 0 1rem 0 .875rem; } }
 .switcher { position: fixed; left: 1.375rem; bottom: 1.375rem; z-index: 40; display: flex; flex-direction: column; align-items: flex-start; }
 @media (max-width: 599px) { .switcher { left: .875rem; bottom: .875rem; } }
 .sw-panel { width: min(16.875rem, calc(100vw - 1.75rem)); margin-bottom: .625rem; padding: .875rem .5rem .5rem; background: var(--surface); border: 1px solid var(--line);
@@ -525,6 +555,15 @@ h1, h2, h3 { margin: 0; font-weight: 400; }
 .frow { display: flex; align-items: center; gap: 1rem; padding: 1rem; margin-bottom: .625rem; border-radius: var(--r-card); background: var(--surface);
   cursor: pointer; transition: background-color .25s; }
 .frow:hover { background: var(--concrete); }
+.fbox { margin-bottom: .625rem; }
+.fbox .frow { margin-bottom: 0; }
+.appr { display: flex; align-items: center; flex-wrap: wrap; gap: .5rem .75rem; margin-top: .25rem; padding: .75rem 1rem; border-radius: var(--r-card);
+  background: color-mix(in srgb, var(--accent) 12%, transparent); font-size: .875rem; font-weight: 500; }
+.appr > .ms { color: var(--accent-deep); font-size: 1.25rem; }
+.appr > span:not(.ms) { flex: 1; min-width: 12rem; }
+.appr .btn { height: 2.5rem; padding: 0 1.125rem; font-size: .875rem; }
+.appr.ok { background: color-mix(in srgb, #2E7D4F 12%, transparent); color: #2E7D4F; }
+.appr.ok > .ms { color: #2E7D4F; }
 .frow .fi-ic { width: 2.875rem; height: 2.875rem; border-radius: .75rem; flex: none; display: grid; place-items: center; color: var(--accent-deep);
   background: color-mix(in srgb, var(--accent) 14%, transparent); }
 .frow .nm { font-weight: 600; font-size: .97rem; line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }

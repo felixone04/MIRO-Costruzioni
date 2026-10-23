@@ -284,10 +284,10 @@ const MIRO = (() => {
   function headerHtml() {
     const c = scaffold.current;
     const logged = !!boot.client;
-    return `<a href="#/" aria-label="Home">${logo({ height: 'clamp(2.125rem, calc(2.125rem + (100vw - 22.5rem) * .0048), 2.5rem)' })}</a>
+    return `<a href="./" aria-label="Home">${logo({ height: 'clamp(2.125rem, calc(2.125rem + (100vw - 22.5rem) * .0048), 2.5rem)' })}</a>
       <span class="sp"></span>
-      <nav class="nav">${NAV.map(([l, p]) => `<a class="hl ${isActive(p, c) ? 'active' : ''}" href="#${p}"><span>${l}</span></a>`).join('')}</nav>
-      <a class="client-pill ${c.startsWith('/area-clienti') ? 'active' : ''}" href="#/area-clienti">${ms(logged ? 'person' : 'person_outline')}Area clienti</a>
+      <nav class="nav">${NAV.map(([l, p]) => `<a class="hl ${isActive(p, c) ? 'active' : ''}" href="${link(p)}"><span>${l}</span></a>`).join('')}</nav>
+      <a class="client-pill ${c.startsWith('/area-clienti') ? 'active' : ''}" href="area-clienti">${ms(logged ? 'person' : 'person_outline')}Area clienti</a>
       <button class="burger ${menuOpen ? 'open' : ''}" aria-label="${menuOpen ? 'Chiudi menu' : 'Apri menu'}"><i></i><i></i></button>`;
   }
 
@@ -320,7 +320,7 @@ const MIRO = (() => {
       const m = document.createElement('div');
       m.id = 'mmenu';
       m.className = 'mmenu';
-      m.innerHTML = items.map(([l, p], i) => `<a class="big ${isActive(p, scaffold.current) ? 'cur' : ''}" href="#${p}" style="animation-delay:${i * 0.07}s">${l}</a>`).join('')
+      m.innerHTML = items.map(([l, p], i) => `<a class="big ${isActive(p, scaffold.current) ? 'cur' : ''}" href="${link(p)}" style="animation-delay:${i * 0.07}s">${l}</a>`).join('')
         + '<div class="sep"></div>'
         + (k.phone ? `<a class="mc" href="tel:${phoneDigits(k.phone)}">${ms('call')}${esc(k.phone)}</a>` : '')
         + (k.email ? `<a class="mc" href="mailto:${esc(k.email)}">${ms('mail')}${esc(k.email)}</a>` : '')
@@ -338,17 +338,18 @@ const MIRO = (() => {
   function footerHtml() {
     const c = boot.content;
     const k = c.contacts || {};
-    const link = (l, href, ext) => `<a class="hl" href="${esc(href)}"${ext ? ' target="_blank" rel="noopener"' : ''}><span>${esc(l)}</span></a><br>`;
+    const fl = (l, href, ext) => `<a class="hl" href="${esc(href)}"${ext ? ' target="_blank" rel="noopener"' : ''}><span>${esc(l)}</span></a><br>`;
     return `<footer class="footer"><div class="wrap"><div class="cols">
       <div>${logo({ height: '2.75rem', light: true })}<p>${esc(c.footerText)}</p></div>
-      <div><div class="ft">Pagine</div>${[...NAV, ['Area clienti', '/area-clienti']].map(([l, p]) => link(l, '#' + p)).join('')}</div>
+      <div><div class="ft">Pagine</div>${[...NAV, ['Area clienti', '/area-clienti']].map(([l, p]) => fl(l, link(p))).join('')}</div>
       <div><div class="ft">Contatti</div>
-        ${k.address ? link(k.address, mapsUrl(k.address), true) : ''}${k.phone ? link(k.phone, 'tel:' + phoneDigits(k.phone)) : ''}
-        ${k.email ? link(k.email, 'mailto:' + k.email) : ''}
-        ${[['Instagram', k.instagram], ['Facebook', k.facebook], ['LinkedIn', k.linkedin]].filter(([, u]) => u).map(([l, u]) => link(l, u, true)).join('')}</div>
+        ${k.address ? fl(k.address, mapsUrl(k.address), true) : ''}${k.phone ? fl(k.phone, 'tel:' + phoneDigits(k.phone)) : ''}
+        ${k.email ? fl(k.email, 'mailto:' + k.email) : ''}
+        ${[['Instagram', k.instagram], ['Facebook', k.facebook], ['LinkedIn', k.linkedin]].filter(([, u]) => u).map(([l, u]) => fl(l, u, true)).join('')}</div>
       </div>
       <div class="bottom"><span>© ${new Date().getFullYear()} ${esc(c.companyName)}${k.vat ? ' · ' + esc(k.vat) : ''}</span>
-        <a class="hl" href="#/admin"><span>Area riservata</span></a></div></div></footer>`;
+        <span class="legal"><a class="hl" href="privacy"><span>Privacy</span></a><a class="hl" href="cookie"><span>Cookie</span></a>
+        <a class="hl" href="admin"><span>Area riservata</span></a></span></div></div></footer>`;
   }
 
   // ------------------------------------------------------------ pulsante Colori
@@ -379,32 +380,77 @@ const MIRO = (() => {
   }
 
   // ------------------------------------------------------------ router
+  // Indirizzi veri (/progetti/villa-le-querce): il sito può stare anche in una
+  // sottocartella, indicata da <base href> (es. /MIRO-Costruzioni/ su GitHub Pages).
+  const BASE = new URL(document.baseURI).pathname;
   const routes = [];
   let cleanups = [];
   const onCleanup = (fn) => cleanups.push(fn);
   const route = (pattern, handler) => routes.push({ re: new RegExp('^' + pattern.replace(/:(\w+)/g, '([^/]+)') + '$'), handler });
 
-  function parseHash() {
-    const h = location.hash.replace(/^#/, '') || '/';
-    const [path, qs] = h.split('?');
-    return { path: path || '/', query: new URLSearchParams(qs || '') };
+  /** Indirizzo relativo di una pagina del sito: '/' → './', '/progetti' → 'progetti'. */
+  const link = (path) => (path === '/' ? './' : path.replace(/^\//, ''));
+  /** "Casa Bianca sul mare" → "casa-bianca-sul-mare" (uguale a slug() in inc/funzioni.php). */
+  const slug = (s) => String(s || '').toLowerCase().trim().normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'progetto';
+  /** Indirizzo di un progetto; con l'id in coda se due titoli coincidono. */
+  function projectSlug(p, list = boot.projects) {
+    const seen = new Set();
+    for (const x of list) {
+      let s = slug(x.title);
+      if (seen.has(s)) s += '-' + x.id;
+      seen.add(s);
+      if (x.id === p.id) return s;
+    }
+    return p.id;
+  }
+  const projectLink = (p) => 'progetti/' + projectSlug(p);
+
+  function parsePath() {
+    const path = '/' + decodeURI(location.pathname.slice(BASE.length)).replace(/\/+$/, '');
+    return { path, query: new URLSearchParams(location.search) };
+  }
+
+  /** Va a una pagina del sito senza ricaricare: go('admin/cantieri?id=…'). */
+  function go(path, { replace = false } = {}) {
+    const url = BASE + link(path.startsWith('/') ? path : '/' + path).replace(/^\.\//, '');
+    history[replace ? 'replaceState' : 'pushState'](null, '', url);
+    render();
   }
 
   async function render() {
-    const { path, query } = parseHash();
+    const { path, query } = parsePath();
     applyLinkParams(query);
     cleanups.forEach((f) => { try { f(); } catch { /* niente */ } });
     cleanups = [];
     for (const r of routes) {
       const m = r.re.exec(path);
-      if (m) return r.handler(m.slice(1).map(decodeURIComponent), query, path);
+      if (m) return r.handler(m.slice(1), query, path);
     }
-    location.replace('#/');
+    go('/', { replace: true });
   }
 
+  // I link interni cambiano pagina senza ricaricare; file, api.php e link esterni restano normali.
+  document.addEventListener('click', (e) => {
+    if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    const a = e.target.closest('a[href]');
+    if (!a || a.target || a.hasAttribute('download')) return;
+    const url = new URL(a.href);
+    if (url.origin !== location.origin || !url.pathname.startsWith(BASE)) return;
+    if (/\.\w{2,5}$/.test(url.pathname) || /\/(assets|uploads)\//.test(url.pathname)) return;
+    e.preventDefault();
+    if (url.pathname + url.search === location.pathname + location.search) return;
+    history.pushState(null, '', url.pathname + url.search);
+    render();
+  });
+
   /** Mostra una pagina pubblica: intestazione + contenuto + piè di pagina. */
-  function page(current, html, { overHero = false, mount } = {}) {
+  function page(current, html, { overHero = false, mount, title } = {}) {
     const first = !$('#hdr');
+    const c = boot.content;
+    const label = title ?? [...NAV, ['Area clienti', '/area-clienti'], ['Privacy', '/privacy'], ['Cookie', '/cookie']]
+      .find(([, p]) => p !== '/' && p === current)?.[0];
+    document.title = label ? `${label} · ${c.companyName}` : `${c.companyName} · ${c.tagline}`;
     scaffold = { current, overHero, site: true };
     menuOpen = false;
     swOpen = false;
@@ -424,7 +470,27 @@ const MIRO = (() => {
     watchReveals(pg);
     updateParallax();
     renderSwitcher();
+    renderWhatsApp();
     if (first) hideSplash();
+  }
+
+  /** Su telefono e tablet: pulsante fisso per scrivere su WhatsApp (non in Contatti e Area clienti, che hanno già recapiti e chat). */
+  function renderWhatsApp() {
+    const n = phoneDigits(boot.content.contacts?.whatsapp || '').replace('+', '');
+    const off = scaffold.current === '/contatti' || scaffold.current.startsWith('/area-clienti');
+    if ($('#wa')) { $('#wa').hidden = off; return; }
+    if (!n) return;
+    const text = `Buongiorno, vi scrivo dal sito di ${boot.content.companyName}.`;
+    const a = document.createElement('a');
+    a.id = 'wa';
+    a.className = 'wa';
+    a.href = `https://wa.me/${n}?text=${encodeURIComponent(text)}`;
+    a.target = '_blank';
+    a.rel = 'noopener';
+    a.setAttribute('aria-label', 'Scrivici su WhatsApp');
+    a.innerHTML = `${ms('chat')}<span>WhatsApp</span>`;
+    a.hidden = off;
+    document.body.appendChild(a);
   }
 
   function hideSplash() {
@@ -445,10 +511,11 @@ const MIRO = (() => {
   });
 
   function start() {
+    // I vecchi link con # (es. …/#/progetti/abc) portano alla pagina giusta.
+    if (location.hash.startsWith('#/')) history.replaceState(null, '', BASE + location.hash.slice(2));
     applyLinkParams(new URLSearchParams(location.search));
-    applyLinkParams(parseHash().query);
     applyTheme(false);
-    addEventListener('hashchange', render);
+    addEventListener('popstate', render);
     render();
   }
 
@@ -463,7 +530,7 @@ const MIRO = (() => {
     boot, THEMES, themeById, currentTheme, defaultTheme, offeredThemes, applyTheme, selectTheme, swatch,
     esc, ms, $, $$, pad2, clamp, phoneDigits, mapsUrl, isPhone, screenH, lines, fmtDate, untilSplashEnds,
     api, ph, parallax, rt, reveal, watchReveals, countUp, updateParallax, toast, lightbox, logo, logoMark,
-    route, page, onCleanup, start, render, setPublic, hideSplash,
+    route, page, onCleanup, start, render, setPublic, hideSplash, go, link, slug, projectSlug, projectLink, BASE,
     set scaffoldSite(v) { scaffold.site = v; },
     get switcherVisible() { return switcherVisible(); },
   };

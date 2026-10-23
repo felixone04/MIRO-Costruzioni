@@ -118,7 +118,7 @@
     const row = (w) => {
       const cn = A.D.clients.find((c) => c.id === w.clientId)?.name || '—';
       const unread = w.messages.filter((m) => m.fromClient && !m.read).length;
-      return `<a class="lrow" href="#/admin/cantieri?id=${encodeURIComponent(w.id)}"><div class="thumb-a" style="width:5.25rem;height:3.75rem">${ph(w.cover)}</div>
+      return `<a class="lrow" href="admin/cantieri?id=${encodeURIComponent(w.id)}"><div class="thumb-a" style="width:5.25rem;height:3.75rem">${ph(w.cover)}</div>
         <div class="bd"><div class="tt"><span>${esc(w.title)}</span></div><div class="ss">${esc(cn)} · ${esc(WSTATUS[w.status] || '')}</div>
         <div class="lin"><i style="width:${w.progress}%"></i></div></div><b style="font-size:.875rem">${w.progress}%</b>
         ${unread ? `<span class="nbadge" title="Messaggi nuovi dal cliente">${unread}</span>` : ''}</a>`;
@@ -131,18 +131,95 @@
       mount(root) {
         root.addEventListener('click', async (e) => {
           if (!e.target.closest('[data-neww]')) return;
-          if (!A.D.clients.length) { A.toast("Crea prima l'account del cliente."); location.hash = '#/admin/clienti'; return; }
+          if (!A.D.clients.length) { A.toast("Crea prima l'account del cliente."); MIRO.go('admin/clienti'); return; }
           const w = { id: newId(), clientId: A.D.clients[0].id, title: 'Nuovo cantiere', address: '', start: '', end: '', status: 'preparazione', progress: 0,
             phase: '', description: '', cover: '', steps: [], updates: [] };
           try {
             const r = await A.call('admin.worksite', { value: w });
             setWorksite(r.worksite);
-            location.hash = '#/admin/cantieri?id=' + encodeURIComponent(w.id);
+            MIRO.go('admin/cantieri?id=' + encodeURIComponent(w.id));
           } catch (x) { A.toast(x.message, true); }
         });
       },
     };
   };
+
+  /** Resoconto del cantiere in una pagina A4 da stampare o salvare come PDF. */
+  function worksiteReport(w) {
+    const c = A.D.content;
+    const k = c.contacts || {};
+    const client = A.D.clients.find((x) => x.id === w.clientId);
+    const abs = (u) => (u ? new URL(u, document.baseURI).href : '');
+    const d = (iso) => A.fmtD(iso, { day: 'numeric', month: 'long', year: 'numeric' });
+    const updates = [...(w.updates || [])].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 6);
+    const files = [...w.files].sort((a, b) => b.uploadedAt.localeCompare(a.uploadedAt));
+    const facts = [['Cliente', client?.name], ['Indirizzo', w.address], ['Stato', WSTATUS[w.status]], ['Fase attuale', w.phase], ['Inizio lavori', w.start], ['Fine prevista', w.end]]
+      .filter(([, v]) => v);
+    const html = `<!DOCTYPE html><html lang="it"><head><meta charset="utf-8"><title>Resoconto · ${esc(w.title)}</title>
+      <link rel="stylesheet" href="${abs('assets/fonts/fonts.css')}">
+      <style>
+        @page { size: A4; margin: 16mm 15mm; }
+        * { box-sizing: border-box; }
+        body { margin: 0; font-family: 'DM Sans', Arial, sans-serif; color: #2B2522; font-size: 10.5pt; line-height: 1.5; }
+        .page { max-width: 180mm; margin: 0 auto; padding: 10mm 0; }
+        .bar { position: sticky; top: 0; background: #F4EEE4; padding: 10px; text-align: center; font: 600 14px 'DM Sans', sans-serif; }
+        .bar button { font: inherit; padding: 9px 18px; border-radius: 30px; border: 0; background: #CD5C5C; color: #fff; cursor: pointer; }
+        @media print { .bar { display: none; } .page { padding: 0; } }
+        header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #CD5C5C; padding-bottom: 5mm; }
+        .brand { display: flex; align-items: center; gap: 3mm; font-family: Fraunces, Georgia, serif; font-size: 16pt; font-weight: 600; }
+        .brand small { display: block; font-family: 'DM Sans', sans-serif; font-size: 8pt; font-weight: 500; color: #7D6C64; }
+        .contacts { text-align: right; font-size: 8.5pt; color: #7D6C64; }
+        h1 { font-family: Fraunces, Georgia, serif; font-weight: 500; font-size: 22pt; line-height: 1.1; margin: 7mm 0 1mm; }
+        h2 { font-family: Fraunces, Georgia, serif; font-weight: 500; font-size: 13pt; margin: 7mm 0 2.5mm; break-after: avoid; }
+        .muted { color: #7D6C64; }
+        .facts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2mm 6mm; margin-top: 4mm; }
+        .facts span { display: block; font-size: 7.5pt; text-transform: uppercase; letter-spacing: .08em; color: #7D6C64; }
+        .prog { display: flex; align-items: center; gap: 4mm; margin-top: 5mm; }
+        .prog b { font-family: Fraunces, Georgia, serif; font-size: 20pt; font-weight: 500; }
+        .track { flex: 1; height: 3mm; border-radius: 3mm; background: #EBE2D4; overflow: hidden; }
+        .track i { display: block; height: 100%; background: #CD5C5C; }
+        ul { margin: 0; padding: 0; list-style: none; }
+        .steps li { padding: 1.4mm 0; border-bottom: 1px solid #EBE2D4; display: flex; gap: 3mm; }
+        .steps .ck { width: 4mm; height: 4mm; border-radius: 50%; border: 1.3px solid #B4A79C; flex: none; margin-top: .6mm; text-align: center; font-size: 7pt; line-height: 3.6mm; color: #fff; }
+        .steps .done .ck { background: #2E7D4F; border-color: #2E7D4F; }
+        .steps small { margin-left: auto; color: #7D6C64; }
+        .upd { break-inside: avoid; padding: 3mm 0; border-bottom: 1px solid #EBE2D4; }
+        .upd .d { font-size: 8pt; color: #7D6C64; }
+        .upd b { display: block; font-size: 11pt; }
+        .upd p { margin: 1mm 0 0; white-space: pre-line; }
+        .photos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2mm; margin-top: 2.5mm; }
+        .photos img { width: 100%; aspect-ratio: 4/3; object-fit: cover; border-radius: 2mm; }
+        .docs li { display: flex; gap: 4mm; padding: 1.4mm 0; border-bottom: 1px solid #EBE2D4; }
+        .docs li span:last-child { margin-left: auto; color: #7D6C64; font-size: 9pt; text-align: right; }
+        footer { margin-top: 8mm; padding-top: 3mm; border-top: 1px solid #EBE2D4; font-size: 8pt; color: #7D6C64; display: flex; justify-content: space-between; }
+      </style></head><body>
+      <div class="bar"><button onclick="print()">Stampa o salva come PDF</button></div>
+      <div class="page">
+        <header><div class="brand"><svg width="34" height="34" viewBox="0 0 100 100"><rect width="100" height="100" rx="26" fill="#CD5C5C"/>
+          <path d="M22 74V47L36 30L50 47L64 30L78 47V74M50 62V74" fill="none" stroke="#fff" stroke-width="8" stroke-linejoin="round" stroke-linecap="round"/></svg>
+          <div>${esc(c.shortName || c.companyName)}<small>${esc(c.companyName)}</small></div></div>
+          <div class="contacts">${[k.address, k.phone, k.email].filter(Boolean).map(esc).join('<br>')}</div></header>
+        <div class="muted" style="margin-top:6mm">Resoconto del cantiere · ${esc(d(new Date().toISOString()))}</div>
+        <h1>${esc(w.title)}</h1>
+        <div class="facts">${facts.map(([l, v]) => `<div><span>${esc(l)}</span>${esc(v)}</div>`).join('')}</div>
+        <div class="prog"><b>${w.progress}%</b><div class="track"><i style="width:${w.progress}%"></i></div></div>
+        ${w.description ? `<p style="margin-top:5mm;white-space:pre-line">${esc(w.description)}</p>` : ''}
+        ${(w.steps || []).length ? `<h2>Fasi</h2><ul class="steps">${w.steps.map((s) => `<li class="${s.done ? 'done' : ''}"><span class="ck">${s.done ? '✓' : ''}</span>
+          ${esc(s.title)}<small>${esc(s.date || '')}</small></li>`).join('')}</ul>` : ''}
+        ${updates.length ? `<h2>Ultimi aggiornamenti</h2>${updates.map((u) => `<div class="upd"><span class="d">${esc(d(u.date))}</span><b>${esc(u.title)}</b>
+          ${u.text ? `<p>${esc(u.text)}</p>` : ''}${u.photos?.length ? `<div class="photos">${u.photos.slice(0, 3).map((p) => `<img src="${esc(abs(p))}" alt="">`).join('')}</div>` : ''}</div>`).join('')}` : ''}
+        ${files.length ? `<h2>Documenti</h2><ul class="docs">${files.map((f) => `<li><span>${esc(f.name)}</span><span>${esc(d(f.uploadedAt))}${f.approvalRequested
+          ? `<br>${f.approvedAt ? 'Approvato il ' + esc(A.fmtDT(f.approvedAt)) : 'In attesa di approvazione'}` : ''}</span></li>`).join('')}</ul>` : ''}
+        <footer><span>${esc([c.companyName, k.vat].filter(Boolean).join(' · '))}</span><span>${esc(location.host)}</span></footer>
+      </div>
+      <script>Promise.all([...document.images].map((i) => i.complete ? 0 : new Promise((r) => { i.onload = i.onerror = r; })))
+        .then(() => document.fonts.ready).then(() => setTimeout(print, 300));<\/script></body></html>`;
+    const win = window.open('', '_blank');
+    if (!win) { A.toast('Il browser ha bloccato la nuova finestra: consenti i popup per questo sito.', true); return; }
+    win.document.open();
+    win.document.write(html);
+    win.document.close();
+  }
 
   function worksiteEditor(w) {
     const dataFields = ['clientId', 'title', 'address', 'start', 'end', 'status', 'progress', 'phase', 'description', 'cover', 'steps'];
@@ -185,7 +262,10 @@
 
     const filesPanel = () => A.panel('Documenti', 'Preventivi, contratti, planimetrie, foto: il cliente li scarica dalla sua area.',
       w.files.length ? w.files.map((f) => `<div class="li" style="cursor:default" data-f="${esc(f.id)}">${ms(MIRO.fileIcon(f.name))}
-        <span class="bd"><div>${esc(f.name)}</div><div class="t2">${esc([A.fmtD(f.uploadedAt), MIRO.sizeLabel(f.size), f.note].filter(Boolean).join(' · '))}</div></span>
+        <span class="bd"><div>${esc(f.name)}${!f.approvalRequested ? ''
+          : f.approvedAt ? ` <span class="pill-s" style="color:#2E7D4F;background:#2E7D4F1F">Approvato il ${esc(A.fmtDT(f.approvedAt))}</span>`
+            : ' <span class="pill-s" style="color:#C77A12;background:#C77A121F">Da approvare</span>'}</div>
+          <div class="t2">${esc([A.fmtD(f.uploadedAt), MIRO.sizeLabel(f.size), f.note].filter(Boolean).join(' · '))}</div></span>
         <button class="ib" data-fmenu>${ms('more_vert')}</button></div>`).join('') : '<p class="hint">Nessun documento caricato.</p>',
       `<div class="achips"><button class="b fill" id="upf">${ms('upload_file')}Carica file</button><button class="b out" id="linkf">${ms('link')}Da indirizzo</button></div>`);
 
@@ -199,8 +279,9 @@
 
     function draw(root, keepDirty = false) {
       const cn = A.D.clients.find((c) => c.id === w.clientId)?.name || '';
-      root.innerHTML = `<div class="adm-scroll"><div class="adm-inner"><a class="b text" href="#/admin/cantieri" style="margin-bottom:.5rem">${ms('arrow_back')}Tutti i cantieri</a>
-        ${A.header(w.title, cn, `<button class="b text danger" id="delw">${ms('delete')}Elimina cantiere</button>`)}
+      root.innerHTML = `<div class="adm-scroll"><div class="adm-inner"><a class="b text" href="admin/cantieri" style="margin-bottom:.5rem">${ms('arrow_back')}Tutti i cantieri</a>
+        ${A.header(w.title, cn, `<button class="b out" id="pdfw">${ms('picture_as_pdf')}Resoconto PDF</button>
+          <button class="b text danger" id="delw">${ms('delete')}Elimina cantiere</button>`)}
         <div id="dp">${dataPanel()}</div><div id="up">${updatesPanel()}</div><div id="fp">${filesPanel()}</div><div id="mp">${messagesPanel()}</div></div></div>${A.saveBar()}`;
       const bar = $('#savebar', root);
       const dirty = () => bar.classList.add('on');
@@ -313,6 +394,13 @@
                 redrawF();
               } }] });
           }],
+          [f.approvalRequested ? "Togli la richiesta d'approvazione" : "Chiedi l'approvazione al cliente", async () => {
+            if (f.approvalRequested && f.approvedAt && !(await A.confirm(`«${f.name}» è già stato approvato il ${A.fmtDT(f.approvedAt)}. Togliere l'approvazione registrata?`, { confirm: 'Togli' }))) return;
+            const r = await A.call('admin.file.approval', { id: f.id, worksiteId: w.id, on: !f.approvalRequested });
+            Object.assign(w, r.worksite);
+            redrawF();
+            A.toast(f.approvalRequested ? 'Richiesta tolta.' : 'Il cliente vedrà il pulsante "Approvo" accanto al documento.');
+          }],
           ['Scarica', () => window.open(f.url, '_blank')],
           ['Elimina', async () => {
             if (!(await A.confirm(`Eliminare "${f.name}"?`))) return;
@@ -380,9 +468,15 @@
       if (!(await A.confirm(`Eliminare il cantiere "${w.title}" con documenti e messaggi?`))) return;
       await A.call('admin.worksite.delete', { id: w.id });
       A.D.worksites = A.D.worksites.filter((x) => x.id !== w.id);
-      location.hash = '#/admin/cantieri';
+      MIRO.go('admin/cantieri');
     };
-    return { raw: true, mount(root) { draw(root); root.addEventListener('click', (e) => { if (e.target.closest('#delw')) del(); }); } };
+    return { raw: true, mount(root) {
+      draw(root);
+      root.addEventListener('click', (e) => {
+        if (e.target.closest('#delw')) del();
+        if (e.target.closest('#pdfw')) worksiteReport(w);
+      });
+    } };
   }
 
   // ================================================================ PROGETTI
@@ -693,7 +787,12 @@
           const mv = e.target.closest('[data-mv]');
           if (mv) { const [k, i, dir] = mv.dataset.mv.split(':'); A.moveItem(A.getPath(d, k), +i, +i + +dir); redraw(); return; }
           const rm = e.target.closest('[data-rm]');
-          if (rm) { const [k, i] = rm.dataset.rm.split(':'); A.getPath(d, k).splice(+i, 1); redraw(); }
+          if (rm) { const [k, i] = rm.dataset.rm.split(':'); A.getPath(d, k).splice(+i, 1); redraw(); return; }
+          if (e.target.closest('[data-legal]')) {
+            d.privacyText = (d.privacyText || '').trim() || MIRO.legalDefault('privacy', d);
+            d.cookieText = (d.cookieText || '').trim() || MIRO.legalDefault('cookie', d);
+            redraw();
+          }
         });
       },
     });
@@ -701,7 +800,7 @@
 
   A.pages.home = () => contentPage('Pagina Home', 'I testi della prima pagina. Le foto della prima schermata sono le copertine dei progetti in evidenza.', (d) =>
     A.panel('Prima schermata', '', `<div class="stack">${f('Etichetta', 'heroKicker', d)}${f('Titolo', 'heroTitle', d, { area: true, rows: 3, help: TITLE_HELP })}
-      ${f('Sottotitolo', 'heroSubtitle', d, { area: true, rows: 3 })}</div>`, `<a class="b text" href="#/admin/progetti">${ms('star_outline')}Scegli i progetti in evidenza</a>`)
+      ${f('Sottotitolo', 'heroSubtitle', d, { area: true, rows: 3 })}</div>`, `<a class="b text" href="admin/progetti">${ms('star_outline')}Scegli i progetti in evidenza</a>`)
     + A.panel('Presentazione e numeri', 'I numeri "contano" fino al valore quando compaiono (es. 420+, 180k).', `<div class="stack">${f('Etichetta', 'introKicker', d)}
       ${f('Titolo', 'introTitle', d, { area: true, rows: 3, help: TITLE_HELP })}${f('Testo', 'introText', d, { area: true, rows: 5 })}</div>
       <div style="margin-top:1.375rem">${highlights(d, 'stats', 'Numero', 'Descrizione', 'Aggiungi numero')}</div>`)
@@ -709,7 +808,7 @@
       ${f('Titolo', 'projectsTitle', d, { area: true, rows: 3, help: TITLE_HELP })}${f('Testo', 'projectsText', d, { area: true, rows: 3 })}</div>`)
     + A.panel('Pagina Servizi', 'Il titolo e il testo in cima alla pagina Servizi.', `<div class="stack">${f('Etichetta', 'servicesKicker', d)}
       ${f('Titolo', 'servicesTitle', d, { area: true, rows: 3, help: TITLE_HELP })}${f('Testo', 'servicesText', d, { area: true, rows: 3 })}</div>`,
-      `<a class="b text" href="#/admin/servizi">${ms('construction')}Gestisci i servizi</a>`)
+      `<a class="b text" href="admin/servizi">${ms('construction')}Gestisci i servizi</a>`)
     + A.panel('Nastro scorrevole', 'Le parole che scorrono a tutta larghezza.', A.stringList('ticker', d.ticker || [], 'Nuova parola')), ['ticker']);
 
   A.pages.azienda = () => contentPage('Azienda', 'Storia, valori, tappe e persone della pagina Azienda.', (d) =>
@@ -735,7 +834,13 @@
       <div class="frow-a" style="--n:3">${f('Instagram (link)', 'contacts.instagram', d)}${f('Facebook (link)', 'contacts.facebook', d)}${f('LinkedIn (link)', 'contacts.linkedin', d)}</div></div>`)
     + A.panel('Pagina e modulo contatti', '', `<div class="stack">${f('Titolo', 'contactTitle', d, { area: true, rows: 3, help: TITLE_HELP })}
       ${f('Testo', 'contactText', d, { area: true, rows: 3 })}<div class="subh" style="margin:0">Tipi di lavoro (scelta nel modulo)</div>
-      ${A.stringList('requestTypes', d.requestTypes || [], 'Nuovo tipo')}</div>`)
-    + A.panel('Categorie dei progetti', "L'ordine dei filtri nella pagina Progetti.", A.stringList('categories', d.categories || [], 'Nuova categoria')),
-  ['requestTypes', 'categories']);
+      ${A.stringList('requestTypes', d.requestTypes || [], 'Nuovo tipo')}
+      <div class="subh" style="margin:0">Quando vorresti iniziare? (scelta nel modulo)</div>
+      ${A.stringList('timings', d.timings || [], 'Nuova voce (es. "Entro 3 mesi")')}</div>`)
+    + A.panel('Categorie dei progetti', "L'ordine dei filtri nella pagina Progetti.", A.stringList('categories', d.categories || [], 'Nuova categoria'))
+    + A.panel('Privacy e cookie', 'I testi delle pagine Privacy e Cookie. Se li lasci vuoti il sito mostra un testo di base con i dati qui sopra: fallo verificare dal tuo consulente.',
+      `<div class="stack">${f('Informativa sulla privacy', 'privacyText', d, { area: true, rows: 8, help: 'Le righe che iniziano con "## " diventano titoletti.' })}
+        ${f('Informativa sui cookie', 'cookieText', d, { area: true, rows: 6 })}
+        <div><button type="button" class="b out" data-legal>${ms('description')}Parti dal testo di base</button></div></div>`),
+  ['requestTypes', 'timings', 'categories']);
 })();

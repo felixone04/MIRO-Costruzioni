@@ -33,6 +33,20 @@ $config = [
     // il limite del server (upload_max_filesize: su Hostinger si cambia da
     // hPanel → Avanzate → Configurazione PHP).
     'documento_max_mb' => 20,
+
+    // Casella dell'azienda da cui partono gli avvisi (nuove richieste, messaggi,
+    // aggiornamenti ai clienti). Si compila in inc/config.local.php: finché è
+    // vuota il sito non manda email.
+    'email' => [
+        'host'      => '',      // server di invio, es. smtp.hostinger.com
+        'porta'     => 465,     // 465 con 'ssl', 587 con 'tls'
+        'sicurezza' => 'ssl',
+        'utente'    => '',      // di solito l'indirizzo completo
+        'password'  => '',
+        'mittente'  => '',      // indirizzo da cui partono le email
+        'nome'      => '',      // nome mostrato (vuoto = ragione sociale)
+        'avvisi'    => '',      // dove ricevere gli avvisi (vuoto = mittente)
+    ],
 ];
 
 if (is_file(__DIR__ . '/config.local.php')) {
