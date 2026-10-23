@@ -26,6 +26,10 @@
 
 *, *::before, *::after { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; scroll-behavior: auto; }
+/* Barre di scorrimento invisibili ovunque (si scorre comunque con rotella, tocco e tastiera):
+   così la pagina non si restringe quando compare il contenuto e il logo d'apertura resta fermo. */
+* { scrollbar-width: none; }
+*::-webkit-scrollbar { display: none; }
 body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--sans); font-size: 1rem; line-height: 1.65;
   -webkit-font-smoothing: antialiased; overflow-x: hidden; }
 img { display: block; max-width: 100%; }

@@ -52,6 +52,7 @@ header('Content-Type: text/html; charset=utf-8');
       font-size: clamp(12px, 3vw, 15px); color: rgba(59,43,39,.65); }
     #splash .bar { width: min(180px, 46vw); height: 3px; border-radius: 3px; margin-top: 38px; background: rgba(59,43,39,.12); overflow: hidden; }
     #splash .bar b { display: block; height: 100%; background: #CD5C5C; border-radius: 3px; transform-origin: left; transform: scaleX(0); animation: sp-fill 1.6s ease-in-out forwards; }
+    #splash.wait .name { animation-play-state: paused; } /* la scritta parte quando c'è il suo carattere */
     @keyframes sp-show { to { opacity: 1; transform: none; } }
     @keyframes sp-pop { to { transform: scale(1); } }
     @keyframes sp-draw { to { stroke-dashoffset: 0; } }
@@ -69,6 +70,17 @@ header('Content-Type: text/html; charset=utf-8');
     </div>
     <div class="bar"><b></b></div>
   </div>
+  <script>
+    // Niente cambio di carattere a metà animazione: aspetta Fraunces (al massimo 0,8 secondi).
+    (function () {
+      var s = document.getElementById('splash');
+      if (!document.fonts || !document.fonts.load) return;
+      s.classList.add('wait');
+      var go = function () { s.classList.remove('wait'); };
+      document.fonts.load('500 1em Fraunces').then(go, go);
+      setTimeout(go, 800);
+    })();
+  </script>
 
   <div id="app"></div>
   <noscript>
