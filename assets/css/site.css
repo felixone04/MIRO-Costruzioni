@@ -118,12 +118,12 @@ h1, h2, h3 { margin: 0; font-weight: 400; }
 .parallax.fill { height: 100%; }
 
 /* ------------------------------------------------------------ intestazione */
+/* Sempre visibile e senza un fondo proprio: dietro si vede il sito, appena sfocato perché le voci restino leggibili. */
 .header { position: fixed; top: 0; left: 0; right: 0; height: var(--nav-h); z-index: 50; display: flex; align-items: center;
-  padding: 0 var(--gutter); background: var(--paper); border-bottom: 1px solid var(--line);
-  transition: top .42s var(--ease-cubic), background-color .35s, border-color .35s; }
-.header.hidden { top: calc(-1 * var(--nav-h) - 4px); }
-.header.clear { background: linear-gradient(rgba(0,0,0,.35), rgba(0,0,0,0)); border-color: transparent; }
-.header.menu-open { border-color: transparent; }
+  padding: 0 var(--gutter); background: color-mix(in srgb, var(--paper) 55%, transparent);
+  -webkit-backdrop-filter: blur(16px) saturate(1.4); backdrop-filter: blur(16px) saturate(1.4); transition: background-color .35s; }
+.header.clear { background: linear-gradient(rgba(0,0,0,.35), rgba(0,0,0,0)); -webkit-backdrop-filter: none; backdrop-filter: none; }
+.header.menu-open { background: var(--paper); }
 .header .sp { flex: 1; }
 .nav { display: flex; align-items: center; gap: 2.125rem; }
 .nav .hl { font-size: .9375rem; font-weight: 500; letter-spacing: .02em; color: var(--ink); }
