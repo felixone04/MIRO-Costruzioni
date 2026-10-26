@@ -2,18 +2,18 @@
   "content": {
     "companyName": "M.I.R.O. Costruzioni",
     "shortName": "M.I.R.O.",
-    "tagline": "Costruzioni, ristrutturazioni e restauri a Bari",
+    "tagline": "Costruzioni, ristrutturazioni e restauri ad Andria",
     "logo": "",
-    "footerText": "Impresa edile a Bari dal 1987. Costruiamo case, uffici e capannoni, ristrutturiamo e restauriamo con le nostre squadre.",
-    "heroKicker": "Impresa edile a Bari dal 1987",
+    "footerText": "Impresa edile ad Andria dal 2000. Costruiamo case, uffici e capannoni, ristrutturiamo e restauriamo con le nostre squadre.",
+    "heroKicker": "Impresa edile ad Andria dal 2000",
     "heroTitle": "Case fatte bene,\nda chi le costruisce.",
-    "heroSubtitle": "Costruiamo, ristrutturiamo e restauriamo in Puglia da tre generazioni, con le nostre squadre e un solo referente dall'inizio alla fine.",
+    "heroSubtitle": "Costruiamo, ristrutturiamo e restauriamo in Puglia da oltre vent'anni, con le nostre squadre e un solo referente dall'inizio alla fine.",
     "introKicker": "Chi siamo",
     "introTitle": "Un'impresa di famiglia,\ncresciuta in cantiere.",
     "introText": "Siamo partiti con tre operai e una betoniera presa in prestito. Oggi seguiamo case, condomini, uffici e capannoni, ma lavoriamo ancora come allora: tempi scritti nel contratto, prezzi chiari e la stessa squadra dal primo giorno alla consegna delle chiavi.",
     "stats": [
       {
-        "title": "38",
+        "title": "26",
         "text": "anni di lavoro"
       },
       {
@@ -45,7 +45,7 @@
     ],
     "aboutKicker": "Azienda",
     "aboutTitle": "La nostra\nstoria.",
-    "aboutIntro": "Dal 1987 progettiamo e costruiamo con la stessa squadra: ingegneri, geometri e muratori che si conoscono da anni.",
+    "aboutIntro": "Dal 2000 progettiamo e costruiamo con la stessa squadra: ingegneri, geometri e muratori che si conoscono da anni.",
     "aboutText": "Tutto è iniziato con Michele Romano, muratore e poi capocantiere, e una betoniera presa in prestito. Oggi siamo più di sessanta, abbiamo i nostri mezzi e un ufficio tecnico interno, ma le decisioni importanti si prendono ancora in cantiere.\n\nIl nome raccoglie le iniziali di quattro parole a cui teniamo: Metodo, Integrità, Responsabilità, Opera.",
     "aboutImage": "https://images.unsplash.com/photo-1626885930974-4b69aa21bbf9?auto=format&fit=crop&w=1600&q=80",
     "aboutImage2": "https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=1600&q=80",
@@ -69,22 +69,22 @@
     ],
     "timeline": [
       {
-        "year": "1987",
+        "year": "2000",
         "title": "La prima betoniera",
-        "text": "Michele Romano fonda l'impresa con tre operai e un cantiere a Bari."
+        "text": "Michele Romano fonda l'impresa con tre operai e un cantiere ad Andria."
       },
       {
-        "year": "1998",
+        "year": "2004",
         "title": "Il primo condominio",
         "text": "Ventiquattro alloggi consegnati in anticipo: nasce l'ufficio tecnico."
       },
       {
-        "year": "2009",
+        "year": "2011",
         "title": "Restauro e recupero",
         "text": "Una squadra dedicata ai centri storici e ai beni vincolati."
       },
       {
-        "year": "2016",
+        "year": "2018",
         "title": "Certificazioni",
         "text": "ISO 9001, ISO 45001 e attestazione SOA per gli appalti pubblici."
       },
@@ -128,11 +128,11 @@
       "White list Prefettura"
     ],
     "contacts": {
-      "phone": "+39 080 123 4567",
+      "phone": "+39 0883 123 456",
       "whatsapp": "+39 333 123 4567",
       "email": "info@mirocostruzioni.it",
       "pec": "mirocostruzioni@pec.it",
-      "address": "Via delle Fornaci 18, 70126 Bari",
+      "address": "Via Castel del Monte 85, 76123 Andria (BT)",
       "hours": "Lun–Ven 8:00–13:00 · 14:30–18:30",
       "instagram": "https://instagram.com/",
       "facebook": "https://facebook.com/",
