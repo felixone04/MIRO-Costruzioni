@@ -677,7 +677,7 @@
   ],
   "demoClient": {
     "id": "c-demo",
-    "name": "Famiglia Lorusso",
+    "name": "Famiglia Matera",
     "email": "demo@mirocostruzioni.it",
     "phone": "+39 333 765 4321",
     "notes": "Cliente di prova: si può eliminare.",
@@ -692,7 +692,7 @@
     {
       "id": "w-demo",
       "clientId": "c-demo",
-      "title": "Casa Lorusso, ristrutturazione",
+      "title": "Casa Matera, ristrutturazione",
       "address": "Via Sparano 41, Bari",
       "start": "12 gennaio 2026",
       "end": "Giugno 2026",
@@ -758,8 +758,8 @@
           "id": "hngzodih0h9djiu",
           "name": "Cronoprogramma.txt",
           "mime": "text/plain",
-          "size": 210,
-          "data": "data:text/plain;base64,Q2FzYSBMb3J1c3NvIC0gY3Jvbm9wcm9ncmFtbWEKCkRlbW9saXppb25pOiBjb21wbGV0YXRlCkltcGlhbnRpOiBpbiBjb3JzbywgZmluZSBwcmV2aXN0YSB0cmEgZHVlIHNldHRpbWFuZQpNYXNzZXR0aSBlIHBhdmltZW50aTogYSBzZWd1aXJlCkZpbml0dXJlIGUgcHVsaXppYTogdWx0aW1lIGR1ZSBzZXR0aW1hbmUK",
+          "size": 179,
+          "data": "data:text/plain;base64,Q2FzYSBNYXRlcmEgLSBjcm9ub3Byb2dyYW1tYQoKRGVtb2xpemlvbmk6IGNvbXBsZXRhdGUKSW1waWFudGk6IGluIGNvcnNvLCBmaW5lIHByZXZpc3RhIHRyYSBkdWUgc2V0dGltYW5lCk1hc3NldHRpIGUgcGF2aW1lbnRpOiBhIHNlZ3VpcmUKRmluaXR1cmUgZSBwdWxpemlhOiB1bHRpbWUgZHVlIHNldHRpbWFuZQo=",
           "note": "Aggiornato a questa settimana.",
           "uploadedAt": "2026-10-21T08:17:59.126945"
         },
@@ -767,8 +767,8 @@
           "id": "hngzodih0hajwgp",
           "name": "Capitolato.txt",
           "mime": "text/plain",
-          "size": 160,
-          "data": "data:text/plain;base64,Q2FwaXRvbGF0byBsYXZvcmkgLSBDYXNhIExvcnVzc28KClBhdmltZW50aTogZ3JlcyBlZmZldHRvIGxlZ25vIDIweDEyMApCYWduaTogc2FuaXRhcmkgc29zcGVzaSwgZG9jY2lhIGEgZmlsbyBwYXZpbWVudG8KU2VycmFtZW50aTogUFZDIGJpYW5jbyBjb24gdmV0cm9jYW1lcmEK",
+          "size": 158,
+          "data": "data:text/plain;base64,Q2FwaXRvbGF0byBsYXZvcmkgLSBDYXNhIE1hdGVyYQoKUGF2aW1lbnRpOiBncmVzIGVmZmV0dG8gbGVnbm8gMjB4MTIwCkJhZ25pOiBzYW5pdGFyaSBzb3NwZXNpLCBkb2NjaWEgYSBmaWxvIHBhdmltZW50bwpTZXJyYW1lbnRpOiBQVkMgYmlhbmNvIGNvbiB2ZXRyb2NhbWVyYQo=",
           "note": "Materiali e finiture scelti insieme.",
           "uploadedAt": "2026-09-23T08:17:59.126945"
         }

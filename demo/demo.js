@@ -35,13 +35,9 @@
   let S;
   try { S = JSON.parse(localStorage.getItem(KEY)) || fresh(); } catch { S = fresh(); }
   // Se i contenuti di esempio sono cambiati (nuova versione del sito), chi aveva già
-  // aperto l'anteprima vede i testi nuovi; clienti, cantieri e richieste restano.
-  const seedVersion = [...JSON.stringify([seed.content, seed.projects, seed.services, seed.testimonials])]
-    .reduce((h, ch) => (h * 31 + ch.charCodeAt(0)) | 0, 7);
-  if (S.seedVersion !== seedVersion) {
-    Object.assign(S, { content: clone(seed.content), projects: clone(seed.projects), services: clone(seed.services), testimonials: clone(seed.testimonials) });
-    S.seedVersion = seedVersion;
-  }
+  // aperto l'anteprima riparte da quelli nuovi; resta solo la password del gestionale.
+  const seedVersion = [...JSON.stringify(seed)].reduce((h, ch) => (h * 31 + ch.charCodeAt(0)) | 0, 7);
+  if (S.seedVersion !== seedVersion) S = { ...fresh(), adminPassword: S.adminPassword ?? null, admin: !!S.admin, seedVersion };
   const save = () => {
     try { localStorage.setItem(KEY, JSON.stringify(S)); } catch {
       throw fail('Spazio del browser esaurito: in anteprima foto e documenti restano nel browser. Elimina qualche file o ripristina i contenuti di esempio.', 507);
