@@ -25,7 +25,7 @@ Su telefono e tablet un pulsante **WhatsApp** fisso in basso a destra apre la ch
 3. **Credenziali** – in `public_html/inc/` copia `config.local.example.php` come **`config.local.php`** e inserisci i dati del database. Questo file resta solo sul server e non va su GitHub.
 4. **PHP** – hPanel → *Avanzate* → *Configurazione PHP*: versione **8.1 o superiore** (estensioni `pdo_mysql` e `gd` attive, lo sono di default). Per caricare documenti grandi alza `upload_max_filesize` e `post_max_size` (es. 25M): il limite del sito è 20 MB per file (`inc/config.php`).
 5. **Dominio e HTTPS** – collega il dominio in hPanel e attiva il certificato SSL gratuito: `.htaccess` porta automaticamente tutto su `https://`.
-6. Apri `https://tuodominio.it/admin`: al **primo accesso** scegli la password del gestionale. Le tabelle (prefisso `miro_`) e i contenuti di esempio si creano da soli alla prima visita.
+6. Apri `https://tuodominio.it/admin` ed entra con la **password iniziale `admin123`**, poi **cambiala subito** da Impostazioni (finché non lo fai la Panoramica te lo ricorda; la password iniziale si può cambiare anche in `inc/config.php`, prima del primo avvio). Le tabelle (prefisso `miro_`) e i contenuti di esempio si creano da soli alla prima visita.
 
 7. **Google** – da [Google Search Console](https://search.google.com/search-console) aggiungi il dominio e invia la mappa del sito `https://tuodominio.it/sitemap.xml`.
 8. **Email** (quando avrai la casella dell'azienda) – compila la sezione `email` di `inc/config.local.php`: vedi sotto.
@@ -58,7 +58,7 @@ Il sito è già pronto: le email partono dalla casella dell'azienda appena se ne
 **https://felixone04.github.io/MIRO-Costruzioni/** mostra il sito con i contenuti di esempio, per vederne la grafica prima che sia su Hostinger. GitHub Pages non esegue PHP, quindi a ogni push su `master` la GitHub Action `.github/workflows/anteprima.yml` lancia `php demo/build.php` e pubblica una copia statica. In quella copia `demo/demo.js` fa le veci di `api.php` dentro il browser.
 
 - Tutte le pagine, le animazioni e il pulsante "Colori" sono quelli veri.
-- Gestionale e area clienti si possono provare, ma i dati restano **solo nel browser di chi li modifica** (al primo accesso a `/admin` si sceglie una password qualsiasi). Nessun altro vede le modifiche.
+- Gestionale e area clienti si possono provare, ma i dati restano **solo nel browser di chi li modifica** (il gestionale, su `/admin`, si apre con la password `admin123`). Nessun altro vede le modifiche.
 - Nell'anteprima i documenti caricati possono essere al massimo di 1 MB.
 
 La cartella `demo/` serve solo all'anteprima: su Hostinger non va caricata (non fa danni se c'è).
@@ -89,7 +89,7 @@ Sei tavolozze, tre chiare (Sabbia – beige con #CD5C5C –, Calce, Salvia) e tr
 
 ## Gestionale
 
-Al primo accesso (`/admin`, oppure "Area riservata" in fondo al sito) si crea la password. Sezioni:
+Si entra da `/admin` (oppure "Area riservata" in fondo al sito); la password iniziale è `admin123` e va cambiata da Impostazioni. Sezioni:
 
 - **Panoramica**, **Richieste** (dal modulo a passi: tipo di lavoro, comune, superficie, tempi, messaggio, foto dell'immobile ed eventuale progetto di partenza; con stati e "Fissa sopralluogo"), **Calendario** (con Google Calendar)
 - **Clienti** e **Cantieri** – l'area clienti, vedi sopra

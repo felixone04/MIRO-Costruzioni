@@ -488,7 +488,12 @@ const ADM = (() => {
       <div class="t2">${a.allDay ? 'Tutto il giorno' : new Date(a.start).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}</div></span></a>`).join('')
       : A.empty('event_available', 'Nessun appuntamento in programma.'), '<a class="b text" href="admin/calendario">Apri calendario</a>');
     return {
-      html: A.header('Bentornato', 'La situazione di oggi.') + `<div class="stats-a">
+      html: A.header('Bentornato', 'La situazione di oggi.')
+        + (D.defaultPassword ? `<div class="card" style="display:flex;align-items:center;gap:.875rem;flex-wrap:wrap;padding:1rem 1.25rem;margin-bottom:1.375rem;
+          border-left:4px solid #C77A12;border-radius:0 6px 6px 0">${ms('lock_open', '" style="color:#C77A12')}
+          <span style="flex:1;min-width:14rem">Stai usando la <b>password iniziale</b> del gestionale: cambiala prima di mettere il sito online.</span>
+          <a class="b fill sm" href="admin/impostazioni">Cambia password</a></div>` : '')
+        + `<div class="stats-a">
         ${stat('Richieste nuove', nr, 'mark_email_unread', 'richieste', nr ? '#C77A12' : '')}
         ${stat('Prossimi appuntamenti', up.length, 'event', 'calendario')}
         ${stat('Progetti pubblicati', D.projects.filter((p) => p.published !== false).length, 'apartment', 'progetti')}
@@ -889,6 +894,7 @@ const ADM = (() => {
           try {
             await A.call('admin.password', { old: f.old.value, new: f.new.value });
             f.reset();
+            A.D.defaultPassword = false;
             A.toast('Password aggiornata.');
           } catch (x) { A.setError(f.old, x.message); }
         });

@@ -107,6 +107,9 @@ function adesso(): string
  */
 function inizializza(): void
 {
+    if (kv_get('admin') === null) {
+        kv_set('admin', ['hash' => password_hash(config()['password_iniziale'], PASSWORD_DEFAULT), 'iniziale' => true]);
+    }
     if (kv_get('content') !== null) return;
     $seed = json_decode(file_get_contents(__DIR__ . '/seed.json'), true);
     carica_contenuti_esempio($seed);

@@ -28,7 +28,7 @@
       requests: [], appointments: [],
       clients: [{ ...publicClient(seed.demoClient), createdAt: now(), password: seed.demoPassword }],
       worksites: seed.demoWorksites.map((w) => ({ ...clone(w), files: files(w), messages: clone(w.messages || []) })),
-      adminPassword: null, admin: false, clientId: null,
+      adminPassword: 'admin123', admin: false, clientId: null,
     };
   }
 
@@ -37,7 +37,9 @@
   // Se i contenuti di esempio sono cambiati (nuova versione del sito), chi aveva già
   // aperto l'anteprima riparte da quelli nuovi; resta solo la password del gestionale.
   const seedVersion = [...JSON.stringify(seed)].reduce((h, ch) => (h * 31 + ch.charCodeAt(0)) | 0, 7);
-  if (S.seedVersion !== seedVersion) S = { ...fresh(), adminPassword: S.adminPassword ?? null, admin: !!S.admin, seedVersion };
+  if (S.seedVersion !== seedVersion) S = { ...fresh(), adminPassword: S.adminPassword, admin: !!S.admin, seedVersion };
+  // Password iniziale del gestionale, come sul sito vero (impostata una volta anche per chi ne aveva scelta un'altra).
+  if (S.passwordVersion !== 1) Object.assign(S, { adminPassword: 'admin123', passwordVersion: 1 });
   const save = () => {
     try { localStorage.setItem(KEY, JSON.stringify(S)); } catch {
       throw fail('Spazio del browser esaurito: in anteprima foto e documenti restano nel browser. Elimina qualche file o ripristina i contenuti di esempio.', 507);
@@ -69,7 +71,7 @@
       requests: [...S.requests].sort((a, b) => b.createdAt.localeCompare(a.createdAt)), appointments: S.appointments, look: S.look,
       clients: S.clients.map(publicClient), worksites: S.worksites,
     };
-    if (!backup) { d.settings = S.settings; d.mail = { active: false, to: '' }; }
+    if (!backup) { d.settings = S.settings; d.mail = { active: false, to: '' }; d.defaultPassword = S.adminPassword === 'admin123'; }
     return clone(d);
   }
 

@@ -26,6 +26,10 @@ $config = [
         'sqlite'   => __DIR__ . '/../data/miro.sqlite',
     ],
 
+    // Password del gestionale al primo avvio: dopo il primo accesso va cambiata
+    // da Gestionale → Impostazioni (il gestionale lo ricorda finché non lo fai).
+    'password_iniziale' => 'admin123',
+
     // Lato lungo massimo (in pixel) delle foto caricate dal gestionale
     'foto_max_px' => 1800,
 

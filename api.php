@@ -487,6 +487,7 @@ function tutti_i_dati(bool $backup): array
     if (!$backup) {
         $d['settings'] = kv_get('settings', ['googleClientId' => '', 'googleWasConnected' => false]);
         $d['mail'] = ['active' => email_attiva(), 'to' => email_titolare()];
+        $d['defaultPassword'] = !empty(kv_get('admin')['iniziale']);
     }
     return $d;
 }
